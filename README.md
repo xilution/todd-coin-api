@@ -14,14 +14,6 @@ Hot rebuild when `src` changes
 
 `npm run watch`
 
-## To Install todd-coin CLI Locally
-
-`npm install -g .`
-
-## To See todd-coin CLI Commands and Options
-
-`npm run build && todd-coin`
-
 ## To Start the Local Postgres Database
 
 `npm run start-db`

@@ -1,0 +1,44 @@
+{
+  "name": "@xilution/todd-coin-api",
+  "description": "The Todd Coin Cryptocurrency API",
+  "scripts": {
+    "build": "tsc",
+    "docker-build": "docker build -t tbrunia/todd-coin:latest .",
+    "docker-scan": "docker scan tbrunia/todd-coin:latest",
+    "docker-start": "docker-compose -f docker-compose.yml up -d",
+    "docker-restart": "docker-compose -f docker-compose.yml restart",
+    "docker-stop": "docker-compose -f docker-compose.yml down",
+    "docker-logs": "docker-compose logs -f",
+    "clean": "rm -rf ./dist",
+    "format": "prettier --write .",
+    "open": "open http://localhost:3000",
+    "start": "node ./dist/index.js",
+    "watch": "nodemon --watch src -e ts --exec \"npm run build && npm run start\"",
+    "verify": "echo \"nothing to do yet\""
+  },
+  "bin": {
+    "todd-coin": "./dist/cli.js"
+  },
+  "main": "dist/cli.js",
+  "dependencies": {
+    "@hapi/boom": "^9.1.4",
+    "@hapi/hapi": "^20.2.1",
+    "@xilution/todd-coin-brokers": "^1.0.2",
+    "@xilution/todd-coin-constants": "^1.0.3",
+    "@xilution/todd-coin-types": "^1.0.1",
+    "@xilution/todd-coin-utils": "^1.0.3",
+    "joi": "^17.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "ts-japi": "^1.6.1"
+  },
+  "devDependencies": {
+    "@types/hapi__boom": "^9.0.1",
+    "@types/hapi__hapi": "^20.0.10",
+    "@types/lodash": "^4.14.181",
+    "@types/node": "^17.0.23",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1",
+    "typescript": "^4.6.2"
+  }
+}

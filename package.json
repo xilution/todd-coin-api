@@ -3,7 +3,7 @@
   "description": "The Todd Coin Cryptocurrency API",
   "scripts": {
     "build": "tsc",
-    "docker-build": "docker build -t tbrunia/todd-coin:latest .",
+    "docker-build": "docker build --build-arg NPM_TOKEN=$NPM_TOKEN -t tbrunia/todd-coin:latest .",
     "docker-scan": "docker scan tbrunia/todd-coin:latest",
     "docker-start": "docker-compose -f docker-compose.yml up -d",
     "docker-restart": "docker-compose -f docker-compose.yml restart",

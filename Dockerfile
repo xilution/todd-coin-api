@@ -1,6 +1,10 @@
 # syntax=docker/dockerfile:1
 FROM node:16.14.2-alpine
 
+ARG NPM_TOKEN
+
+RUN echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > ~/.npmrc
+
 WORKDIR /build
 
 COPY . .

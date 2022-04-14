@@ -1,33 +1,27 @@
 # todd-coin-api
 
+Todd Coin is a Cryptocurrency for Good.
+
+This is the Todd Coin Application Programming Interface (API)
+
+The Todd Coin API adheres to the [JSON API](https://jsonapi.org/format/) standard.
+
 ## First Things First
 
 `npm install`
 
-## To Build
+## To Build the Docker Image
 
-`npm run build`
+`npm run docker-build`
 
-## To Watch
+## To Start the Database and 5 API Nodes
 
-Hot rebuild when `src` changes
+`npm run docker-start`
 
-`npm run watch`
+## To Stop the Database and 5 API Nodes
 
-## To Start the Local Postgres Database
+`npm run docker-stop`
 
-`npm run start-db`
+## To View Database and Node Logs
 
-## To Stop the Local Postgres Database
-
-`npm run stop-db`
-
-## To Run the todd-coin Node locally
-
-Note: the Todd Coin api will try to connect to a running PostgresDB instance.
-
-`npm run build && npm run start`
-
-or
-
-`npm run watch`
+`npm run docker-logs`

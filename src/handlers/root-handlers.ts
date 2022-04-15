@@ -15,7 +15,7 @@ export const getRoot =
       data: {
         attributes: {
           // todo - add server start time, location, etc.
-          description: "I'm a todd-coin node.",
+          description: "I'm a Todd Coin Cryptocurrency Node. Todd Coin is a Cryptocurrency for Good.",
           authentication: `To authenticate, post your private key {"privateKey": "your-private-key"} to ${apiBaseUrl}/auth/token. Then, include the accessToken property returned with the response in the authentication header (ex: authentication: bearer your-access-token) of each subsequent request to the Todd Coin API. The access token expires in 60 minutes.`,
         },
         relationships: {

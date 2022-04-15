@@ -63,7 +63,7 @@ export const authenticationScheme =
       if (Math.floor(Date.now() / 1000) > exp) {
         return h
           .response({
-            errors: buildUnauthorizedError("Token is expired"),
+            errors: buildUnauthorizedError("Token is expired."),
           })
           .code(401)
           .takeover();

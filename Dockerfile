@@ -9,11 +9,11 @@ WORKDIR /build
 
 COPY . .
 
-RUN npm install
+RUN npm ci
 RUN npm run verify
 RUN npm run build
 RUN rm -rf node_modules
-RUN npm install --production
+RUN npm ci --production --ignore-scripts
 
 FROM node:16.14.2-alpine
 

@@ -1,9 +1,6 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
-import {
-  ApiData,
-  ApiSettings,
-} from "../types";
+import { ApiData, ApiSettings } from "../types";
 import {
   buildBlockSerializer,
   buildBlocksSerializer,
@@ -19,20 +16,22 @@ import {
 } from "./error-utils";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
-import {Block, Participant, Transaction} from "@xilution/todd-coin-types";
+import { Block, Participant, Transaction } from "@xilution/todd-coin-types";
 
 export const getBlocksValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -50,7 +49,7 @@ export const getBlocksRequestHandler =
     try {
       response = await blocksBroker.getBlocks(dbClient, pageNumber, pageSize);
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -71,15 +70,17 @@ export const getBlocksRequestHandler =
 export const getBlockValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -88,7 +89,7 @@ export const getBlockRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const { blockId } = request.params;
 
-    let block: Block;
+    let block: Block | undefined;
     try {
       block = await blocksBroker.getBlockById(dbClient, blockId);
     } catch (error) {
@@ -116,15 +117,17 @@ export const getBlockRequestHandler =
 export const postBlockValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -158,7 +161,7 @@ export const postBlockRequestHandler =
 
     // todo - validate that the new block can be added to the chain. return bad request if not
 
-    let createdBlock: Block;
+    let createdBlock: Block | undefined;
     try {
       createdBlock = await blocksBroker.createBlock(
         dbClient,
@@ -166,7 +169,7 @@ export const postBlockRequestHandler =
         minerPublicKey
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],

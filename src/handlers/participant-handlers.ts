@@ -5,9 +5,7 @@ import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import { Participant } from "@xilution/todd-coin-types";
-import {
-  participantsBroker
-} from "@xilution/todd-coin-brokers";
+import { participantsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildParticipantSerializer,
   buildParticipantsSerializer,
@@ -24,15 +22,17 @@ import {
 export const getParticipantsValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -56,7 +56,7 @@ export const getParticipantsRequestHandler =
         publicKeyFilter
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -77,15 +77,17 @@ export const getParticipantsRequestHandler =
 export const getParticipantValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -94,11 +96,14 @@ export const getParticipantRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const { participantId } = request.params;
 
-    let participant: Participant;
+    let participant: Participant | undefined;
     try {
-      participant = await participantsBroker.getParticipantById(dbClient, participantId);
+      participant = await participantsBroker.getParticipantById(
+        dbClient,
+        participantId
+      );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -124,15 +129,17 @@ export const getParticipantRequestHandler =
 export const postParticipantValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -151,14 +158,23 @@ export const postParticipantRequestHandler =
       key: { public: participantKey.public },
     };
 
-    let createdParticipant: Participant;
+    let createdParticipant: Participant | undefined;
     try {
       createdParticipant = await participantsBroker.createParticipant(
         dbClient,
         newParticipant
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
+      return h
+        .response({
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (createdParticipant === undefined) {
+      console.error(`unable to create a new participant`);
       return h
         .response({
           errors: [buildInternalServerError()],

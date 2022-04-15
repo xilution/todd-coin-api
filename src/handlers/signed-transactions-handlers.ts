@@ -5,9 +5,7 @@ import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import { Transaction } from "@xilution/todd-coin-types";
-import {
-  transactionsBroker,
-} from "@xilution/todd-coin-brokers";
+import { transactionsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildSignedTransactionSerializer,
   buildSignedTransactionsSerializer,
@@ -23,15 +21,17 @@ import {
 export const getSignedTransactionsValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -52,7 +52,7 @@ export const getSignedTransactionsRequestHandler =
         pageSize
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -73,15 +73,17 @@ export const getSignedTransactionsRequestHandler =
 export const getSignedTransactionValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -90,14 +92,14 @@ export const getSignedTransactionRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const { signedTransactionId } = request.params;
 
-    let signedTransaction: Transaction;
+    let signedTransaction: Transaction | undefined;
     try {
       signedTransaction = await transactionsBroker.getSignedTransactionById(
         dbClient,
         signedTransactionId
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -125,15 +127,17 @@ export const getSignedTransactionRequestHandler =
 export const postSignedTransactionValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -147,14 +151,15 @@ export const postSignedTransactionRequestHandler =
       ...payload.data.attributes,
     } as Transaction;
 
-    let createdSignedTransaction: Transaction;
+    let createdSignedTransaction: Transaction | undefined;
     try {
-      createdSignedTransaction = await transactionsBroker.createSignedTransaction(
-        dbClient,
-        newSignedTransaction
-      );
+      createdSignedTransaction =
+        await transactionsBroker.createSignedTransaction(
+          dbClient,
+          newSignedTransaction
+        );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],

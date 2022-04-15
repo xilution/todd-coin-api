@@ -8,10 +8,7 @@ export const addAuth = (
   dbClient: DbClient,
   apiSettings: ApiSettings
 ) => {
-  server.auth.scheme(
-    "custom",
-    authenticationScheme(dbClient, apiSettings)
-  );
+  server.auth.scheme("custom", authenticationScheme(dbClient, apiSettings));
 
   server.auth.strategy("custom", "custom");
 };

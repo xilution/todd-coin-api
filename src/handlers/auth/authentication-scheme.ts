@@ -1,6 +1,6 @@
 import { Request, ResponseToolkit, ServerAuthSchemeObject } from "@hapi/hapi";
 import { ApiSettings } from "../../types";
-import {Participant} from "@xilution/todd-coin-types";
+import { Participant } from "@xilution/todd-coin-types";
 import { participantsBroker, DbClient } from "@xilution/todd-coin-brokers";
 import { buildUnauthorizedError } from "../error-utils";
 import jwt from "jsonwebtoken";
@@ -32,7 +32,7 @@ export const authenticationScheme =
       try {
         jwt.verify(accessToken, jwtSecretKey);
       } catch (error) {
-        console.error(error.message);
+        console.error((error as Error).message);
         return h
           .response({
             errors: buildUnauthorizedError("Unable to verify token."),
@@ -41,8 +41,8 @@ export const authenticationScheme =
           .takeover();
       }
 
-      let participantId: string = undefined;
-      let exp: number = undefined;
+      let participantId: string | undefined = undefined;
+      let exp: number | undefined = undefined;
       try {
         const decode = jwt.decode(accessToken) as {
           participantId: string;
@@ -51,7 +51,7 @@ export const authenticationScheme =
         participantId = decode.participantId;
         exp = decode.exp;
       } catch (error) {
-        console.error(error.message);
+        console.error((error as Error).message);
         return h
           .response({
             errors: buildUnauthorizedError("Unable to decode token."),
@@ -69,11 +69,14 @@ export const authenticationScheme =
           .takeover();
       }
 
-      let participant: Participant;
+      let participant: Participant | undefined;
       try {
-        participant = await participantsBroker.getParticipantById(dbClient, participantId);
+        participant = await participantsBroker.getParticipantById(
+          dbClient,
+          participantId
+        );
       } catch (error) {
-        console.error(error.message);
+        console.error((error as Error).message);
         return h
           .response({
             errors: buildUnauthorizedError(

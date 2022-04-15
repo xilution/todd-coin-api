@@ -21,15 +21,17 @@ import {
 export const getNodesValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -42,11 +44,11 @@ export const getNodesRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    let response: { count: number; rows: Node[] };
+    let response: { count: number; rows: Node[] } | undefined;
     try {
       response = await nodesBroker.getNodes(dbClient, pageNumber, pageSize);
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -67,15 +69,17 @@ export const getNodesRequestHandler =
 export const getNodeValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -84,11 +88,11 @@ export const getNodeRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const { nodeId } = request.params;
 
-    let node: Node;
+    let node: Node | undefined;
     try {
       node = await nodesBroker.getNodeById(dbClient, nodeId);
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -112,15 +116,17 @@ export const getNodeRequestHandler =
 export const postNodeValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -138,11 +144,11 @@ export const postNodeRequestHandler =
       ...payload.data.attributes,
     } as Node;
 
-    let createdNode: Node;
+    let createdNode: Node | undefined;
     try {
       createdNode = await nodesBroker.createNode(dbClient, newNode);
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],

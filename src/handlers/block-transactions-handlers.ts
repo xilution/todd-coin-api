@@ -20,18 +20,20 @@ import {
 export const getBlockTransactionsValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) => {
-        if (errorItem.context.key === "blockId") {
+      errors: validationError.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "blockId") {
           return buildInvalidParameterError(errorItem);
         }
         return buildInvalidQueryError(errorItem);
       }),
     })
-    .code(error.output.statusCode)
+    .code(validationError.output.statusCode || 400)
     .takeover();
 };
 
@@ -46,12 +48,12 @@ export const getBlockTransactionsRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    let block: Block;
+    let block: Block | undefined;
 
     try {
       block = await blocksBroker.getBlockById(dbClient, blockId);
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -78,7 +80,7 @@ export const getBlockTransactionsRequestHandler =
         blockId
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -100,15 +102,17 @@ export const getBlockTransactionsRequestHandler =
 export const getBlockTransactionValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -117,12 +121,12 @@ export const getBlockTransactionRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const { blockId, blockTransactionId } = request.params;
 
-    let block: Block;
+    let block: Block | undefined;
 
     try {
       block = await blocksBroker.getBlockById(dbClient, blockId);
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -140,7 +144,7 @@ export const getBlockTransactionRequestHandler =
         .code(404);
     }
 
-    let blockTransaction: Transaction;
+    let blockTransaction: Transaction | undefined;
     try {
       blockTransaction = await transactionsBroker.getBlockTransactionById(
         dbClient,
@@ -148,7 +152,7 @@ export const getBlockTransactionRequestHandler =
         blockTransactionId
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],

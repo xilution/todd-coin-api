@@ -12,7 +12,7 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
   api-1:
-    image: tbrunia/todd-coin:latest
+    image: xilution/todd-coin-api:latest
     depends_on:
       - db
     restart: always

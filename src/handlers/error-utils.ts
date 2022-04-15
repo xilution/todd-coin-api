@@ -37,7 +37,7 @@ export const buildInvalidQueryError = (errorItem: ValidationErrorItem) => {
     status: "400",
     title: "Invalid Query Parameter",
     description: errorItem.message,
-    parameter: errorItem.context.key,
+    parameter: errorItem?.context?.key,
   };
 };
 

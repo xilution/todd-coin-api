@@ -1,12 +1,18 @@
 import { Linker, Metaizer, Paginator, Relator, Serializer } from "ts-japi";
 import { ApiSettings } from "../types";
-import { Block, Node, Participant, Transaction } from "@xilution/todd-coin-types";
+import {
+  Block,
+  Node,
+  Participant,
+  Transaction,
+} from "@xilution/todd-coin-types";
 import _ from "lodash";
 import {
   DEFAULT_PAGE_SIZE,
   FIRST_PAGE,
   MAX_TRANSACTIONS_PER_BLOCK,
 } from "@xilution/todd-coin-constants";
+import { nullish, SingleOrArray } from "ts-japi/lib/types/global.types";
 
 export const buildBlockSerializer = (
   apiSettings: ApiSettings
@@ -32,10 +38,15 @@ export const buildBlockSerializer = (
       ),
     ],
     linkers: {
-      document: new Linker((block: Block) => {
-        return `${apiSettings.apiBaseUrl}/blocks/${block.id}`;
-      }),
-      resource: new Linker((block: Block) => {
+      document: new Linker<[SingleOrArray<Block> | nullish]>(
+        (block: nullish | SingleOrArray<Block>) => {
+          if (!Array.isArray(block) && block) {
+            return `${apiSettings.apiBaseUrl}/blocks/${block.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/blocks`;
+        }
+      ),
+      resource: new Linker<Block[]>((block: Block) => {
         return `${apiSettings.apiBaseUrl}/blocks/${block.id}`;
       }),
     },
@@ -111,9 +122,14 @@ export const buildPendingTransactionSerializer = (
   return new Serializer<Transaction>("pending-transaction", {
     nullData: false,
     linkers: {
-      document: new Linker((pendingTransactions: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/pending-transactions/${pendingTransactions.id}`;
-      }),
+      document: new Linker<[SingleOrArray<Transaction> | nullish]>(
+        (pendingTransaction: nullish | SingleOrArray<Transaction>) => {
+          if (!Array.isArray(pendingTransaction) && pendingTransaction) {
+            return `${apiSettings.apiBaseUrl}/pending-transactions/${pendingTransaction.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/pending-transactions`;
+        }
+      ),
       resource: new Linker((pendingTransaction: Transaction) => {
         return `${apiSettings.apiBaseUrl}/pending-transactions/${pendingTransaction.id}`;
       }),
@@ -172,9 +188,14 @@ export const buildSignedTransactionSerializer = (
   return new Serializer<Transaction>("signed-transaction", {
     nullData: false,
     linkers: {
-      document: new Linker((signedTransactions: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/signed-transactions/${signedTransactions.id}`;
-      }),
+      document: new Linker<[SingleOrArray<Transaction> | nullish]>(
+        (signedTransaction: nullish | SingleOrArray<Transaction>) => {
+          if (!Array.isArray(signedTransaction) && signedTransaction) {
+            return `${apiSettings.apiBaseUrl}/signed-transactions/${signedTransaction.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/signed-transactions`;
+        }
+      ),
       resource: new Linker((signedTransaction: Transaction) => {
         return `${apiSettings.apiBaseUrl}/signed-transactions/${signedTransaction.id}`;
       }),
@@ -249,9 +270,14 @@ export const buildBlockTransactionSerializer = (
       ),
     ],
     linkers: {
-      document: new Linker((transactions: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transactions.id}`;
-      }),
+      document: new Linker<[SingleOrArray<Transaction> | nullish]>(
+        (transaction: nullish | SingleOrArray<Transaction>) => {
+          if (!Array.isArray(transaction) && transaction) {
+            return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions`;
+        }
+      ),
       resource: new Linker((transaction: Transaction) => {
         return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
       }),
@@ -326,9 +352,14 @@ export const buildParticipantSerializer = (
   return new Serializer<Participant>("participant", {
     nullData: false,
     linkers: {
-      document: new Linker((participants: Participant) => {
-        return `${apiSettings.apiBaseUrl}/participants/${participants.id}`;
-      }),
+      document: new Linker<[SingleOrArray<Participant> | nullish]>(
+        (participant: nullish | SingleOrArray<Participant>) => {
+          if (!Array.isArray(participant) && participant) {
+            return `${apiSettings.apiBaseUrl}/participants/${participant.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/participants`;
+        }
+      ),
       resource: new Linker((pendingTransaction: Participant) => {
         return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.id}`;
       }),
@@ -387,9 +418,14 @@ export const buildNodeSerializer = (
   return new Serializer<Node>("node", {
     nullData: false,
     linkers: {
-      document: new Linker((nodes: Node) => {
-        return `${apiSettings.apiBaseUrl}/nodes/${nodes.id}`;
-      }),
+      document: new Linker<[SingleOrArray<Node> | nullish]>(
+        (node: nullish | SingleOrArray<Node>) => {
+          if (!Array.isArray(node) && node) {
+            return `${apiSettings.apiBaseUrl}/nodes/${node.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/nodes`;
+        }
+      ),
       resource: new Linker((pendingTransaction: Node) => {
         return `${apiSettings.apiBaseUrl}/nodes/${pendingTransaction.id}`;
       }),

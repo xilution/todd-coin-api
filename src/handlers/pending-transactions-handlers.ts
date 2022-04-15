@@ -12,9 +12,7 @@ import { DbClient } from "@xilution/todd-coin-brokers";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import { Transaction } from "@xilution/todd-coin-types";
-import {
-  transactionsBroker,
-} from "@xilution/todd-coin-brokers";
+import { transactionsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildPendingTransactionSerializer,
   buildPendingTransactionsSerializer,
@@ -23,15 +21,17 @@ import {
 export const getPendingTransactionsValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -58,7 +58,7 @@ export const getPendingTransactionsRequestHandler =
         toFilter
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -79,15 +79,17 @@ export const getPendingTransactionsRequestHandler =
 export const getPendingTransactionValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -96,14 +98,14 @@ export const getPendingTransactionRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const { pendingTransactionId } = request.params;
 
-    let pendingTransaction: Transaction;
+    let pendingTransaction: Transaction | undefined;
     try {
       pendingTransaction = await transactionsBroker.getPendingTransactionById(
         dbClient,
         pendingTransactionId
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -131,15 +133,17 @@ export const getPendingTransactionRequestHandler =
 export const postPendingTransactionValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -156,14 +160,17 @@ export const postPendingTransactionRequestHandler =
     // todo - check for duplicate pending transactions (rules?)
 
     try {
-      const createdPendingTransaction: Transaction =
-        await transactionsBroker.createPendingTransaction(dbClient, newPendingTransaction);
+      const createdPendingTransaction: Transaction | undefined =
+        await transactionsBroker.createPendingTransaction(
+          dbClient,
+          newPendingTransaction
+        );
 
       return buildPendingTransactionSerializer(apiSettings).serialize(
         createdPendingTransaction
       );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],

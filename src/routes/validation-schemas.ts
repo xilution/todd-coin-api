@@ -1,5 +1,8 @@
 import Joi from "joi";
-import { MAX_TRANSACTIONS_PER_BLOCK, MAXIMUM_PAGE_SIZE } from "@xilution/todd-coin-constants";
+import {
+  MAX_TRANSACTIONS_PER_BLOCK,
+  MAXIMUM_PAGE_SIZE,
+} from "@xilution/todd-coin-constants";
 
 const HASH_REGEX = /^([a-z0-9]){64}$/;
 const PRIVATE_KEY_REGEX = /^([a-z0-9]){64}$/;

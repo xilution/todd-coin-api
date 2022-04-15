@@ -16,15 +16,17 @@ import jwt from "jsonwebtoken";
 export const authTokenValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
-  error: (Boom.Boom & ValidationError) | undefined
+  error: Error | undefined
 ) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
   return h
     .response({
-      errors: error.details.map((errorItem: ValidationErrorItem) =>
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
     })
-    .code(error.output.statusCode)
+    .code(validationError?.output.statusCode || 400)
     .takeover();
 };
 
@@ -38,11 +40,14 @@ export const authTokenRequestHandler =
     const keyPair: ec.KeyPair = keyUtils.getKeyPairFromPrivateKey(privateKey);
     const publicKey: string = keyPair.getPublic("hex");
 
-    let participant: Participant;
+    let participant: Participant | undefined;
     try {
-      participant = await participantsBroker.getParticipantByPublicKey(dbClient, publicKey);
+      participant = await participantsBroker.getParticipantByPublicKey(
+        dbClient,
+        publicKey
+      );
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -55,7 +60,7 @@ export const authTokenRequestHandler =
     try {
       const accessToken = jwt.sign(
         {
-          participantId: participant.id,
+          participantId: participant?.id,
         },
         jwtSecretKey,
         { expiresIn: "1h" }
@@ -65,7 +70,7 @@ export const authTokenRequestHandler =
         access: accessToken,
       };
     } catch (error) {
-      console.error(error.message);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],

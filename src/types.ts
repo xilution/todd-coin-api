@@ -18,5 +18,5 @@ export interface DatabaseSettings {
 export interface ApiData<T> {
   id: string;
   attributes: Omit<T, "id">;
-  relationships: Record<string, ApiData<any> | Array<ApiData<any>>>;
+  relationships: Record<string, ApiData<unknown> | Array<ApiData<unknown>>>;
 }

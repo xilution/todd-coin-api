@@ -57,6 +57,14 @@ export const buildUnauthorizedError = (detail: string) => {
   };
 };
 
+export const buildForbiddenError = (detail: string) => {
+  return {
+    status: "403",
+    title: "Forbidden",
+    detail,
+  };
+};
+
 export const buildInternalServerError = () => {
   return {
     status: "500",

@@ -20,6 +20,8 @@ import { addAuth } from "./handlers/auth";
 // todo - split up api, cli and modules (types, brokers & utils)
 // todo - write a regression test suite
 // todo - create separate docker tasks for synchronization and mining
+// todo - set up slack channel
+// todo - set up a landing page with how to instructions
 
 export let server: Server;
 

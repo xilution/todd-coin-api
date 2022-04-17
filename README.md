@@ -6,6 +6,14 @@ This is the Todd Coin Application Programming Interface (API)
 
 The Todd Coin API adheres to the [JSON API](https://jsonapi.org/format/) standard.
 
+## Releases
+
+The Todd Coin API is distributed as a Docker container.
+
+[![Release](https://github.com/xilution/todd-coin-api/actions/workflows/release.yml/badge.svg)](https://github.com/xilution/todd-coin-api/actions/workflows/release.yml)
+
+https://hub.docker.com/r/xilution/todd-coin-api
+
 ## First Things First
 
 `npm install`

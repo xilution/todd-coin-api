@@ -14,10 +14,6 @@ import { addAuth } from "./handlers/auth";
 // todo - add update pending transactions - for canceling them
 // todo - add a organization resource (to track charities) and a participant-organization association (name, address, email, url, phone number, role, etc.)
 // todo - add github contribution and pull request template files
-// todo - ci
-// todo - publish api to docker registry
-// todo - publish cli to npm
-// todo - split up api, cli and modules (types, brokers & utils)
 // todo - write a regression test suite
 // todo - create separate docker tasks for synchronization and mining
 // todo - set up slack channel

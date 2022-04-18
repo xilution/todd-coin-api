@@ -18,6 +18,7 @@ import { addAuth } from "./handlers/auth";
 // todo - create separate docker tasks for synchronization and mining
 // todo - set up slack channel
 // todo - set up a landing page with how to instructions
+// todo - open api spec (swagger) hosted from deployed API
 
 export let server: Server;
 

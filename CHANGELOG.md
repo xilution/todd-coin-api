@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/xilution/todd-coin-api/compare/v1.0.0...v1.0.1) (2022-04-22)
+
+
+### Bug Fixes
+
+* integrated changes to brokers ([ea35c04](https://github.com/xilution/todd-coin-api/commit/ea35c04fceb3203cd098c0d1b5e677b94db091ae))
+
 # 1.0.0 (2022-04-15)
 
 

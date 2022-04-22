@@ -2,6 +2,7 @@
 .github
 coverage
 dist
+insomnia
 node_modules
 CHANGELOG.md
 package-lock.json

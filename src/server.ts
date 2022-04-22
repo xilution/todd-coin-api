@@ -2,8 +2,8 @@
 
 import * as Hapi from "@hapi/hapi";
 import { Server } from "@hapi/hapi";
-import { DbClient } from "@xilution/todd-coin-brokers";
-import { getApiSettings, getDatabaseSettings } from "./environment-utils";
+import { DbClient, environmentUtils } from "@xilution/todd-coin-brokers";
+import { getApiSettings } from "./environment-utils";
 import { addRoutes } from "./routes";
 import { addAuth } from "./handlers/auth";
 
@@ -25,7 +25,7 @@ export let server: Server;
 export const init = async (): Promise<Server> => {
   const dbClient = new DbClient();
   const { database, username, password, dbHost, dbPort } =
-    getDatabaseSettings();
+    environmentUtils.getDatabaseSettings();
 
   await dbClient.init(database, username, password, dbHost, dbPort);
 

@@ -9,16 +9,18 @@ import { addAuth } from "./handlers/auth";
 
 // todo - unit tests
 // todo - mobile app
-// todo - add update participant
-// todo - add update node
-// todo - add update pending transactions - for canceling them
-// todo - add a organization resource (to track charities) and a participant-organization association (name, address, email, url, phone number, role, etc.)
+// todo - add update participant endpoint
+// todo - add update node endpoint
+// todo - add update pending transactions endpoint - for canceling them
+// todo - add participant keys endpoints
+// todo - add participant-organization association (name, address, email, url, phone number, role, etc.)
 // todo - add github contribution and pull request template files
 // todo - write a regression test suite
-// todo - create separate docker tasks for synchronization and mining
 // todo - set up slack channel
 // todo - set up a landing page with how to instructions
 // todo - open api spec (swagger) hosted from deployed API
+// todo - prometheus and graphana metrics
+// todo - posting a participant or org shouldn't require authentication
 
 export let server: Server;
 

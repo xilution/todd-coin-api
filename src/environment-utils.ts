@@ -1,5 +1,4 @@
 import { ApiSettings } from "./types";
-import { GENESIS_PARTICIPANT_ID } from "@xilution/todd-coin-constants";
 
 const DEFAULT_JWT_SIGNING_SECRET = "all your base are belong to us";
 const DEFAULT_API_HOST = "localhost";
@@ -14,8 +13,13 @@ export const getApiSettings = (): ApiSettings => {
   const apiPort = Number(process.env.API_PORT) || DEFAULT_API_PORT;
   const apiProtocol = process.env.API_PROTOCOL || DEFAULT_API_PROTOCOL;
   const apiBaseUrl = process.env.API_BASE_URL || DEFAULT_API_BASE_URL;
-  const hostMaintainerId =
-    process.env.HOST_MAINTAINER_ID || GENESIS_PARTICIPANT_ID;
+  const hostMaintainerId = process.env.HOST_MAINTAINER_ID;
+
+  if (hostMaintainerId === undefined) {
+    throw new Error(
+      "unable to get api settings because the HOST_MAINTAINER_ID environment variable was not set"
+    );
+  }
 
   return {
     jwtSecretKey,

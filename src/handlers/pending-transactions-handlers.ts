@@ -11,7 +11,11 @@ import {
 import { DbClient } from "@xilution/todd-coin-brokers";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
-import { Transaction } from "@xilution/todd-coin-types";
+import {
+  BlockTransaction,
+  PendingTransaction,
+  TransactionDetails,
+} from "@xilution/todd-coin-types";
 import { transactionsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildPendingTransactionSerializer,
@@ -48,7 +52,10 @@ export const getPendingTransactionsRequestHandler =
 
     const toFilter: string = request.query["filter[to]"];
 
-    let response: { count: number; rows: Transaction[] };
+    let response: {
+      count: number;
+      rows: PendingTransaction<TransactionDetails>[];
+    };
     try {
       response = await transactionsBroker.getPendingTransactions(
         dbClient,
@@ -98,7 +105,7 @@ export const getPendingTransactionRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const { pendingTransactionId } = request.params;
 
-    let pendingTransaction: Transaction | undefined;
+    let pendingTransaction: PendingTransaction<TransactionDetails> | undefined;
     try {
       pendingTransaction = await transactionsBroker.getPendingTransactionById(
         dbClient,
@@ -150,21 +157,24 @@ export const postPendingTransactionValidationFailAction = (
 export const postPendingTransactionRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const payload = request.payload as { data: ApiData<Transaction> };
+    const payload = request.payload as {
+      data: ApiData<PendingTransaction<TransactionDetails>>;
+    };
 
     const newPendingTransaction = {
       id: payload.data.id,
       ...payload.data.attributes,
-    } as Transaction;
+    } as PendingTransaction<TransactionDetails>;
 
     // todo - check for duplicate pending transactions (rules?)
 
     try {
-      const createdPendingTransaction: Transaction | undefined =
-        await transactionsBroker.createPendingTransaction(
-          dbClient,
-          newPendingTransaction
-        );
+      const createdPendingTransaction:
+        | PendingTransaction<TransactionDetails>
+        | undefined = await transactionsBroker.createPendingTransaction(
+        dbClient,
+        newPendingTransaction
+      );
 
       return buildPendingTransactionSerializer(apiSettings).serialize(
         createdPendingTransaction

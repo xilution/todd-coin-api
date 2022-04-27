@@ -7,6 +7,8 @@ import { addPendingTransactionsRoutes } from "./pending-transactions-routes";
 import { addSignedTransactionsRoutes } from "./signed-transactions-routes";
 import { addBlockTransactionsRoutes } from "./block-transactions-routes";
 import { addParticipantRoutes } from "./participants-routes";
+import { addParticipantKeyRoutes } from "./participant-keys-routes";
+import { addOrganizationsRoutes } from "./organizations-routes";
 import { addNodesRoutes } from "./nodes-routes";
 import { ApiSettings } from "../types";
 
@@ -22,5 +24,7 @@ export const addRoutes = (
   addSignedTransactionsRoutes(server, dbClient, apiSettings);
   addBlockTransactionsRoutes(server, dbClient, apiSettings);
   addParticipantRoutes(server, dbClient, apiSettings);
+  addParticipantKeyRoutes(server, dbClient, apiSettings);
+  addOrganizationsRoutes(server, dbClient, apiSettings);
   addNodesRoutes(server, dbClient, apiSettings);
 };

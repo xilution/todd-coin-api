@@ -4,14 +4,19 @@ import { ValidationError, ValidationErrorItem } from "joi";
 import {
   buildInternalServerError,
   buildInvalidAttributeError,
+  buildUnauthorizedError,
 } from "./error-utils";
-import { DbClient } from "@xilution/todd-coin-brokers";
+import {
+  DbClient,
+  participantKeysBroker,
+  participantsBroker,
+} from "@xilution/todd-coin-brokers";
 import { ec } from "elliptic";
-import { keyUtils } from "@xilution/todd-coin-utils";
+import { hashUtils, keyUtils } from "@xilution/todd-coin-utils";
 import { ApiSettings } from "../types";
-import { Participant } from "@xilution/todd-coin-types";
-import { participantsBroker } from "@xilution/todd-coin-brokers";
+import { Participant, ParticipantKey } from "@xilution/todd-coin-types";
 import jwt from "jsonwebtoken";
+import { getParticipantByEmail } from "../../../todd-coin-brokers/src/participants-broker";
 
 export const authTokenValidationFailAction = (
   request: Request,
@@ -33,18 +38,15 @@ export const authTokenValidationFailAction = (
 export const authTokenRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const payload = request.payload as { privateKey: string };
+    const payload = request.payload as { email: string; password: string };
 
-    const { privateKey } = payload;
-
-    const keyPair: ec.KeyPair = keyUtils.getKeyPairFromPrivateKey(privateKey);
-    const publicKey: string = keyPair.getPublic("hex");
+    const { email, password } = payload;
 
     let participant: Participant | undefined;
     try {
-      participant = await participantsBroker.getParticipantByPublicKey(
+      participant = await participantsBroker.getParticipantByEmail(
         dbClient,
-        publicKey
+        email
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -53,6 +55,17 @@ export const authTokenRequestHandler =
           errors: [buildInternalServerError()],
         })
         .code(500);
+    }
+
+    if (
+      participant === undefined ||
+      participant.password !== hashUtils.calculateStringHash(password)
+    ) {
+      return h
+        .response({
+          errors: [buildUnauthorizedError("Authentication failed.")],
+        })
+        .code(401);
     }
 
     const { jwtSecretKey } = apiSettings;

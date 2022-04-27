@@ -8,6 +8,7 @@ export interface ApiSettings {
 }
 
 export interface ApiData<T> {
+  type: string;
   id: string;
   attributes: Omit<T, "id">;
   relationships: Record<string, ApiData<unknown> | Array<ApiData<unknown>>>;

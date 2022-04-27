@@ -4,7 +4,11 @@ import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
-import { Transaction } from "@xilution/todd-coin-types";
+import {
+  PendingTransaction,
+  SignedTransaction,
+  TransactionDetails,
+} from "@xilution/todd-coin-types";
 import { transactionsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildSignedTransactionSerializer,
@@ -44,7 +48,10 @@ export const getSignedTransactionsRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    let response: { count: number; rows: Transaction[] };
+    let response: {
+      count: number;
+      rows: SignedTransaction<TransactionDetails>[];
+    };
     try {
       response = await transactionsBroker.getSignedTransactions(
         dbClient,
@@ -92,7 +99,7 @@ export const getSignedTransactionRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const { signedTransactionId } = request.params;
 
-    let signedTransaction: Transaction | undefined;
+    let signedTransaction: SignedTransaction<TransactionDetails> | undefined;
     try {
       signedTransaction = await transactionsBroker.getSignedTransactionById(
         dbClient,
@@ -144,14 +151,18 @@ export const postSignedTransactionValidationFailAction = (
 export const postSignedTransactionRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const payload = request.payload as { data: ApiData<Transaction> };
+    const payload = request.payload as {
+      data: ApiData<SignedTransaction<TransactionDetails>>;
+    };
 
     const newSignedTransaction = {
       id: payload.data.id,
       ...payload.data.attributes,
-    } as Transaction;
+    } as SignedTransaction<TransactionDetails>;
 
-    let createdSignedTransaction: Transaction | undefined;
+    let createdSignedTransaction:
+      | SignedTransaction<TransactionDetails>
+      | undefined;
     try {
       createdSignedTransaction =
         await transactionsBroker.createSignedTransaction(

@@ -1,19 +1,30 @@
 import { Server } from "@hapi/hapi";
 import { DbClient } from "@xilution/todd-coin-brokers";
 import {
+  GET_ORGANIZATION_PARAMETERS_SCHEMA,
   GET_PARTICIPANT_PARAMETERS_SCHEMA,
   GET_PARTICIPANTS_QUERY_SCHEMA,
+  POST_ORGANIZATION_PARTICIPANTS_SCHEMA,
   POST_PARTICIPANT_SCHEMA,
+  POST_PARTICIPANTS_ORGANIZATION_SCHEMA,
 } from "./validation-schemas";
 import {
+  getParticipantOrganizationRequestHandler,
   getParticipantRequestHandler,
   getParticipantsRequestHandler,
   getParticipantsValidationFailAction,
   getParticipantValidationFailAction,
+  postParticipantOrganizationsRequestHandler,
   postParticipantRequestHandler,
   postParticipantValidationFailAction,
 } from "../handlers/participant-handlers";
 import { ApiSettings } from "../types";
+import {
+  getOrganizationParticipantRequestHandler,
+  getOrganizationValidationFailAction,
+  postOrganizationParticipantsRequestHandler,
+  postOrganizationValidationFailAction,
+} from "../handlers/organization-handlers";
 
 export const addParticipantRoutes = (
   server: Server,
@@ -56,7 +67,6 @@ export const addParticipantRoutes = (
     method: "POST",
     path: "/participants",
     options: {
-      auth: "custom",
       validate: {
         payload: POST_PARTICIPANT_SCHEMA,
         options: {
@@ -66,5 +76,54 @@ export const addParticipantRoutes = (
       },
     },
     handler: postParticipantRequestHandler(dbClient, apiSettings),
+  });
+
+  server.route({
+    method: "GET",
+    path: "/participants/{participantId}/organizations",
+    options: {
+      auth: "custom",
+      validate: {
+        params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: getOrganizationValidationFailAction,
+      },
+    },
+    handler: getParticipantOrganizationRequestHandler(dbClient, apiSettings),
+  });
+
+  server.route({
+    method: "GET",
+    path: "/participants/{participantId}/relationships/organizations",
+    options: {
+      auth: "custom",
+      validate: {
+        params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: getOrganizationValidationFailAction,
+      },
+    },
+    handler: getParticipantOrganizationRequestHandler(dbClient, apiSettings),
+  });
+
+  server.route({
+    method: "POST",
+    path: "/participants/{participantId}/relationships/organizations",
+    options: {
+      auth: "custom",
+      validate: {
+        params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
+        payload: POST_PARTICIPANTS_ORGANIZATION_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: postOrganizationValidationFailAction,
+      },
+    },
+    handler: postParticipantOrganizationsRequestHandler(dbClient, apiSettings),
   });
 };

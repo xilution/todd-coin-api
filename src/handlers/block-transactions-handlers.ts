@@ -4,7 +4,11 @@ import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiSettings } from "../types";
-import { Block, Transaction } from "@xilution/todd-coin-types";
+import {
+  Block,
+  BlockTransaction,
+  TransactionDetails,
+} from "@xilution/todd-coin-types";
 import { blocksBroker, transactionsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildBlockTransactionSerializer,
@@ -71,7 +75,10 @@ export const getBlockTransactionsRequestHandler =
         .code(404);
     }
 
-    let response: { count: number; rows: Transaction[] };
+    let response: {
+      count: number;
+      rows: BlockTransaction<TransactionDetails>[];
+    };
     try {
       response = await transactionsBroker.getBlockTransactions(
         dbClient,
@@ -144,7 +151,7 @@ export const getBlockTransactionRequestHandler =
         .code(404);
     }
 
-    let blockTransaction: Transaction | undefined;
+    let blockTransaction: BlockTransaction<TransactionDetails> | undefined;
     try {
       blockTransaction = await transactionsBroker.getBlockTransactionById(
         dbClient,

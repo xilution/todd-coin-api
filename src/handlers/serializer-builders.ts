@@ -2,9 +2,14 @@ import { Linker, Metaizer, Paginator, Relator, Serializer } from "ts-japi";
 import { ApiSettings } from "../types";
 import {
   Block,
+  BlockTransaction,
+  PendingTransaction,
+  SignedTransaction,
   Node,
   Participant,
-  Transaction,
+  TransactionDetails,
+  Organization,
+  ParticipantKey,
 } from "@xilution/todd-coin-types";
 import _ from "lodash";
 import {
@@ -23,9 +28,9 @@ export const buildBlockSerializer = (
       transactions: 0,
     },
     relators: [
-      new Relator<Block, Transaction>(
+      new Relator<Block, BlockTransaction<TransactionDetails>>(
         async (block: Block) => block.transactions,
-        new Serializer<Transaction>("transactions", {
+        new Serializer<BlockTransaction<TransactionDetails>>("transactions", {
           onlyIdentifier: true,
         }),
         {
@@ -67,9 +72,9 @@ export const buildBlocksSerializer = (
       transactions: 0,
     },
     relators: [
-      new Relator<Block, Transaction>(
+      new Relator<Block, BlockTransaction<TransactionDetails>>(
         async (block: Block) => _.first(_.chunk(block.transactions, 10)),
-        new Serializer<Transaction>("transactions", {
+        new Serializer<BlockTransaction<TransactionDetails>>("transactions", {
           onlyIdentifier: true,
         }),
         {
@@ -118,23 +123,34 @@ export const buildBlocksSerializer = (
 
 export const buildPendingTransactionSerializer = (
   apiSettings: ApiSettings
-): Serializer<Transaction> => {
-  return new Serializer<Transaction>("pending-transaction", {
-    nullData: false,
-    linkers: {
-      document: new Linker<[SingleOrArray<Transaction> | nullish]>(
-        (pendingTransaction: nullish | SingleOrArray<Transaction>) => {
-          if (!Array.isArray(pendingTransaction) && pendingTransaction) {
+): Serializer<PendingTransaction<TransactionDetails>> => {
+  return new Serializer<PendingTransaction<TransactionDetails>>(
+    "pending-transaction",
+    {
+      nullData: false,
+      linkers: {
+        document: new Linker<
+          [SingleOrArray<PendingTransaction<TransactionDetails>> | nullish]
+        >(
+          (
+            pendingTransaction:
+              | nullish
+              | SingleOrArray<PendingTransaction<TransactionDetails>>
+          ) => {
+            if (!Array.isArray(pendingTransaction) && pendingTransaction) {
+              return `${apiSettings.apiBaseUrl}/pending-transactions/${pendingTransaction.id}`;
+            }
+            return `${apiSettings.apiBaseUrl}/pending-transactions`;
+          }
+        ),
+        resource: new Linker(
+          (pendingTransaction: PendingTransaction<TransactionDetails>) => {
             return `${apiSettings.apiBaseUrl}/pending-transactions/${pendingTransaction.id}`;
           }
-          return `${apiSettings.apiBaseUrl}/pending-transactions`;
-        }
-      ),
-      resource: new Linker((pendingTransaction: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/pending-transactions/${pendingTransaction.id}`;
-      }),
-    },
-  });
+        ),
+      },
+    }
+  );
 };
 
 export const buildPendingTransactionsSerializer = (
@@ -142,65 +158,81 @@ export const buildPendingTransactionsSerializer = (
   count: number,
   pageNumber: number,
   pageSize: number
-): Serializer<Transaction> => {
+): Serializer<PendingTransaction<TransactionDetails>> => {
   const pages = Math.ceil(count / pageSize);
 
-  return new Serializer<Transaction>("pending-transaction", {
-    nullData: false,
-    linkers: {
-      document: new Linker(() => {
-        return `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${pageNumber}&page[size]=${pageSize}`;
-      }),
-      resource: new Linker((pendingTransaction: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/pending-transactions/${pendingTransaction.id}`;
-      }),
-      paginator: new Paginator(() => {
-        const nextPage = pageNumber + 1;
-        const previousPage = pageNumber - 1;
-        return {
-          first: `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${FIRST_PAGE}&page[size]=${pageSize}`,
-          last: `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${pages}&page[size]=${pageSize}`,
-          next:
-            nextPage <= pages
-              ? `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${nextPage}&page[size]=${pageSize}`
-              : null,
-          prev:
-            previousPage >= 0
-              ? `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${previousPage}&page[size]=${pageSize}`
-              : null,
-        };
-      }),
-    },
-    metaizers: {
-      document: new Metaizer(() => ({
-        itemsPerPage: pageSize,
-        totalItems: count,
-        currentPage: pageNumber,
-        totalPages: pages,
-      })),
-    },
-  });
+  return new Serializer<PendingTransaction<TransactionDetails>>(
+    "pending-transaction",
+    {
+      nullData: false,
+      linkers: {
+        document: new Linker(() => {
+          return `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${pageNumber}&page[size]=${pageSize}`;
+        }),
+        resource: new Linker(
+          (pendingTransaction: PendingTransaction<TransactionDetails>) => {
+            return `${apiSettings.apiBaseUrl}/pending-transactions/${pendingTransaction.id}`;
+          }
+        ),
+        paginator: new Paginator(() => {
+          const nextPage = pageNumber + 1;
+          const previousPage = pageNumber - 1;
+          return {
+            first: `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${FIRST_PAGE}&page[size]=${pageSize}`,
+            last: `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${pages}&page[size]=${pageSize}`,
+            next:
+              nextPage <= pages
+                ? `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${nextPage}&page[size]=${pageSize}`
+                : null,
+            prev:
+              previousPage >= 0
+                ? `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${previousPage}&page[size]=${pageSize}`
+                : null,
+          };
+        }),
+      },
+      metaizers: {
+        document: new Metaizer(() => ({
+          itemsPerPage: pageSize,
+          totalItems: count,
+          currentPage: pageNumber,
+          totalPages: pages,
+        })),
+      },
+    }
+  );
 };
 
 export const buildSignedTransactionSerializer = (
   apiSettings: ApiSettings
-): Serializer<Transaction> => {
-  return new Serializer<Transaction>("signed-transaction", {
-    nullData: false,
-    linkers: {
-      document: new Linker<[SingleOrArray<Transaction> | nullish]>(
-        (signedTransaction: nullish | SingleOrArray<Transaction>) => {
-          if (!Array.isArray(signedTransaction) && signedTransaction) {
+): Serializer<SignedTransaction<TransactionDetails>> => {
+  return new Serializer<SignedTransaction<TransactionDetails>>(
+    "signed-transaction",
+    {
+      nullData: false,
+      linkers: {
+        document: new Linker<
+          [SingleOrArray<SignedTransaction<TransactionDetails>> | nullish]
+        >(
+          (
+            signedTransaction:
+              | nullish
+              | SingleOrArray<SignedTransaction<TransactionDetails>>
+          ) => {
+            if (!Array.isArray(signedTransaction) && signedTransaction) {
+              return `${apiSettings.apiBaseUrl}/signed-transactions/${signedTransaction.id}`;
+            }
+            return `${apiSettings.apiBaseUrl}/signed-transactions`;
+          }
+        ),
+        resource: new Linker(
+          (signedTransaction: SignedTransaction<TransactionDetails>) => {
             return `${apiSettings.apiBaseUrl}/signed-transactions/${signedTransaction.id}`;
           }
-          return `${apiSettings.apiBaseUrl}/signed-transactions`;
-        }
-      ),
-      resource: new Linker((signedTransaction: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/signed-transactions/${signedTransaction.id}`;
-      }),
-    },
-  });
+        ),
+      },
+    }
+  );
 };
 
 export const buildSignedTransactionsSerializer = (
@@ -208,54 +240,59 @@ export const buildSignedTransactionsSerializer = (
   count: number,
   pageNumber: number,
   pageSize: number
-): Serializer<Transaction> => {
+): Serializer<SignedTransaction<TransactionDetails>> => {
   const pages = Math.ceil(count / pageSize);
 
-  return new Serializer<Transaction>("signed-transaction", {
-    nullData: false,
-    linkers: {
-      document: new Linker(() => {
-        return `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${pageNumber}&page[size]=${pageSize}`;
-      }),
-      resource: new Linker((signedTransaction: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/signed-transactions/${signedTransaction.id}`;
-      }),
-      paginator: new Paginator(() => {
-        const nextPage = pageNumber + 1;
-        const previousPage = pageNumber - 1;
-        return {
-          first: `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${FIRST_PAGE}&page[size]=${pageSize}`,
-          last: `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${pages}&page[size]=${pageSize}`,
-          next:
-            nextPage <= pages
-              ? `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${nextPage}&page[size]=${pageSize}`
-              : null,
-          prev:
-            previousPage >= 0
-              ? `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${previousPage}&page[size]=${pageSize}`
-              : null,
-        };
-      }),
-    },
-    metaizers: {
-      document: new Metaizer(() => ({
-        itemsPerPage: pageSize,
-        totalItems: count,
-        currentPage: pageNumber,
-        totalPages: pages,
-      })),
-    },
-  });
+  return new Serializer<SignedTransaction<TransactionDetails>>(
+    "signed-transaction",
+    {
+      nullData: false,
+      linkers: {
+        document: new Linker(() => {
+          return `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${pageNumber}&page[size]=${pageSize}`;
+        }),
+        resource: new Linker(
+          (signedTransaction: SignedTransaction<TransactionDetails>) => {
+            return `${apiSettings.apiBaseUrl}/signed-transactions/${signedTransaction.id}`;
+          }
+        ),
+        paginator: new Paginator(() => {
+          const nextPage = pageNumber + 1;
+          const previousPage = pageNumber - 1;
+          return {
+            first: `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${FIRST_PAGE}&page[size]=${pageSize}`,
+            last: `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${pages}&page[size]=${pageSize}`,
+            next:
+              nextPage <= pages
+                ? `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${nextPage}&page[size]=${pageSize}`
+                : null,
+            prev:
+              previousPage >= 0
+                ? `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${previousPage}&page[size]=${pageSize}`
+                : null,
+          };
+        }),
+      },
+      metaizers: {
+        document: new Metaizer(() => ({
+          itemsPerPage: pageSize,
+          totalItems: count,
+          currentPage: pageNumber,
+          totalPages: pages,
+        })),
+      },
+    }
+  );
 };
 
 export const buildBlockTransactionSerializer = (
   apiSettings: ApiSettings,
   block: Block
-): Serializer<Transaction> => {
-  return new Serializer<Transaction>("transaction", {
+): Serializer<BlockTransaction<TransactionDetails>> => {
+  return new Serializer<BlockTransaction<TransactionDetails>>("transaction", {
     nullData: false,
     relators: [
-      new Relator<Transaction, Block>(
+      new Relator<BlockTransaction<TransactionDetails>, Block>(
         async () => block,
         new Serializer<Block>("block", {
           onlyIdentifier: true,
@@ -270,17 +307,25 @@ export const buildBlockTransactionSerializer = (
       ),
     ],
     linkers: {
-      document: new Linker<[SingleOrArray<Transaction> | nullish]>(
-        (transaction: nullish | SingleOrArray<Transaction>) => {
+      document: new Linker<
+        [SingleOrArray<BlockTransaction<TransactionDetails>> | nullish]
+      >(
+        (
+          transaction:
+            | nullish
+            | SingleOrArray<BlockTransaction<TransactionDetails>>
+        ) => {
           if (!Array.isArray(transaction) && transaction) {
             return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
           }
           return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions`;
         }
       ),
-      resource: new Linker((transaction: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
-      }),
+      resource: new Linker(
+        (transaction: BlockTransaction<TransactionDetails>) => {
+          return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
+        }
+      ),
     },
   });
 };
@@ -291,13 +336,13 @@ export const buildBlockTransactionsSerializer = (
   count: number,
   pageNumber: number,
   pageSize: number
-): Serializer<Transaction> => {
+): Serializer<BlockTransaction<TransactionDetails>> => {
   const pages = Math.ceil(count / pageSize);
 
-  return new Serializer<Transaction>("transaction", {
+  return new Serializer<BlockTransaction<TransactionDetails>>("transaction", {
     nullData: false,
     relators: [
-      new Relator<Transaction, Block>(
+      new Relator<BlockTransaction<TransactionDetails>, Block>(
         async () => block,
         new Serializer<Block>("block", {
           onlyIdentifier: true,
@@ -315,9 +360,11 @@ export const buildBlockTransactionsSerializer = (
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions?page[number]=${pageNumber}&page[size]=${pageSize}`;
       }),
-      resource: new Linker((transaction: Transaction) => {
-        return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
-      }),
+      resource: new Linker(
+        (transaction: BlockTransaction<TransactionDetails>) => {
+          return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
+        }
+      ),
       paginator: new Paginator(() => {
         const nextPage = pageNumber + 1;
         const previousPage = pageNumber - 1;
@@ -351,6 +398,9 @@ export const buildParticipantSerializer = (
 ): Serializer<Participant> => {
   return new Serializer<Participant>("participant", {
     nullData: false,
+    projection: {
+      password: 0,
+    },
     linkers: {
       document: new Linker<[SingleOrArray<Participant> | nullish]>(
         (participant: nullish | SingleOrArray<Participant>) => {
@@ -360,8 +410,8 @@ export const buildParticipantSerializer = (
           return `${apiSettings.apiBaseUrl}/participants`;
         }
       ),
-      resource: new Linker((pendingTransaction: Participant) => {
-        return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.id}`;
+      resource: new Linker((participant: Participant) => {
+        return `${apiSettings.apiBaseUrl}/participants/${participant.id}`;
       }),
     },
   });
@@ -377,12 +427,15 @@ export const buildParticipantsSerializer = (
 
   return new Serializer<Participant>("participant", {
     nullData: false,
+    projection: {
+      password: 0,
+    },
     linkers: {
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/participants?page[number]=${pageNumber}&page[size]=${pageSize}`;
       }),
-      resource: new Linker((pendingTransaction: Participant) => {
-        return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.id}`;
+      resource: new Linker((participant: Participant) => {
+        return `${apiSettings.apiBaseUrl}/participants/${participant.id}`;
       }),
       paginator: new Paginator(() => {
         const nextPage = pageNumber + 1;
@@ -412,6 +465,138 @@ export const buildParticipantsSerializer = (
   });
 };
 
+export const buildParticipantKeySerializer = (
+  apiSettings: ApiSettings
+): Serializer<ParticipantKey> => {
+  return new Serializer<ParticipantKey>("participant-key", {
+    nullData: false,
+    linkers: {
+      document: new Linker<[SingleOrArray<ParticipantKey> | nullish]>(
+        (participantKey: nullish | SingleOrArray<ParticipantKey>) => {
+          if (!Array.isArray(participantKey) && participantKey) {
+            return `${apiSettings.apiBaseUrl}/participant-keys/${participantKey.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/participant-keys`;
+        }
+      ),
+      resource: new Linker((participantKey: ParticipantKey) => {
+        return `${apiSettings.apiBaseUrl}/participants/${participantKey.id}`;
+      }),
+    },
+  });
+};
+
+export const buildParticipantKeysSerializer = (
+  apiSettings: ApiSettings,
+  count: number,
+  pageNumber: number,
+  pageSize: number
+): Serializer<ParticipantKey> => {
+  const pages = Math.ceil(count / pageSize);
+
+  return new Serializer<ParticipantKey>("participant-key", {
+    nullData: false,
+    linkers: {
+      document: new Linker(() => {
+        return `${apiSettings.apiBaseUrl}/participants?page[number]=${pageNumber}&page[size]=${pageSize}`;
+      }),
+      resource: new Linker((participantKey: ParticipantKey) => {
+        return `${apiSettings.apiBaseUrl}/participant-keys/${participantKey.id}`;
+      }),
+      paginator: new Paginator(() => {
+        const nextPage = pageNumber + 1;
+        const previousPage = pageNumber - 1;
+        return {
+          first: `${apiSettings.apiBaseUrl}/participant-keys?page[number]=${FIRST_PAGE}&page[size]=${pageSize}`,
+          last: `${apiSettings.apiBaseUrl}/participant-keys?page[number]=${pages}&page[size]=${pageSize}`,
+          next:
+            nextPage <= pages
+              ? `${apiSettings.apiBaseUrl}/participant-keys?page[number]=${nextPage}&page[size]=${pageSize}`
+              : null,
+          prev:
+            previousPage >= 0
+              ? `${apiSettings.apiBaseUrl}/participant-keys?page[number]=${previousPage}&page[size]=${pageSize}`
+              : null,
+        };
+      }),
+    },
+    metaizers: {
+      document: new Metaizer(() => ({
+        itemsPerPage: pageSize,
+        totalItems: count,
+        currentPage: pageNumber,
+        totalPages: pages,
+      })),
+    },
+  });
+};
+
+export const buildOrganizationSerializer = (
+  apiSettings: ApiSettings
+): Serializer<Organization> => {
+  return new Serializer<Organization>("organization", {
+    nullData: false,
+    linkers: {
+      document: new Linker<[SingleOrArray<Organization> | nullish]>(
+        (organization: nullish | SingleOrArray<Organization>) => {
+          if (!Array.isArray(organization) && organization) {
+            return `${apiSettings.apiBaseUrl}/organizations/${organization.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/organizations`;
+        }
+      ),
+      resource: new Linker((organization: Organization) => {
+        return `${apiSettings.apiBaseUrl}/organizations/${organization.id}`;
+      }),
+    },
+  });
+};
+
+export const buildOrganizationsSerializer = (
+  apiSettings: ApiSettings,
+  count: number,
+  pageNumber: number,
+  pageSize: number
+): Serializer<Organization> => {
+  const pages = Math.ceil(count / pageSize);
+
+  return new Serializer<Organization>("organization", {
+    nullData: false,
+    linkers: {
+      document: new Linker(() => {
+        return `${apiSettings.apiBaseUrl}/organizations?page[number]=${pageNumber}&page[size]=${pageSize}`;
+      }),
+      resource: new Linker((organization: Organization) => {
+        return `${apiSettings.apiBaseUrl}/organizations/${organization.id}`;
+      }),
+      paginator: new Paginator(() => {
+        const nextPage = pageNumber + 1;
+        const previousPage = pageNumber - 1;
+        return {
+          first: `${apiSettings.apiBaseUrl}/organizations?page[number]=${FIRST_PAGE}&page[size]=${pageSize}`,
+          last: `${apiSettings.apiBaseUrl}/organizations?page[number]=${pages}&page[size]=${pageSize}`,
+          next:
+            nextPage <= pages
+              ? `${apiSettings.apiBaseUrl}/organizations?page[number]=${nextPage}&page[size]=${pageSize}`
+              : null,
+          prev:
+            previousPage >= 0
+              ? `${apiSettings.apiBaseUrl}/organizations?page[number]=${previousPage}&page[size]=${pageSize}`
+              : null,
+        };
+      }),
+    },
+    metaizers: {
+      document: new Metaizer(() => ({
+        itemsPerPage: pageSize,
+        totalItems: count,
+        currentPage: pageNumber,
+        totalPages: pages,
+      })),
+    },
+  });
+};
+
 export const buildNodeSerializer = (
   apiSettings: ApiSettings
 ): Serializer<Node> => {
@@ -426,8 +611,8 @@ export const buildNodeSerializer = (
           return `${apiSettings.apiBaseUrl}/nodes`;
         }
       ),
-      resource: new Linker((pendingTransaction: Node) => {
-        return `${apiSettings.apiBaseUrl}/nodes/${pendingTransaction.id}`;
+      resource: new Linker((node: Node) => {
+        return `${apiSettings.apiBaseUrl}/nodes/${node.id}`;
       }),
     },
   });
@@ -447,8 +632,8 @@ export const buildNodesSerializer = (
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/nodes?page[number]=${pageNumber}&page[size]=${pageSize}`;
       }),
-      resource: new Linker((pendingTransaction: Node) => {
-        return `${apiSettings.apiBaseUrl}/nodes/${pendingTransaction.id}`;
+      resource: new Linker((node: Node) => {
+        return `${apiSettings.apiBaseUrl}/nodes/${node.id}`;
       }),
       paginator: new Paginator(() => {
         const nextPage = pageNumber + 1;

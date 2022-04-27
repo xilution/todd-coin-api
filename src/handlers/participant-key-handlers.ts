@@ -1,34 +1,24 @@
+import { DbClient, participantKeysBroker } from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import * as Boom from "@hapi/boom";
+import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
+import { Participant, ParticipantKey } from "@xilution/todd-coin-types";
 import {
-  buildBlockSerializer,
-  buildBlocksSerializer,
+  buildParticipantKeySerializer,
+  buildParticipantKeysSerializer,
 } from "./serializer-builders";
 import {
-  blocksBroker,
-  participantKeysBroker,
-} from "@xilution/todd-coin-brokers";
-import { DbClient } from "@xilution/todd-coin-brokers";
-import {
-  buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
-import * as Boom from "@hapi/boom";
-import { ValidationError, ValidationErrorItem } from "joi";
-import {
-  Block,
-  BlockTransaction,
-  Participant,
-  ParticipantKey,
-  TransactionDetails,
-} from "@xilution/todd-coin-types";
+import { keyUtils } from "@xilution/todd-coin-utils";
 
-export const getBlocksValidationFailAction = (
+export const getParticipantKeysValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
   error: Error | undefined
@@ -45,7 +35,7 @@ export const getBlocksValidationFailAction = (
     .takeover();
 };
 
-export const getBlocksRequestHandler =
+export const getParticipantKeysRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
     const pageNumber: number =
@@ -54,10 +44,13 @@ export const getBlocksRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    let response: { count: number; rows: Block[] };
-
+    let response: { count: number; rows: ParticipantKey[] };
     try {
-      response = await blocksBroker.getBlocks(dbClient, pageNumber, pageSize);
+      response = await participantKeysBroker.getParticipantKeys(
+        dbClient,
+        pageNumber,
+        pageSize
+      );
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -69,7 +62,7 @@ export const getBlocksRequestHandler =
 
     const { count, rows } = response;
 
-    return await buildBlocksSerializer(
+    return buildParticipantKeysSerializer(
       apiSettings,
       count,
       pageNumber,
@@ -77,7 +70,7 @@ export const getBlocksRequestHandler =
     ).serialize(rows);
   };
 
-export const getBlockValidationFailAction = (
+export const getParticipantKeyValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
   error: Error | undefined
@@ -94,16 +87,19 @@ export const getBlockValidationFailAction = (
     .takeover();
 };
 
-export const getBlockRequestHandler =
+export const getParticipantKeyRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const { blockId } = request.params;
+    const { participantKeyId } = request.params;
 
-    let block: Block | undefined;
+    let participantKey: ParticipantKey | undefined;
     try {
-      block = await blocksBroker.getBlockById(dbClient, blockId);
+      participantKey = await participantKeysBroker.getParticipantKeyById(
+        dbClient,
+        participantKeyId
+      );
     } catch (error) {
-      console.error(error);
+      console.error((error as Error).message);
       return h
         .response({
           errors: [buildInternalServerError()],
@@ -111,20 +107,22 @@ export const getBlockRequestHandler =
         .code(500);
     }
 
-    if (block === undefined) {
+    if (participantKey === undefined) {
       return h
         .response({
           errors: [
-            buildNofFountError(`A block with id: ${blockId} was not found.`),
+            buildNofFountError(
+              `A participantKey with id: ${participantKeyId} was not found.`
+            ),
           ],
         })
         .code(404);
     }
 
-    return await buildBlockSerializer(apiSettings).serialize(block);
+    return buildParticipantKeySerializer(apiSettings).serialize(participantKey);
   };
 
-export const postBlockValidationFailAction = (
+export const postParticipantKeyValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
   error: Error | undefined
@@ -141,61 +139,19 @@ export const postBlockValidationFailAction = (
     .takeover();
 };
 
-export const postBlockRequestHandler =
+export const postParticipantKeyRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const payload = request.payload as {
-      data: {
-        id: string;
-        attributes: Record<string, string | number | boolean | object>;
-        relationships: {
-          transactions: Array<{
-            data: ApiData<BlockTransaction<TransactionDetails>>;
-          }>;
-        };
-      };
-    };
-
     const participant = request.auth.credentials.participant as Participant;
 
-    const participantKey: ParticipantKey | undefined =
-      await participantKeysBroker.getEffectiveParticipantKeyByParticipant(
-        dbClient,
-        participant
-      );
+    const newParticipantKey = keyUtils.generateParticipantKey();
 
-    if (participantKey === undefined) {
-      console.error(
-        `Unable to post a new block because the miner does not have an effective key.`
-      );
-      return h
-        .response({
-          errors: [buildBadRequestError()],
-        })
-        .code(500);
-    }
-
-    const newBlock = {
-      id: payload.data.id,
-      ...payload.data.attributes,
-      transactions: payload.data.relationships.transactions.map(
-        (transactionData: {
-          data: ApiData<BlockTransaction<TransactionDetails>>;
-        }) => ({
-          id: transactionData.data.id,
-          ...transactionData.data.attributes,
-        })
-      ),
-    } as Block;
-
-    // todo - validate that the new block can be added to the chain. return bad request if not
-
-    let createdBlock: Block | undefined;
+    let createdParticipantKey: ParticipantKey | undefined;
     try {
-      createdBlock = await blocksBroker.createBlock(
+      createdParticipantKey = await participantKeysBroker.createParticipantKey(
         dbClient,
-        newBlock,
-        participantKey.public
+        participant,
+        newParticipantKey
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -206,7 +162,7 @@ export const postBlockRequestHandler =
         .code(500);
     }
 
-    // todo - notify known blocks that a new block was added
-
-    return buildBlockSerializer(apiSettings).serialize(createdBlock);
+    return buildParticipantKeySerializer(apiSettings).serialize(
+      createdParticipantKey
+    );
   };

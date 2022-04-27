@@ -2,25 +2,20 @@ import {
   DbClient,
   OrganizationParticipantRef,
   organizationParticipantRefsBroker,
-  organizationsBroker,
+  participantsBroker,
 } from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
+import { Organization, Participant } from "@xilution/todd-coin-types";
+import { organizationsBroker } from "@xilution/todd-coin-brokers";
 import {
-  Organization,
-  Participant,
-  ParticipantKey,
-} from "@xilution/todd-coin-types";
-import { participantsBroker } from "@xilution/todd-coin-brokers";
-import {
+  buildOrganizationSerializer,
   buildOrganizationsSerializer,
-  buildParticipantSerializer,
   buildParticipantsSerializer,
 } from "./serializer-builders";
-import { hashUtils, keyUtils } from "@xilution/todd-coin-utils";
 import {
   buildInternalServerError,
   buildInvalidAttributeError,
@@ -29,7 +24,7 @@ import {
   buildNofFountError,
 } from "./error-utils";
 
-export const getParticipantsValidationFailAction = (
+export const getOrganizationsValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
   error: Error | undefined
@@ -46,7 +41,7 @@ export const getParticipantsValidationFailAction = (
     .takeover();
 };
 
-export const getParticipantsRequestHandler =
+export const getOrganizationsRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
     const pageNumber: number =
@@ -55,11 +50,9 @@ export const getParticipantsRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    const publicKeyFilter: string = request.query["filter[publicKey]"]; // todo - implement this
-
-    let response: { count: number; rows: Participant[] };
+    let response: { count: number; rows: Organization[] } | undefined;
     try {
-      response = await participantsBroker.getParticipants(
+      response = await organizationsBroker.getOrganizations(
         dbClient,
         pageNumber,
         pageSize
@@ -75,7 +68,7 @@ export const getParticipantsRequestHandler =
 
     const { count, rows } = response;
 
-    return buildParticipantsSerializer(
+    return buildOrganizationsSerializer(
       apiSettings,
       count,
       pageNumber,
@@ -83,7 +76,7 @@ export const getParticipantsRequestHandler =
     ).serialize(rows);
   };
 
-export const getParticipantValidationFailAction = (
+export const getOrganizationValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
   error: Error | undefined
@@ -100,16 +93,16 @@ export const getParticipantValidationFailAction = (
     .takeover();
 };
 
-export const getParticipantRequestHandler =
+export const getOrganizationRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const { participantId } = request.params;
+    const { organizationId } = request.params;
 
-    let participant: Participant | undefined;
+    let organization: Organization | undefined;
     try {
-      participant = await participantsBroker.getParticipantById(
+      organization = await organizationsBroker.getOrganizationById(
         dbClient,
-        participantId
+        organizationId
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -120,25 +113,25 @@ export const getParticipantRequestHandler =
         .code(500);
     }
 
-    if (participant === undefined) {
+    if (organization === undefined) {
       return h
         .response({
           errors: [
             buildNofFountError(
-              `A participant with id: ${participantId} was not found.`
+              `A organization with id: ${organizationId} was not found.`
             ),
           ],
         })
         .code(404);
     }
 
-    return buildParticipantSerializer(apiSettings).serialize(participant);
+    return buildOrganizationSerializer(apiSettings).serialize(organization);
   };
 
-export const getParticipantOrganizationRequestHandler =
+export const getOrganizationParticipantRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const { participantId } = request.params;
+    const { organizationId } = request.params;
 
     const pageNumber: number =
       Number(request.query["page[number]"]) || FIRST_PAGE;
@@ -152,9 +145,9 @@ export const getParticipantOrganizationRequestHandler =
     };
     try {
       getOrganizationParticipantRefsResponse =
-        await organizationParticipantRefsBroker.getOrganizationParticipantRefByParticipantId(
+        await organizationParticipantRefsBroker.getOrganizationParticipantRefByOrganizationId(
           dbClient,
-          participantId
+          organizationId
         );
     } catch (error) {
       console.error((error as Error).message);
@@ -165,18 +158,18 @@ export const getParticipantOrganizationRequestHandler =
         .code(500);
     }
 
-    const organizationIds = getOrganizationParticipantRefsResponse.rows.map(
+    const participantIds = getOrganizationParticipantRefsResponse.rows.map(
       (organizationParticipantRef: OrganizationParticipantRef) =>
-        organizationParticipantRef.organizationId
+        organizationParticipantRef.participantId
     );
 
-    let getOrganizationsResponse: { count: number; rows: Organization[] };
+    let getParticipantsResponse: { count: number; rows: Participant[] };
     try {
-      getOrganizationsResponse = await organizationsBroker.getOrganizations(
+      getParticipantsResponse = await participantsBroker.getParticipants(
         dbClient,
         pageNumber,
         pageSize,
-        organizationIds
+        participantIds
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -187,15 +180,15 @@ export const getParticipantOrganizationRequestHandler =
         .code(500);
     }
 
-    return buildOrganizationsSerializer(
+    return buildParticipantsSerializer(
       apiSettings,
-      getOrganizationsResponse.count,
+      getParticipantsResponse.count,
       pageNumber,
       pageSize
-    ).serialize(getOrganizationsResponse.rows);
+    ).serialize(getParticipantsResponse.rows);
   };
 
-export const postParticipantValidationFailAction = (
+export const postOrganizationValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
   error: Error | undefined
@@ -212,35 +205,25 @@ export const postParticipantValidationFailAction = (
     .takeover();
 };
 
-export const postParticipantRequestHandler =
+export const postOrganizationRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const payload = request.payload as { data: ApiData<Participant> };
+    const payload = request.payload as { data: ApiData<Organization> };
 
-    // todo - check for dupe participants
+    // todo - check for dupe organizations
 
-    const participantKey: ParticipantKey = keyUtils.generateParticipantKey();
+    // todo - once validated, sync up with the new organization
 
-    const newParticipant: Participant = {
+    const newOrganization: Organization = {
       id: payload.data.id,
       ...payload.data.attributes,
-      keys: [
-        {
-          public: participantKey.public,
-          private: participantKey.private,
-          effective: participantKey.effective,
-        },
-      ],
-    };
+    } as Organization;
 
-    let createdParticipant: Participant | undefined;
+    let createdOrganization: Organization | undefined;
     try {
-      createdParticipant = await participantsBroker.createParticipant(
+      createdOrganization = await organizationsBroker.createOrganization(
         dbClient,
-        {
-          ...newParticipant,
-          password: hashUtils.calculateStringHash(newParticipant.password),
-        }
+        newOrganization
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -251,35 +234,26 @@ export const postParticipantRequestHandler =
         .code(500);
     }
 
-    if (createdParticipant === undefined) {
-      console.error(`unable to create a new participant`);
-      return h
-        .response({
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
-    }
+    // todo - notify known organizations that a new organization was added
 
-    // todo - notify known participants that a new participant was added
-
-    return buildParticipantSerializer(apiSettings).serialize(
-      createdParticipant
+    return buildOrganizationSerializer(apiSettings).serialize(
+      createdOrganization
     );
   };
 
-export const postParticipantOrganizationsRequestHandler =
+export const postOrganizationParticipantsRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const payload = request.payload as { data: ApiData<Organization>[] };
-    const { participantId } = request.params;
+    const payload = request.payload as { data: ApiData<Participant>[] };
+    const { organizationId } = request.params;
 
-    const organizationIds = payload.data.map(
-      (apiData: ApiData<Organization>) => apiData.id
+    const participantIds = payload.data.map(
+      (apiData: ApiData<Participant>) => apiData.id
     );
 
     try {
       await Promise.all(
-        organizationIds.map((organizationId: string) => {
+        participantIds.map((participantId: string) => {
           return organizationParticipantRefsBroker.createOrganizationParticipantRef(
             dbClient,
             {

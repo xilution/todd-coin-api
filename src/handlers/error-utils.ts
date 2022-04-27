@@ -65,6 +65,13 @@ export const buildForbiddenError = (detail: string) => {
   };
 };
 
+export const buildBadRequestError = () => {
+  return {
+    status: "400",
+    title: "Bad Request",
+  };
+};
+
 export const buildInternalServerError = () => {
   return {
     status: "500",

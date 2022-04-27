@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/xilution/todd-coin-api/compare/v1.0.1...v1.1.0) (2022-04-27)
+
+
+### Features
+
+* added org/participant reference endpoints ([9723ad8](https://github.com/xilution/todd-coin-api/commit/9723ad8fbc064d8329c8d9dcabdd63b0f86e5bcd))
+* added org/participant reference endpoints ([d3a5078](https://github.com/xilution/todd-coin-api/commit/d3a5078e69d87552cb0c6d30dc97931c7b69b0fc))
+
 ## [1.0.1](https://github.com/xilution/todd-coin-api/compare/v1.0.0...v1.0.1) (2022-04-22)
 
 

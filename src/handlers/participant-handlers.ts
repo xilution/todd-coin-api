@@ -3,6 +3,7 @@ import {
   OrganizationParticipantRef,
   organizationParticipantRefsBroker,
   organizationsBroker,
+  participantsBroker,
 } from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
@@ -14,7 +15,6 @@ import {
   Participant,
   ParticipantKey,
 } from "@xilution/todd-coin-types";
-import { participantsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildOrganizationsSerializer,
   buildParticipantSerializer,

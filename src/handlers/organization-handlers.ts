@@ -2,6 +2,7 @@ import {
   DbClient,
   OrganizationParticipantRef,
   organizationParticipantRefsBroker,
+  organizationsBroker,
   participantsBroker,
 } from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
@@ -10,7 +11,6 @@ import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import { Organization, Participant } from "@xilution/todd-coin-types";
-import { organizationsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildOrganizationSerializer,
   buildOrganizationsSerializer,

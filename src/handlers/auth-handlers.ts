@@ -6,17 +6,11 @@ import {
   buildInvalidAttributeError,
   buildUnauthorizedError,
 } from "./error-utils";
-import {
-  DbClient,
-  participantKeysBroker,
-  participantsBroker,
-} from "@xilution/todd-coin-brokers";
-import { ec } from "elliptic";
-import { hashUtils, keyUtils } from "@xilution/todd-coin-utils";
+import { DbClient, participantsBroker } from "@xilution/todd-coin-brokers";
+import { hashUtils } from "@xilution/todd-coin-utils";
 import { ApiSettings } from "../types";
-import { Participant, ParticipantKey } from "@xilution/todd-coin-types";
+import { Participant } from "@xilution/todd-coin-types";
 import jwt from "jsonwebtoken";
-import { getParticipantByEmail } from "../../../todd-coin-brokers/src/participants-broker";
 
 export const authTokenValidationFailAction = (
   request: Request,

@@ -1,7 +1,7 @@
 import { Request, ResponseToolkit, ServerAuthSchemeObject } from "@hapi/hapi";
 import { ApiSettings } from "../../types";
 import { Participant } from "@xilution/todd-coin-types";
-import { participantsBroker, DbClient } from "@xilution/todd-coin-brokers";
+import { DbClient, participantsBroker } from "@xilution/todd-coin-brokers";
 import { buildUnauthorizedError } from "../error-utils";
 import jwt from "jsonwebtoken";
 

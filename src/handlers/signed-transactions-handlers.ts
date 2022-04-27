@@ -1,15 +1,13 @@
-import { DbClient } from "@xilution/todd-coin-brokers";
+import { DbClient, transactionsBroker } from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import {
-  PendingTransaction,
   SignedTransaction,
   TransactionDetails,
 } from "@xilution/todd-coin-types";
-import { transactionsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildSignedTransactionSerializer,
   buildSignedTransactionsSerializer,

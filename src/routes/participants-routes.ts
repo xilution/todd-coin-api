@@ -1,10 +1,8 @@
 import { Server } from "@hapi/hapi";
 import { DbClient } from "@xilution/todd-coin-brokers";
 import {
-  GET_ORGANIZATION_PARAMETERS_SCHEMA,
   GET_PARTICIPANT_PARAMETERS_SCHEMA,
   GET_PARTICIPANTS_QUERY_SCHEMA,
-  POST_ORGANIZATION_PARTICIPANTS_SCHEMA,
   POST_PARTICIPANT_SCHEMA,
   POST_PARTICIPANTS_ORGANIZATION_SCHEMA,
 } from "./validation-schemas";
@@ -20,9 +18,7 @@ import {
 } from "../handlers/participant-handlers";
 import { ApiSettings } from "../types";
 import {
-  getOrganizationParticipantRequestHandler,
   getOrganizationValidationFailAction,
-  postOrganizationParticipantsRequestHandler,
   postOrganizationValidationFailAction,
 } from "../handlers/organization-handlers";
 

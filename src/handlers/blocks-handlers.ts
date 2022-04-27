@@ -7,9 +7,9 @@ import {
 } from "./serializer-builders";
 import {
   blocksBroker,
+  DbClient,
   participantKeysBroker,
 } from "@xilution/todd-coin-brokers";
-import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   buildBadRequestError,
   buildInternalServerError,

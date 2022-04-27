@@ -1,4 +1,8 @@
-import { DbClient } from "@xilution/todd-coin-brokers";
+import {
+  blocksBroker,
+  DbClient,
+  transactionsBroker,
+} from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
@@ -9,7 +13,6 @@ import {
   BlockTransaction,
   TransactionDetails,
 } from "@xilution/todd-coin-types";
-import { blocksBroker, transactionsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildBlockTransactionSerializer,
   buildBlockTransactionsSerializer,

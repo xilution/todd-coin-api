@@ -3,12 +3,7 @@ import {
   MAX_TRANSACTIONS_PER_BLOCK,
   MAXIMUM_PAGE_SIZE,
 } from "@xilution/todd-coin-constants";
-import {
-  OrganizationRole,
-  OrganizationRoles,
-  ParticipantRole,
-  ParticipantRoles,
-} from "@xilution/todd-coin-types";
+import { OrganizationRoles, ParticipantRoles } from "@xilution/todd-coin-types";
 
 const HASH_REGEX = /^([a-z0-9]){64}$/;
 const PUBLIC_KEY_REGEX = /^([a-z0-9]){130}$/;

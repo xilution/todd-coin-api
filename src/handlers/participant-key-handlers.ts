@@ -3,7 +3,7 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
-import { ApiData, ApiSettings } from "../types";
+import { ApiSettings } from "../types";
 import { Participant, ParticipantKey } from "@xilution/todd-coin-types";
 import {
   buildParticipantKeySerializer,

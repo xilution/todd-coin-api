@@ -8,15 +8,13 @@ import {
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
-import { DbClient } from "@xilution/todd-coin-brokers";
+import { DbClient, transactionsBroker } from "@xilution/todd-coin-brokers";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import {
-  BlockTransaction,
   PendingTransaction,
   TransactionDetails,
 } from "@xilution/todd-coin-types";
-import { transactionsBroker } from "@xilution/todd-coin-brokers";
 import {
   buildPendingTransactionSerializer,
   buildPendingTransactionsSerializer,

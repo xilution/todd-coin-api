@@ -3,13 +3,13 @@ import { ApiSettings } from "../types";
 import {
   Block,
   BlockTransaction,
+  Node,
+  Organization,
+  Participant,
+  ParticipantKey,
   PendingTransaction,
   SignedTransaction,
-  Node,
-  Participant,
   TransactionDetails,
-  Organization,
-  ParticipantKey,
 } from "@xilution/todd-coin-types";
 import _ from "lodash";
 import {

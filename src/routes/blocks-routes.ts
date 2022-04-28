@@ -24,6 +24,7 @@ export const addBlocksRoutes = (
     method: "GET",
     path: "/blocks",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         query: GET_BLOCKS_QUERY_SCHEMA,
@@ -40,6 +41,7 @@ export const addBlocksRoutes = (
     method: "GET",
     path: "/blocks/{blockId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_BLOCK_PARAMETERS_SCHEMA,
@@ -56,6 +58,7 @@ export const addBlocksRoutes = (
     method: "POST",
     path: "/blocks",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         payload: POST_BLOCK_SCHEMA,

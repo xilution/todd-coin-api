@@ -27,6 +27,7 @@ export const addSignedTransactionsRoutes = (
     method: "GET",
     path: "/signed-transactions",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         query: GET_SIGNED_TRANSACTIONS_QUERY_SCHEMA,
@@ -43,6 +44,7 @@ export const addSignedTransactionsRoutes = (
     method: "GET",
     path: "/signed-transactions/{signedTransactionId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_SIGNED_TRANSACTION_PARAMETERS_SCHEMA,
@@ -59,6 +61,7 @@ export const addSignedTransactionsRoutes = (
     method: "POST",
     path: "/signed-transactions",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         payload: POST_SIGNED_TRANSACTION_SCHEMA,
@@ -75,6 +78,7 @@ export const addSignedTransactionsRoutes = (
     method: "PATCH",
     path: "/signedTransactions/{signedTransactionId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_SIGNED_TRANSACTION_PARAMETERS_SCHEMA,

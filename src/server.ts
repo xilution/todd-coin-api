@@ -1,6 +1,9 @@
 "use strict";
 
 import * as Hapi from "@hapi/hapi";
+import * as Inert from "@hapi/inert";
+import * as Vision from "@hapi/vision";
+import * as HapiSwagger from "hapi-swagger";
 import { Server } from "@hapi/hapi";
 import { DbClient, environmentUtils } from "@xilution/todd-coin-brokers";
 import { getApiSettings } from "./environment-utils";
@@ -32,7 +35,7 @@ export const init = async (): Promise<Server> => {
   await dbClient.init(database, username, password, dbHost, dbPort);
 
   const apiSettings = getApiSettings();
-  const { apiPort, apiHost } = apiSettings;
+  const { apiPort, apiHost, apiProtocol, apiBaseUrl } = apiSettings;
 
   server = Hapi.server({
     port: apiPort,
@@ -41,6 +44,29 @@ export const init = async (): Promise<Server> => {
       cors: true,
     },
   });
+
+  const swaggerOptions = {
+    info: {
+      title: "Todd Coin API Documentation",
+    },
+  };
+
+  // todo - fix this typing
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const plugins: Array<Hapi.ServerRegisterPluginObject<any>> = [
+    {
+      plugin: Inert,
+    },
+    {
+      plugin: Vision,
+    },
+    {
+      plugin: HapiSwagger,
+      options: swaggerOptions,
+    },
+  ];
+
+  await server.register(plugins);
 
   addAuth(server, dbClient, apiSettings);
 

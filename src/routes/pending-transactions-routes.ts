@@ -27,6 +27,7 @@ export const addPendingTransactionsRoutes = (
     method: "GET",
     path: "/pending-transactions",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         query: GET_PENDING_TRANSACTIONS_QUERY_SCHEMA,
@@ -43,6 +44,7 @@ export const addPendingTransactionsRoutes = (
     method: "GET",
     path: "/pending-transactions/{pendingTransactionId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PENDING_TRANSACTION_PARAMETERS_SCHEMA,
@@ -59,6 +61,7 @@ export const addPendingTransactionsRoutes = (
     method: "POST",
     path: "/pending-transactions",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         payload: POST_PENDING_TRANSACTION_SCHEMA,
@@ -75,6 +78,7 @@ export const addPendingTransactionsRoutes = (
     method: "PATCH",
     path: "/pendingTransactions/{pendingTransactionId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PENDING_TRANSACTION_PARAMETERS_SCHEMA,

@@ -27,6 +27,7 @@ export const addNodesRoutes = (
     method: "GET",
     path: "/nodes",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         query: GET_NODES_QUERY_SCHEMA,
@@ -43,6 +44,7 @@ export const addNodesRoutes = (
     method: "GET",
     path: "/nodes/{nodeId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_NODE_PARAMETERS_SCHEMA,
@@ -59,6 +61,7 @@ export const addNodesRoutes = (
     method: "POST",
     path: "/nodes",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         payload: POST_NODE_SCHEMA,
@@ -75,6 +78,7 @@ export const addNodesRoutes = (
     method: "PATCH",
     path: "/nodes/{nodeId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_NODE_PARAMETERS_SCHEMA,

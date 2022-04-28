@@ -16,6 +16,7 @@ export const addAuthRoutes = (
     method: "POST",
     path: "/auth/token",
     options: {
+      tags: ["api"],
       validate: {
         payload: AUTH_SCHEMA,
         options: {

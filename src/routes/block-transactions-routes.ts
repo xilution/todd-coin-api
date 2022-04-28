@@ -22,6 +22,7 @@ export const addBlockTransactionsRoutes = (
     method: "GET",
     path: "/blocks/{blockId}/transactions",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         query: GET_BLOCK_TRANSACTIONS_QUERY_SCHEMA,
@@ -39,6 +40,7 @@ export const addBlockTransactionsRoutes = (
     method: "GET",
     path: "/blocks/{blockId}/transactions/{blockTransactionId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_BLOCK_TRANSACTION_PARAMETERS_SCHEMA,

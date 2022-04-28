@@ -34,6 +34,7 @@ export const addParticipantRoutes = (
     method: "GET",
     path: "/participants",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         query: GET_PARTICIPANTS_QUERY_SCHEMA,
@@ -50,6 +51,7 @@ export const addParticipantRoutes = (
     method: "GET",
     path: "/participants/{participantId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
@@ -66,6 +68,7 @@ export const addParticipantRoutes = (
     method: "POST",
     path: "/participants",
     options: {
+      tags: ["api"],
       validate: {
         payload: POST_PARTICIPANT_SCHEMA,
         options: {
@@ -81,6 +84,7 @@ export const addParticipantRoutes = (
     method: "PATCH",
     path: "/participants/{participantId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
@@ -98,6 +102,7 @@ export const addParticipantRoutes = (
     method: "GET",
     path: "/participants/{participantId}/organizations",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
@@ -114,6 +119,7 @@ export const addParticipantRoutes = (
     method: "GET",
     path: "/participants/{participantId}/relationships/organizations",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
@@ -130,6 +136,7 @@ export const addParticipantRoutes = (
     method: "POST",
     path: "/participants/{participantId}/relationships/organizations",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PARTICIPANT_PARAMETERS_SCHEMA,

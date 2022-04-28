@@ -27,6 +27,7 @@ export const addParticipantKeyRoutes = (
     method: "GET",
     path: "/participant-keys",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         query: GET_PARTICIPANTS_QUERY_SCHEMA,
@@ -43,6 +44,7 @@ export const addParticipantKeyRoutes = (
     method: "GET",
     path: "/participant-keys/{participantKeyId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PARTICIPANT_KEY_PARAMETERS_SCHEMA,
@@ -59,6 +61,7 @@ export const addParticipantKeyRoutes = (
     method: "POST",
     path: "/participant-keys",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         payload: POST_PARTICIPANT_KEY_SCHEMA,
@@ -75,6 +78,7 @@ export const addParticipantKeyRoutes = (
     method: "PATCH",
     path: "/participantKeys/{participantKeyId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_PARTICIPANT_KEY_PARAMETERS_SCHEMA,

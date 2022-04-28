@@ -11,6 +11,9 @@ export const addRootRoutes = (
   server.route({
     method: "GET",
     path: "/",
+    options: {
+      tags: ["api"],
+    },
     handler: getRoot(dbClient, apiSettings),
   });
 };

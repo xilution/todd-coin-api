@@ -30,6 +30,7 @@ export const addOrganizationsRoutes = (
     method: "GET",
     path: "/organizations",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         query: GET_ORGANIZATIONS_QUERY_SCHEMA,
@@ -46,6 +47,7 @@ export const addOrganizationsRoutes = (
     method: "GET",
     path: "/organizations/{organizationId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
@@ -62,6 +64,7 @@ export const addOrganizationsRoutes = (
     method: "POST",
     path: "/organizations",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         payload: POST_ORGANIZATION_SCHEMA,
@@ -78,6 +81,7 @@ export const addOrganizationsRoutes = (
     method: "PATCH",
     path: "/organizations/{organizationId}",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
@@ -95,6 +99,7 @@ export const addOrganizationsRoutes = (
     method: "GET",
     path: "/organizations/{organizationId}/participants",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
@@ -111,6 +116,7 @@ export const addOrganizationsRoutes = (
     method: "GET",
     path: "/organizations/{organizationId}/relationships/participants",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
@@ -127,6 +133,7 @@ export const addOrganizationsRoutes = (
     method: "POST",
     path: "/organizations/{organizationId}/relationships/participants",
     options: {
+      tags: ["api"],
       auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,

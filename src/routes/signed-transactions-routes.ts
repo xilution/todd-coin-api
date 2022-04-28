@@ -3,6 +3,7 @@ import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   GET_SIGNED_TRANSACTION_PARAMETERS_SCHEMA,
   GET_SIGNED_TRANSACTIONS_QUERY_SCHEMA,
+  PATCH_SIGNED_TRANSACTION_SCHEMA,
   POST_SIGNED_TRANSACTION_SCHEMA,
 } from "./validation-schemas";
 import {
@@ -10,6 +11,8 @@ import {
   getSignedTransactionsRequestHandler,
   getSignedTransactionsValidationFailAction,
   getSignedTransactionValidationFailAction,
+  patchSignedTransactionRequestHandler,
+  patchSignedTransactionValidationFailAction,
   postSignedTransactionRequestHandler,
   postSignedTransactionValidationFailAction,
 } from "../handlers/signed-transactions-handlers";
@@ -66,5 +69,22 @@ export const addSignedTransactionsRoutes = (
       },
     },
     handler: postSignedTransactionRequestHandler(dbClient, apiSettings),
+  });
+
+  server.route({
+    method: "PATCH",
+    path: "/signedTransactions/{signedTransactionId}",
+    options: {
+      auth: "custom",
+      validate: {
+        params: GET_SIGNED_TRANSACTION_PARAMETERS_SCHEMA,
+        payload: PATCH_SIGNED_TRANSACTION_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: patchSignedTransactionValidationFailAction,
+      },
+    },
+    handler: patchSignedTransactionRequestHandler(dbClient),
   });
 };

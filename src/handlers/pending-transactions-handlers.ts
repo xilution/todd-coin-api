@@ -186,3 +186,54 @@ export const postPendingTransactionRequestHandler =
         .code(500);
     }
   };
+
+export const patchPendingTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "pendingTransactionId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchPendingTransactionRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const { pendingTransactionId } = request.params;
+    const payload = request.payload as {
+      data: ApiData<PendingTransaction<TransactionDetails>>;
+    };
+
+    // todo - confirm that the user can do this
+
+    const updatedPendingTransaction: PendingTransaction<TransactionDetails> = {
+      id: pendingTransactionId,
+      ...payload.data.attributes,
+    } as PendingTransaction<TransactionDetails>;
+
+    try {
+      await transactionsBroker.updatePendingTransaction(
+        dbClient,
+        updatedPendingTransaction
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    return h.response().code(204);
+  };

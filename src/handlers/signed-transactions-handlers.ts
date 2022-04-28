@@ -182,3 +182,54 @@ export const postSignedTransactionRequestHandler =
       createdSignedTransaction
     );
   };
+
+export const patchSignedTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "signedTransactionId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchSignedTransactionRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const { signedTransactionId } = request.params;
+    const payload = request.payload as {
+      data: ApiData<SignedTransaction<TransactionDetails>>;
+    };
+
+    // todo - confirm that the user can do this
+
+    const updatedSignedTransaction: SignedTransaction<TransactionDetails> = {
+      id: signedTransactionId,
+      ...payload.data.attributes,
+    } as SignedTransaction<TransactionDetails>;
+
+    try {
+      await transactionsBroker.updateSignedTransaction(
+        dbClient,
+        updatedSignedTransaction
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    return h.response().code(204);
+  };

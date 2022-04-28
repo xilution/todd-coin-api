@@ -159,3 +159,49 @@ export const postNodeRequestHandler =
 
     return buildNodeSerializer(apiSettings).serialize(createdNode);
   };
+
+export const patchNodeValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "nodeId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchNodeRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const { nodeId } = request.params;
+    const payload = request.payload as { data: ApiData<Node> };
+
+    // todo - confirm that the user can do this
+
+    const updatedNode: Node = {
+      id: nodeId,
+      ...payload.data.attributes,
+    } as Node;
+
+    try {
+      await nodesBroker.updateNode(dbClient, updatedNode);
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    return h.response().code(204);
+  };

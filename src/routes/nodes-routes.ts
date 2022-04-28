@@ -3,6 +3,7 @@ import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   GET_NODE_PARAMETERS_SCHEMA,
   GET_NODES_QUERY_SCHEMA,
+  PATCH_NODE_SCHEMA,
   POST_NODE_SCHEMA,
 } from "./validation-schemas";
 import {
@@ -10,6 +11,8 @@ import {
   getNodesRequestHandler,
   getNodesValidationFailAction,
   getNodeValidationFailAction,
+  patchNodeRequestHandler,
+  patchNodeValidationFailAction,
   postNodeRequestHandler,
   postNodeValidationFailAction,
 } from "../handlers/node-handlers";
@@ -66,5 +69,22 @@ export const addNodesRoutes = (
       },
     },
     handler: postNodeRequestHandler(dbClient, apiSettings),
+  });
+
+  server.route({
+    method: "PATCH",
+    path: "/nodes/{nodeId}",
+    options: {
+      auth: "custom",
+      validate: {
+        params: GET_NODE_PARAMETERS_SCHEMA,
+        payload: PATCH_NODE_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: patchNodeValidationFailAction,
+      },
+    },
+    handler: patchNodeRequestHandler(dbClient),
   });
 };

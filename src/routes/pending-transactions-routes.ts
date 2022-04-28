@@ -3,6 +3,7 @@ import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   GET_PENDING_TRANSACTION_PARAMETERS_SCHEMA,
   GET_PENDING_TRANSACTIONS_QUERY_SCHEMA,
+  PATCH_PENDING_TRANSACTION_SCHEMA,
   POST_PENDING_TRANSACTION_SCHEMA,
 } from "./validation-schemas";
 import {
@@ -10,6 +11,8 @@ import {
   getPendingTransactionsRequestHandler,
   getPendingTransactionsValidationFailAction,
   getPendingTransactionValidationFailAction,
+  patchPendingTransactionRequestHandler,
+  patchPendingTransactionValidationFailAction,
   postPendingTransactionRequestHandler,
   postPendingTransactionValidationFailAction,
 } from "../handlers/pending-transactions-handlers";
@@ -66,5 +69,22 @@ export const addPendingTransactionsRoutes = (
       },
     },
     handler: postPendingTransactionRequestHandler(dbClient, apiSettings),
+  });
+
+  server.route({
+    method: "PATCH",
+    path: "/pendingTransactions/{pendingTransactionId}",
+    options: {
+      auth: "custom",
+      validate: {
+        params: GET_PENDING_TRANSACTION_PARAMETERS_SCHEMA,
+        payload: PATCH_PENDING_TRANSACTION_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: patchPendingTransactionValidationFailAction,
+      },
+    },
+    handler: patchPendingTransactionRequestHandler(dbClient),
   });
 };

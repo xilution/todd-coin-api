@@ -242,8 +242,7 @@ export const postOrganizationRequestHandler =
   };
 
 export const postOrganizationParticipantsRequestHandler =
-  (dbClient: DbClient, apiSettings: ApiSettings) =>
-  async (request: Request, h: ResponseToolkit) => {
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
     const payload = request.payload as { data: ApiData<Participant>[] };
     const { organizationId } = request.params;
 
@@ -262,6 +261,55 @@ export const postOrganizationParticipantsRequestHandler =
             }
           );
         })
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    return h.response().code(204);
+  };
+
+export const patchOrganizationValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "organizationId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchOrganizationRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const { organizationId } = request.params;
+    const payload = request.payload as { data: ApiData<Organization> };
+
+    // todo - confirm that the user can do this
+
+    const updatedOrganization: Organization = {
+      id: organizationId,
+      ...payload.data.attributes,
+    } as Organization;
+
+    try {
+      await organizationsBroker.updateOrganization(
+        dbClient,
+        updatedOrganization
       );
     } catch (error) {
       console.error((error as Error).message);

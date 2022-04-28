@@ -3,6 +3,7 @@ import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   GET_PARTICIPANT_KEY_PARAMETERS_SCHEMA,
   GET_PARTICIPANTS_QUERY_SCHEMA,
+  PATCH_PARTICIPANT_KEY_SCHEMA,
   POST_PARTICIPANT_KEY_SCHEMA,
 } from "./validation-schemas";
 import {
@@ -10,6 +11,8 @@ import {
   getParticipantKeysRequestHandler,
   getParticipantKeysValidationFailAction,
   getParticipantKeyValidationFailAction,
+  patchParticipantKeyRequestHandler,
+  patchParticipantKeyValidationFailAction,
   postParticipantKeyRequestHandler,
   postParticipantKeyValidationFailAction,
 } from "../handlers/participant-key-handlers";
@@ -66,5 +69,22 @@ export const addParticipantKeyRoutes = (
       },
     },
     handler: postParticipantKeyRequestHandler(dbClient, apiSettings),
+  });
+
+  server.route({
+    method: "PATCH",
+    path: "/participantKeys/{participantKeyId}",
+    options: {
+      auth: "custom",
+      validate: {
+        params: GET_PARTICIPANT_KEY_PARAMETERS_SCHEMA,
+        payload: PATCH_PARTICIPANT_KEY_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: patchParticipantKeyValidationFailAction,
+      },
+    },
+    handler: patchParticipantKeyRequestHandler(dbClient),
   });
 };

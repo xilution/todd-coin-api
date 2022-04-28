@@ -55,7 +55,7 @@ export const getParticipantsRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    const publicKeyFilter: string = request.query["filter[publicKey]"]; // todo - implement this
+    // const publicKeyFilter: string = request.query["filter[publicKey]"]; // todo - implement this
 
     let response: { count: number; rows: Participant[] };
     try {
@@ -268,8 +268,7 @@ export const postParticipantRequestHandler =
   };
 
 export const postParticipantOrganizationsRequestHandler =
-  (dbClient: DbClient, apiSettings: ApiSettings) =>
-  async (request: Request, h: ResponseToolkit) => {
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
     const payload = request.payload as { data: ApiData<Organization>[] };
     const { participantId } = request.params;
 
@@ -289,6 +288,53 @@ export const postParticipantOrganizationsRequestHandler =
           );
         })
       );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    return h.response().code(204);
+  };
+
+export const patchParticipantValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "participantId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchParticipantRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const { participantId } = request.params;
+    const payload = request.payload as { data: ApiData<Participant> };
+
+    // todo - confirm that the user can do this
+
+    const updatedParticipant: Participant = {
+      id: participantId,
+      ...payload.data.attributes,
+    } as Participant;
+
+    try {
+      // todo - what if the user is changing their email or password?
+      await participantsBroker.updateParticipant(dbClient, updatedParticipant);
     } catch (error) {
       console.error((error as Error).message);
       return h

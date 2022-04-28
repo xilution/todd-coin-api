@@ -3,6 +3,7 @@ import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   GET_ORGANIZATION_PARAMETERS_SCHEMA,
   GET_ORGANIZATIONS_QUERY_SCHEMA,
+  PATCH_ORGANIZATION_SCHEMA,
   POST_ORGANIZATION_PARTICIPANTS_SCHEMA,
   POST_ORGANIZATION_SCHEMA,
 } from "./validation-schemas";
@@ -12,6 +13,8 @@ import {
   getOrganizationsRequestHandler,
   getOrganizationsValidationFailAction,
   getOrganizationValidationFailAction,
+  patchOrganizationRequestHandler,
+  patchOrganizationValidationFailAction,
   postOrganizationParticipantsRequestHandler,
   postOrganizationRequestHandler,
   postOrganizationValidationFailAction,
@@ -72,6 +75,23 @@ export const addOrganizationsRoutes = (
   });
 
   server.route({
+    method: "PATCH",
+    path: "/organizations/{organizationId}",
+    options: {
+      auth: "custom",
+      validate: {
+        params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
+        payload: PATCH_ORGANIZATION_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: patchOrganizationValidationFailAction,
+      },
+    },
+    handler: patchOrganizationRequestHandler(dbClient),
+  });
+
+  server.route({
     method: "GET",
     path: "/organizations/{organizationId}/participants",
     options: {
@@ -117,6 +137,6 @@ export const addOrganizationsRoutes = (
         failAction: postOrganizationValidationFailAction,
       },
     },
-    handler: postOrganizationParticipantsRequestHandler(dbClient, apiSettings),
+    handler: postOrganizationParticipantsRequestHandler(dbClient),
   });
 };

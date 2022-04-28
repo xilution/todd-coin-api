@@ -3,7 +3,7 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
-import { ApiSettings } from "../types";
+import { ApiData, ApiSettings } from "../types";
 import { Participant, ParticipantKey } from "@xilution/todd-coin-types";
 import {
   buildParticipantKeySerializer,
@@ -165,4 +165,53 @@ export const postParticipantKeyRequestHandler =
     return buildParticipantKeySerializer(apiSettings).serialize(
       createdParticipantKey
     );
+  };
+
+export const patchParticipantKeyValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "participantKeyId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchParticipantKeyRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const { participantKeyId } = request.params;
+    const payload = request.payload as { data: ApiData<ParticipantKey> };
+
+    // todo - confirm that the user can do this
+
+    const updatedParticipantKey: ParticipantKey = {
+      id: participantKeyId,
+      ...payload.data.attributes,
+    } as ParticipantKey;
+
+    try {
+      await participantKeysBroker.deactivateParticipantKey(
+        dbClient,
+        updatedParticipantKey
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    return h.response().code(204);
   };

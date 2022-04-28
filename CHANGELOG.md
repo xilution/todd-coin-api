@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/xilution/todd-coin-api/compare/v1.4.0...v1.4.1) (2022-04-28)
+
+
+### Bug Fixes
+
+* signaled up to metrics ([ba05200](https://github.com/xilution/todd-coin-api/commit/ba052000a50590169255fc410d8e0196f30655e8))
+
 # [1.4.0](https://github.com/xilution/todd-coin-api/compare/v1.3.0...v1.4.0) (2022-04-28)
 
 

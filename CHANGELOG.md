@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/xilution/todd-coin-api/compare/v1.2.0...v1.3.0) (2022-04-28)
+
+
+### Features
+
+* added swagger api documentation ([447d077](https://github.com/xilution/todd-coin-api/commit/447d077bf89daa5fed0f5980b5baa44327610289))
+
 # [1.2.0](https://github.com/xilution/todd-coin-api/compare/v1.1.0...v1.2.0) (2022-04-28)
 
 

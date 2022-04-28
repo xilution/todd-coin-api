@@ -11,6 +11,7 @@ import { addParticipantKeyRoutes } from "./participant-keys-routes";
 import { addOrganizationsRoutes } from "./organizations-routes";
 import { addNodesRoutes } from "./nodes-routes";
 import { ApiSettings } from "../types";
+import { addMetricsRoutes } from "./metrics-routes";
 
 export const addRoutes = (
   server: Server,
@@ -20,6 +21,7 @@ export const addRoutes = (
   addRootRoutes(server, dbClient, apiSettings);
   addAuthRoutes(server, dbClient, apiSettings);
   addBlocksRoutes(server, dbClient, apiSettings);
+  addMetricsRoutes(server);
   addPendingTransactionsRoutes(server, dbClient, apiSettings);
   addSignedTransactionsRoutes(server, dbClient, apiSettings);
   addBlockTransactionsRoutes(server, dbClient, apiSettings);

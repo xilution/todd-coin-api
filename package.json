@@ -40,6 +40,7 @@
     "@hapi/hapi": "^20.2.1",
     "@hapi/inert": "^6.0.5",
     "@hapi/vision": "^6.1.0",
+    "@promster/hapi": "^8.0.5",
     "@xilution/todd-coin-brokers": "^2.2.0",
     "@xilution/todd-coin-constants": "^2.0.0",
     "@xilution/todd-coin-types": "^2.2.2",
@@ -48,6 +49,7 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
+    "prom-client": "^14.0.1",
     "ts-japi": "^1.6.1",
     "ts-money": "^0.4.7"
   },
@@ -56,6 +58,7 @@
     "@babel/preset-typescript": "^7.16.7",
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
+    "@promster/types": "^3.2.4",
     "@semantic-release-plus/docker": "^3.1.2",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/git": "^10.0.1",

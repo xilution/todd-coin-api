@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/xilution/todd-coin-api/compare/v1.1.0...v1.2.0) (2022-04-28)
+
+
+### Features
+
+* added patch endpoints ([58e7feb](https://github.com/xilution/todd-coin-api/commit/58e7febf949013f6463054d6612b83293f410a74))
+
 # [1.1.0](https://github.com/xilution/todd-coin-api/compare/v1.0.1...v1.1.0) (2022-04-27)
 
 

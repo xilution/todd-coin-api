@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/xilution/todd-coin-api/compare/v1.3.0...v1.4.0) (2022-04-28)
+
+
+### Features
+
+* added metrics ([a4eb57d](https://github.com/xilution/todd-coin-api/commit/a4eb57d5f818b872b963f7bf03505567e78db554))
+
 # [1.3.0](https://github.com/xilution/todd-coin-api/compare/v1.2.0...v1.3.0) (2022-04-28)
 
 

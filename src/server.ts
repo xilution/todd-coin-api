@@ -9,7 +9,7 @@ import { DbClient, environmentUtils } from "@xilution/todd-coin-brokers";
 import { getApiSettings } from "./environment-utils";
 import { addRoutes } from "./routes";
 import { addAuth } from "./handlers/auth";
-import { createPlugin } from "@promster/hapi";
+import { createPlugin, signalIsUp } from "@promster/hapi";
 
 // todo - unit tests
 // todo - mobile app
@@ -80,6 +80,7 @@ export const init = async (): Promise<Server> => {
 
 export const start = async (): Promise<void> => {
   console.log(`Listening on ${server.settings.host}:${server.settings.port}`);
+  signalIsUp();
   return server.start();
 };
 

@@ -35,7 +35,7 @@ export const init = async (): Promise<Server> => {
   await dbClient.init(database, username, password, dbHost, dbPort);
 
   const apiSettings = getApiSettings();
-  const { apiPort, apiHost, apiProtocol, apiBaseUrl } = apiSettings;
+  const { apiPort, apiHost } = apiSettings;
 
   server = Hapi.server({
     port: apiPort,

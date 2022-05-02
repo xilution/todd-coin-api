@@ -1,10 +1,10 @@
 "use strict";
 
 import * as Hapi from "@hapi/hapi";
+import { Server } from "@hapi/hapi";
 import * as Inert from "@hapi/inert";
 import * as Vision from "@hapi/vision";
 import * as HapiSwagger from "hapi-swagger";
-import { Server } from "@hapi/hapi";
 import { DbClient, environmentUtils } from "@xilution/todd-coin-brokers";
 import { getApiSettings } from "./environment-utils";
 import { addRoutes } from "./routes";
@@ -13,18 +13,15 @@ import { createPlugin, signalIsUp } from "@promster/hapi";
 
 // todo - unit tests
 // todo - mobile app
-// todo - add update participant endpoint
-// todo - add update node endpoint
-// todo - add update pending transactions endpoint - for canceling them
-// todo - add participant keys endpoints
-// todo - add participant-organization association (name, address, email, url, phone number, role, etc.)
 // todo - add github contribution and pull request template files
 // todo - write a regression test suite
 // todo - set up slack channel
 // todo - set up a landing page with how to instructions
 // todo - open api spec (swagger) hosted from deployed API
-// todo - prometheus and graphana metrics
 // todo - posting a participant or org shouldn't require authentication
+// todo - hide npm token during docker build (api and tasks)
+// todo - deactivate node, participant and organization
+// todo - delete pending transaction
 
 export let server: Server;
 

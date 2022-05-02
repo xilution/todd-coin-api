@@ -33,6 +33,7 @@ export const getOrganizationsValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
@@ -61,6 +62,7 @@ export const getOrganizationsRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -68,12 +70,16 @@ export const getOrganizationsRequestHandler =
 
     const { count, rows } = response;
 
-    return buildOrganizationsSerializer(
-      apiSettings,
-      count,
-      pageNumber,
-      pageSize
-    ).serialize(rows);
+    return h
+      .response(
+        await buildOrganizationsSerializer(
+          apiSettings,
+          count,
+          pageNumber,
+          pageSize
+        ).serialize(rows)
+      )
+      .code(200);
   };
 
 export const getOrganizationValidationFailAction = (
@@ -85,6 +91,7 @@ export const getOrganizationValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
@@ -108,6 +115,7 @@ export const getOrganizationRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -116,6 +124,7 @@ export const getOrganizationRequestHandler =
     if (organization === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(
               `A organization with id: ${organizationId} was not found.`
@@ -125,7 +134,11 @@ export const getOrganizationRequestHandler =
         .code(404);
     }
 
-    return buildOrganizationSerializer(apiSettings).serialize(organization);
+    return h
+      .response(
+        await buildOrganizationSerializer(apiSettings).serialize(organization)
+      )
+      .code(200);
   };
 
 export const getOrganizationParticipantRequestHandler =
@@ -153,6 +166,7 @@ export const getOrganizationParticipantRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -175,6 +189,7 @@ export const getOrganizationParticipantRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -197,6 +212,7 @@ export const postOrganizationValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
@@ -229,6 +245,7 @@ export const postOrganizationRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -236,9 +253,17 @@ export const postOrganizationRequestHandler =
 
     // todo - notify known organizations that a new organization was added
 
-    return buildOrganizationSerializer(apiSettings).serialize(
-      createdOrganization
-    );
+    return h
+      .response(
+        await buildOrganizationSerializer(apiSettings).serialize(
+          createdOrganization
+        )
+      )
+      .header(
+        "location",
+        `${apiSettings.apiBaseUrl}/organizations/${createdOrganization?.id}`
+      )
+      .code(201);
   };
 
 export const postOrganizationParticipantsRequestHandler =
@@ -266,6 +291,7 @@ export const postOrganizationParticipantsRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -283,6 +309,7 @@ export const patchOrganizationValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
         if (errorItem.context?.key === "organizationId") {
           return buildInvalidParameterError(errorItem);
@@ -315,6 +342,7 @@ export const patchOrganizationRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);

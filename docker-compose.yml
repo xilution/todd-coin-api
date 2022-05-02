@@ -1,6 +1,16 @@
 version: "3.9"
 
 services:
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3100:3000"
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
   db:
     image: postgres
     restart: always
@@ -27,85 +37,140 @@ services:
       API_HOST: 0.0.0.0
       API_PORT: 3000
       API_BASE_URL: http://localhost:3000
-  api-1:
-    image: xilution/todd-coin-api:latest
-    depends_on:
-      - db
-    restart: always
+      HOST_MAINTAINER_ID: e937bf76-56ae-4b60-af35-9be4df06af26
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
     ports:
-      - "3001:3001"
+      - "9187:9187"
     environment:
-      DB_NAME: todd-coin-1
-      DB_USERNAME: postgres
-      DB_PASSWORD: secret
-      DB_HOST: db
-      DB_PORT: 5432
-      API_HOST: 0.0.0.0
-      API_PORT: 3001
-      API_BASE_URL: http://localhost:3001
-  api-2:
-    image: tbrunia/todd-coin:latest
-    depends_on:
+      DATA_SOURCE_NAME: "postgresql://postgres:secret@postgres:5432/todd-coin?sslmode=disable"
+    links:
       - db
-    restart: always
-    ports:
-      - "3002:3002"
-    environment:
-      DB_NAME: todd-coin-2
-      DB_USERNAME: postgres
-      DB_PASSWORD: secret
-      DB_HOST: db
-      DB_PORT: 5432
-      API_HOST: 0.0.0.0
-      API_PORT: 3002
-      API_BASE_URL: http://localhost:3002
-  api-3:
-    image: tbrunia/todd-coin:latest
-    depends_on:
-      - db
-    restart: always
-    ports:
-      - "3003:3003"
-    environment:
-      DB_NAME: todd-coin-3
-      DB_USERNAME: postgres
-      DB_PASSWORD: secret
-      DB_HOST: db
-      DB_PORT: 5432
-      API_HOST: 0.0.0.0
-      API_PORT: 3003
-      API_BASE_URL: http://localhost:3003
-  api-4:
-    image: tbrunia/todd-coin:latest
-    depends_on:
-      - db
-    restart: always
-    ports:
-      - "3004:3004"
-    environment:
-      DB_NAME: todd-coin-4
-      DB_USERNAME: postgres
-      DB_PASSWORD: secret
-      DB_HOST: db
-      DB_PORT: 5432
-      API_HOST: 0.0.0.0
-      API_PORT: 3004
-      API_BASE_URL: http://localhost:3004
-  api-5:
-    image: tbrunia/todd-coin:latest
-    depends_on:
-      - db
-    restart: always
-    ports:
-      - "3005:3005"
-    environment:
-      DB_NAME: todd-coin-5
-      DB_USERNAME: postgres
-      DB_PASSWORD: secret
-      DB_HOST: db
-      DB_PORT: 5432
-      API_HOST: 0.0.0.0
-      API_PORT: 3005
-      API_BASE_URL: http://localhost:3005
+      - prometheus
+#  api-1:
+#    image: xilution/todd-coin-api:latest
+#    depends_on:
+#      - db
+#    restart: always
+#    ports:
+#      - "3001:3001"
+#    environment:
+#      DB_NAME: todd-coin-1
+#      DB_USERNAME: postgres
+#      DB_PASSWORD: secret
+#      DB_HOST: db
+#      DB_PORT: 5432
+#      API_HOST: 0.0.0.0
+#      API_PORT: 3001
+#      API_BASE_URL: http://localhost:3001
+#  postgres-exporter-1:
+#    image: prometheuscommunity/postgres-exporter
+#    ports:
+#      - "9191:9187"
+#    environment:
+#      DATA_SOURCE_NAME: "postgresql://postgres:secret@postgres:5432/todd-coin-1?sslmode=disable"
+#    links:
+#      - db
+#      - prometheus
+#  api-2:
+#    image: xilution/todd-coin-api:latest
+#    depends_on:
+#      - db
+#    restart: always
+#    ports:
+#      - "3002:3002"
+#    environment:
+#      DB_NAME: todd-coin-2
+#      DB_USERNAME: postgres
+#      DB_PASSWORD: secret
+#      DB_HOST: db
+#      DB_PORT: 5432
+#      API_HOST: 0.0.0.0
+#      API_PORT: 3002
+#      API_BASE_URL: http://localhost:3002
+#  postgres-exporter-2:
+#    image: prometheuscommunity/postgres-exporter
+#    ports:
+#      - "9192:9187"
+#    environment:
+#      DATA_SOURCE_NAME: "postgresql://postgres:secret@postgres:5432/todd-coin-2?sslmode=disable"
+#    links:
+#      - db
+#      - prometheus
+#  api-3:
+#    image: xilution/todd-coin-api:latest
+#    depends_on:
+#      - db
+#    restart: always
+#    ports:
+#      - "3003:3003"
+#    environment:
+#      DB_NAME: todd-coin-3
+#      DB_USERNAME: postgres
+#      DB_PASSWORD: secret
+#      DB_HOST: db
+#      DB_PORT: 5432
+#      API_HOST: 0.0.0.0
+#      API_PORT: 3003
+#      API_BASE_URL: http://localhost:3003
+#  postgres-exporter-3:
+#    image: prometheuscommunity/postgres-exporter
+#    ports:
+#      - "9193:9187"
+#    environment:
+#      DATA_SOURCE_NAME: "postgresql://postgres:secret@postgres:5432/todd-coin-3?sslmode=disable"
+#    links:
+#      - db
+#      - prometheus
+#  api-4:
+#    image: xilution/todd-coin-api:latest
+#    depends_on:
+#      - db
+#    restart: always
+#    ports:
+#      - "3004:3004"
+#    environment:
+#      DB_NAME: todd-coin-4
+#      DB_USERNAME: postgres
+#      DB_PASSWORD: secret
+#      DB_HOST: db
+#      DB_PORT: 5432
+#      API_HOST: 0.0.0.0
+#      API_PORT: 3004
+#      API_BASE_URL: http://localhost:3004
+#  postgres-exporter-4:
+#    image: prometheuscommunity/postgres-exporter
+#    ports:
+#      - "9194:9187"
+#    environment:
+#      DATA_SOURCE_NAME: "postgresql://postgres:secret@postgres:5432/todd-coin-4?sslmode=disable"
+#    links:
+#      - db
+#      - prometheus
+#  api-5:
+#    image: xilution/todd-coin-api:latest
+#    depends_on:
+#      - db
+#    restart: always
+#    ports:
+#      - "3005:3005"
+#    environment:
+#      DB_NAME: todd-coin-5
+#      DB_USERNAME: postgres
+#      DB_PASSWORD: secret
+#      DB_HOST: db
+#      DB_PORT: 5432
+#      API_HOST: 0.0.0.0
+#      API_PORT: 3005
+#      API_BASE_URL: http://localhost:3005
+#  postgres-exporter-5:
+#    image: prometheuscommunity/postgres-exporter
+#    ports:
+#      - "9195:9187"
+#    environment:
+#      DATA_SOURCE_NAME: "postgresql://postgres:secret@postgres:5432/todd-coin-5?sslmode=disable"
+#    links:
+#      - db
+#      - prometheus
 volumes:
   pgdata:

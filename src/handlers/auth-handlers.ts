@@ -21,6 +21,7 @@ export const authTokenValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
@@ -46,6 +47,7 @@ export const authTokenRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -57,6 +59,7 @@ export const authTokenRequestHandler =
     ) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildUnauthorizedError("Authentication failed.")],
         })
         .code(401);
@@ -80,6 +83,7 @@ export const authTokenRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);

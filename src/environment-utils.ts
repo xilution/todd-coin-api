@@ -15,12 +15,6 @@ export const getApiSettings = (): ApiSettings => {
   const apiBaseUrl = process.env.API_BASE_URL || DEFAULT_API_BASE_URL;
   const hostMaintainerId = process.env.HOST_MAINTAINER_ID;
 
-  if (hostMaintainerId === undefined) {
-    throw new Error(
-      "unable to get api settings because the HOST_MAINTAINER_ID environment variable was not set"
-    );
-  }
-
   return {
     jwtSecretKey,
     apiProtocol,

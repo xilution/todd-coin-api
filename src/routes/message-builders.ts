@@ -1,0 +1,2 @@
+export const buildAuthenticationInstructions = (apiBaseUrl: string): string =>
+  `To authenticate, post your private key {"username": "your-username", "password": "your-password"} to ${apiBaseUrl}/auth/token. Then, include the accessToken property returned with the response in the authentication header (ex: authentication: bearer your-access-token) of each subsequent request to the Todd Coin API. The access token expires in 60 minutes.`;

@@ -1,5 +1,7 @@
 import { ApiSettings } from "../types";
 import { DbClient } from "@xilution/todd-coin-brokers";
+import { TODD_COIN_DESCRIPTION } from "../routes/messages";
+import { buildAuthenticationInstructions } from "../routes/message-builders";
 
 export const getRoot =
   (dbClient: DbClient, apiSettings: ApiSettings) => async () => {
@@ -11,13 +13,15 @@ export const getRoot =
       },
       links: {
         self: apiBaseUrl,
+        metrics: `${apiBaseUrl}/metrics`,
+        documentation: `${apiBaseUrl}/documentation`,
+        swagger: `${apiBaseUrl}/swagger.json`,
       },
       data: {
         attributes: {
           // todo - add server start time, location, etc.
-          description:
-            "I'm a Todd Coin Cryptocurrency Node. Todd Coin is a Cryptocurrency for Good.",
-          authentication: `To authenticate, post your private key {"privateKey": "your-private-key"} to ${apiBaseUrl}/auth/token. Then, include the accessToken property returned with the response in the authentication header (ex: authentication: bearer your-access-token) of each subsequent request to the Todd Coin API. The access token expires in 60 minutes.`,
+          description: TODD_COIN_DESCRIPTION,
+          authentication: buildAuthenticationInstructions(apiBaseUrl),
         },
         relationships: {
           // todo - add some paginated blocks data (id only)

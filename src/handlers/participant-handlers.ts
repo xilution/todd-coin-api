@@ -38,6 +38,7 @@ export const getParticipantsValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
@@ -68,6 +69,7 @@ export const getParticipantsRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -75,12 +77,16 @@ export const getParticipantsRequestHandler =
 
     const { count, rows } = response;
 
-    return buildParticipantsSerializer(
-      apiSettings,
-      count,
-      pageNumber,
-      pageSize
-    ).serialize(rows);
+    return h
+      .response(
+        await buildParticipantsSerializer(
+          apiSettings,
+          count,
+          pageNumber,
+          pageSize
+        ).serialize(rows)
+      )
+      .code(200);
   };
 
 export const getParticipantValidationFailAction = (
@@ -92,6 +98,7 @@ export const getParticipantValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
@@ -115,6 +122,7 @@ export const getParticipantRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -123,6 +131,7 @@ export const getParticipantRequestHandler =
     if (participant === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(
               `A participant with id: ${participantId} was not found.`
@@ -160,6 +169,7 @@ export const getParticipantOrganizationRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -182,17 +192,22 @@ export const getParticipantOrganizationRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
     }
 
-    return buildOrganizationsSerializer(
-      apiSettings,
-      getOrganizationsResponse.count,
-      pageNumber,
-      pageSize
-    ).serialize(getOrganizationsResponse.rows);
+    return h
+      .response(
+        await buildOrganizationsSerializer(
+          apiSettings,
+          getOrganizationsResponse.count,
+          pageNumber,
+          pageSize
+        ).serialize(getOrganizationsResponse.rows)
+      )
+      .code(200);
   };
 
 export const postParticipantValidationFailAction = (
@@ -204,6 +219,7 @@ export const postParticipantValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
@@ -246,6 +262,7 @@ export const postParticipantRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -255,6 +272,7 @@ export const postParticipantRequestHandler =
       console.error(`unable to create a new participant`);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -262,9 +280,17 @@ export const postParticipantRequestHandler =
 
     // todo - notify known participants that a new participant was added
 
-    return buildParticipantSerializer(apiSettings).serialize(
-      createdParticipant
-    );
+    return h
+      .response(
+        await buildParticipantSerializer(apiSettings).serialize(
+          createdParticipant
+        )
+      )
+      .header(
+        "location",
+        `${apiSettings.apiBaseUrl}/participants/${createdParticipant?.id}` // todo - this id is undefined.
+      )
+      .code(201);
   };
 
 export const postParticipantOrganizationsRequestHandler =
@@ -292,6 +318,7 @@ export const postParticipantOrganizationsRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -309,6 +336,7 @@ export const patchParticipantValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
         if (errorItem.context?.key === "participantId") {
           return buildInvalidParameterError(errorItem);
@@ -339,6 +367,7 @@ export const patchParticipantRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);

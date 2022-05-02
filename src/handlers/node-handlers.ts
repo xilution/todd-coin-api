@@ -26,6 +26,7 @@ export const getNodesValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
@@ -50,6 +51,7 @@ export const getNodesRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -57,12 +59,16 @@ export const getNodesRequestHandler =
 
     const { count, rows } = response;
 
-    return buildNodesSerializer(
-      apiSettings,
-      count,
-      pageNumber,
-      pageSize
-    ).serialize(rows);
+    return h
+      .response(
+        await buildNodesSerializer(
+          apiSettings,
+          count,
+          pageNumber,
+          pageSize
+        ).serialize(rows)
+      )
+      .code(200);
   };
 
 export const getNodeValidationFailAction = (
@@ -74,6 +80,7 @@ export const getNodeValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
@@ -94,6 +101,7 @@ export const getNodeRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -102,6 +110,7 @@ export const getNodeRequestHandler =
     if (node === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(`A node with id: ${nodeId} was not found.`),
           ],
@@ -109,7 +118,9 @@ export const getNodeRequestHandler =
         .code(404);
     }
 
-    return buildNodeSerializer(apiSettings).serialize(node);
+    return h
+      .response(await buildNodeSerializer(apiSettings).serialize(node))
+      .code(200);
   };
 
 export const postNodeValidationFailAction = (
@@ -121,6 +132,7 @@ export const postNodeValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
@@ -150,6 +162,7 @@ export const postNodeRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -157,7 +170,10 @@ export const postNodeRequestHandler =
 
     // todo - notify known nodes that a new node was added
 
-    return buildNodeSerializer(apiSettings).serialize(createdNode);
+    return h
+      .response(await buildNodeSerializer(apiSettings).serialize(createdNode))
+      .header("location", `${apiSettings.apiBaseUrl}/nodes/${createdNode?.id}`)
+      .code(201);
   };
 
 export const patchNodeValidationFailAction = (
@@ -169,6 +185,7 @@ export const patchNodeValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
         if (errorItem.context?.key === "nodeId") {
           return buildInvalidParameterError(errorItem);
@@ -198,6 +215,7 @@ export const patchNodeRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);

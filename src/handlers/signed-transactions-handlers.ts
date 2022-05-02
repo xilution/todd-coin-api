@@ -29,6 +29,7 @@ export const getSignedTransactionsValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
@@ -60,6 +61,7 @@ export const getSignedTransactionsRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -67,12 +69,16 @@ export const getSignedTransactionsRequestHandler =
 
     const { count, rows } = response;
 
-    return await buildSignedTransactionsSerializer(
-      apiSettings,
-      count,
-      pageNumber,
-      pageSize
-    ).serialize(rows);
+    return h
+      .response(
+        await buildSignedTransactionsSerializer(
+          apiSettings,
+          count,
+          pageNumber,
+          pageSize
+        ).serialize(rows)
+      )
+      .code(200);
   };
 
 export const getSignedTransactionValidationFailAction = (
@@ -84,6 +90,7 @@ export const getSignedTransactionValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
@@ -107,6 +114,7 @@ export const getSignedTransactionRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -115,6 +123,7 @@ export const getSignedTransactionRequestHandler =
     if (signedTransaction === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(
               `A signed transaction with id: ${signedTransactionId} was not found.`
@@ -124,9 +133,13 @@ export const getSignedTransactionRequestHandler =
         .code(404);
     }
 
-    return buildSignedTransactionSerializer(apiSettings).serialize(
-      signedTransaction
-    );
+    return h
+      .response(
+        buildSignedTransactionSerializer(apiSettings).serialize(
+          signedTransaction
+        )
+      )
+      .code(200);
   };
 
 export const postSignedTransactionValidationFailAction = (
@@ -138,6 +151,7 @@ export const postSignedTransactionValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
@@ -171,6 +185,7 @@ export const postSignedTransactionRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -178,9 +193,17 @@ export const postSignedTransactionRequestHandler =
 
     // todo - when the number of signed transactions reaches a threshold, automatically mine a new block
 
-    return buildSignedTransactionSerializer(apiSettings).serialize(
-      createdSignedTransaction
-    );
+    return h
+      .response(
+        await buildSignedTransactionSerializer(apiSettings).serialize(
+          createdSignedTransaction
+        )
+      )
+      .header(
+        "location",
+        `${apiSettings.apiBaseUrl}/signed-transactions/${createdSignedTransaction?.id}`
+      )
+      .code(201);
   };
 
 export const patchSignedTransactionValidationFailAction = (
@@ -192,6 +215,7 @@ export const patchSignedTransactionValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
         if (errorItem.context?.key === "signedTransactionId") {
           return buildInvalidParameterError(errorItem);
@@ -226,6 +250,7 @@ export const patchSignedTransactionRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);

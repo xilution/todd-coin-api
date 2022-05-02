@@ -27,6 +27,7 @@ export const getParticipantKeysValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
@@ -55,6 +56,7 @@ export const getParticipantKeysRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -62,12 +64,16 @@ export const getParticipantKeysRequestHandler =
 
     const { count, rows } = response;
 
-    return buildParticipantKeysSerializer(
-      apiSettings,
-      count,
-      pageNumber,
-      pageSize
-    ).serialize(rows);
+    return h
+      .response(
+        await buildParticipantKeysSerializer(
+          apiSettings,
+          count,
+          pageNumber,
+          pageSize
+        ).serialize(rows)
+      )
+      .code(200);
   };
 
 export const getParticipantKeyValidationFailAction = (
@@ -79,6 +85,7 @@ export const getParticipantKeyValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
@@ -102,6 +109,7 @@ export const getParticipantKeyRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -110,6 +118,7 @@ export const getParticipantKeyRequestHandler =
     if (participantKey === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(
               `A participantKey with id: ${participantKeyId} was not found.`
@@ -119,7 +128,13 @@ export const getParticipantKeyRequestHandler =
         .code(404);
     }
 
-    return buildParticipantKeySerializer(apiSettings).serialize(participantKey);
+    return h
+      .response(
+        await buildParticipantKeySerializer(apiSettings).serialize(
+          participantKey
+        )
+      )
+      .code(200);
   };
 
 export const postParticipantKeyValidationFailAction = (
@@ -131,6 +146,7 @@ export const postParticipantKeyValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
@@ -157,14 +173,23 @@ export const postParticipantKeyRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
     }
 
-    return buildParticipantKeySerializer(apiSettings).serialize(
-      createdParticipantKey
-    );
+    return h
+      .response(
+        await buildParticipantKeySerializer(apiSettings).serialize(
+          createdParticipantKey
+        )
+      )
+      .header(
+        "location",
+        `${apiSettings.apiBaseUrl}/participant-keys/${createdParticipantKey?.id}`
+      )
+      .code(201);
   };
 
 export const patchParticipantKeyValidationFailAction = (
@@ -176,6 +201,7 @@ export const patchParticipantKeyValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
         if (errorItem.context?.key === "participantKeyId") {
           return buildInvalidParameterError(errorItem);
@@ -208,6 +234,7 @@ export const patchParticipantKeyRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);

@@ -29,6 +29,7 @@ export const getPendingTransactionsValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
@@ -66,6 +67,7 @@ export const getPendingTransactionsRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -73,12 +75,16 @@ export const getPendingTransactionsRequestHandler =
 
     const { count, rows } = response;
 
-    return await buildPendingTransactionsSerializer(
-      apiSettings,
-      count,
-      pageNumber,
-      pageSize
-    ).serialize(rows);
+    return h
+      .response(
+        await buildPendingTransactionsSerializer(
+          apiSettings,
+          count,
+          pageNumber,
+          pageSize
+        ).serialize(rows)
+      )
+      .code(200);
   };
 
 export const getPendingTransactionValidationFailAction = (
@@ -90,6 +96,7 @@ export const getPendingTransactionValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
@@ -113,6 +120,7 @@ export const getPendingTransactionRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -121,6 +129,7 @@ export const getPendingTransactionRequestHandler =
     if (pendingTransaction === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(
               `A pending transaction with id: ${pendingTransactionId} was not found.`
@@ -130,9 +139,13 @@ export const getPendingTransactionRequestHandler =
         .code(404);
     }
 
-    return buildPendingTransactionSerializer(apiSettings).serialize(
-      pendingTransaction
-    );
+    return h
+      .response(
+        await buildPendingTransactionSerializer(apiSettings).serialize(
+          pendingTransaction
+        )
+      )
+      .code(200);
   };
 
 export const postPendingTransactionValidationFailAction = (
@@ -144,6 +157,7 @@ export const postPendingTransactionValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
@@ -174,13 +188,22 @@ export const postPendingTransactionRequestHandler =
         newPendingTransaction
       );
 
-      return buildPendingTransactionSerializer(apiSettings).serialize(
-        createdPendingTransaction
-      );
+      return h
+        .response(
+          await buildPendingTransactionSerializer(apiSettings).serialize(
+            createdPendingTransaction
+          )
+        )
+        .header(
+          "location",
+          `${apiSettings.apiBaseUrl}/pending-transactions/${createdPendingTransaction?.id}`
+        )
+        .code(201);
     } catch (error) {
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -196,6 +219,7 @@ export const patchPendingTransactionValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
         if (errorItem.context?.key === "pendingTransactionId") {
           return buildInvalidParameterError(errorItem);
@@ -230,6 +254,7 @@ export const patchPendingTransactionRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);

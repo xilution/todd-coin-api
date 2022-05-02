@@ -4,7 +4,7 @@ export interface ApiSettings {
   apiHost: string;
   apiPort: number;
   apiBaseUrl: string;
-  hostMaintainerId: string;
+  hostMaintainerId?: string;
 }
 
 export interface ApiData<T> {

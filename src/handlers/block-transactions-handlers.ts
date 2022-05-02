@@ -33,6 +33,7 @@ export const getBlockTransactionsValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError.details.map((errorItem: ValidationErrorItem) => {
         if (errorItem.context?.key === "blockId") {
           return buildInvalidParameterError(errorItem);
@@ -63,6 +64,7 @@ export const getBlockTransactionsRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -71,6 +73,7 @@ export const getBlockTransactionsRequestHandler =
     if (block === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(`A block with id: ${blockId} was not found.`),
           ],
@@ -93,6 +96,7 @@ export const getBlockTransactionsRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -100,13 +104,17 @@ export const getBlockTransactionsRequestHandler =
 
     const { count, rows } = response;
 
-    return await buildBlockTransactionsSerializer(
-      apiSettings,
-      block,
-      count,
-      pageNumber,
-      pageSize
-    ).serialize(rows);
+    return h
+      .response(
+        await buildBlockTransactionsSerializer(
+          apiSettings,
+          block,
+          count,
+          pageNumber,
+          pageSize
+        ).serialize(rows)
+      )
+      .code(200);
   };
 
 export const getBlockTransactionValidationFailAction = (
@@ -118,6 +126,7 @@ export const getBlockTransactionValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
@@ -139,6 +148,7 @@ export const getBlockTransactionRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -147,6 +157,7 @@ export const getBlockTransactionRequestHandler =
     if (block === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(`A block with id: ${blockId} was not found.`),
           ],
@@ -165,6 +176,7 @@ export const getBlockTransactionRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -173,6 +185,7 @@ export const getBlockTransactionRequestHandler =
     if (blockTransaction === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(
               `A block transaction with id: ${blockTransactionId} was not found.`
@@ -182,7 +195,11 @@ export const getBlockTransactionRequestHandler =
         .code(404);
     }
 
-    return buildBlockTransactionSerializer(apiSettings, block).serialize(
-      blockTransaction
-    );
+    return h
+      .response(
+        await buildBlockTransactionSerializer(apiSettings, block).serialize(
+          blockTransaction
+        )
+      )
+      .code(200);
   };

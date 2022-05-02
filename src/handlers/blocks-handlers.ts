@@ -37,6 +37,7 @@ export const getBlocksValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
@@ -62,6 +63,7 @@ export const getBlocksRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -69,12 +71,16 @@ export const getBlocksRequestHandler =
 
     const { count, rows } = response;
 
-    return await buildBlocksSerializer(
-      apiSettings,
-      count,
-      pageNumber,
-      pageSize
-    ).serialize(rows);
+    return h
+      .response(
+        await buildBlocksSerializer(
+          apiSettings,
+          count,
+          pageNumber,
+          pageSize
+        ).serialize(rows)
+      )
+      .code(200);
   };
 
 export const getBlockValidationFailAction = (
@@ -86,6 +92,7 @@ export const getBlockValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidParameterError(errorItem)
       ),
@@ -106,6 +113,7 @@ export const getBlockRequestHandler =
       console.error(error);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -114,6 +122,7 @@ export const getBlockRequestHandler =
     if (block === undefined) {
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [
             buildNofFountError(`A block with id: ${blockId} was not found.`),
           ],
@@ -121,7 +130,9 @@ export const getBlockRequestHandler =
         .code(404);
     }
 
-    return await buildBlockSerializer(apiSettings).serialize(block);
+    return h
+      .response(await buildBlockSerializer(apiSettings).serialize(block))
+      .code(200);
   };
 
 export const postBlockValidationFailAction = (
@@ -133,6 +144,7 @@ export const postBlockValidationFailAction = (
 
   return h
     .response({
+      jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidAttributeError(errorItem)
       ),
@@ -170,6 +182,7 @@ export const postBlockRequestHandler =
       );
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildBadRequestError()],
         })
         .code(500);
@@ -201,6 +214,7 @@ export const postBlockRequestHandler =
       console.error((error as Error).message);
       return h
         .response({
+          jsonapi: { version: "1.0" },
           errors: [buildInternalServerError()],
         })
         .code(500);
@@ -208,5 +222,11 @@ export const postBlockRequestHandler =
 
     // todo - notify known blocks that a new block was added
 
-    return buildBlockSerializer(apiSettings).serialize(createdBlock);
+    return h
+      .response(await buildBlockSerializer(apiSettings).serialize(createdBlock))
+      .header(
+        "location",
+        `${apiSettings.apiBaseUrl}/blocks/${createdBlock?.id}`
+      )
+      .code(201);
   };

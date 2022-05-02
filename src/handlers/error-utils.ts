@@ -28,7 +28,7 @@ export const buildInvalidAttributeError = (errorItem: ValidationErrorItem) => {
     source: {
       pointer: buildPointer(errorItem),
     },
-    description: errorItem.message,
+    detail: errorItem.message,
   };
 };
 
@@ -36,7 +36,7 @@ export const buildInvalidQueryError = (errorItem: ValidationErrorItem) => {
   return {
     status: "400",
     title: "Invalid Query Parameter",
-    description: errorItem.message,
+    detail: errorItem.message,
     parameter: errorItem?.context?.key,
   };
 };
@@ -45,7 +45,7 @@ export const buildInvalidParameterError = (errorItem: ValidationErrorItem) => {
   return {
     status: "400",
     title: "Invalid Path Parameter",
-    description: errorItem.message,
+    detail: errorItem.message,
   };
 };
 

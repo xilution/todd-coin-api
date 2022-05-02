@@ -1,5 +1,3 @@
-import { CREATED_AT_SCHEMA } from "./shared-schemas";
-
 export const TODD_COIN_DESCRIPTION =
   "I'm a Todd Coin Cryptocurrency Node. Todd Coin is a Cryptocurrency for Good.";
 export const AUTH_TOKEN_DESCRIPTION = "Used to get a Todd Coin access token.";

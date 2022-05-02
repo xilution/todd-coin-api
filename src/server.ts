@@ -17,8 +17,6 @@ import { createPlugin, signalIsUp } from "@promster/hapi";
 // todo - write a regression test suite
 // todo - set up slack channel
 // todo - set up a landing page with how to instructions
-// todo - open api spec (swagger) hosted from deployed API
-// todo - posting a participant or org shouldn't require authentication
 // todo - hide npm token during docker build (api and tasks)
 // todo - deactivate node, participant and organization
 // todo - delete pending transaction

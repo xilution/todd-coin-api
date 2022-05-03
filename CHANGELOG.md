@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/xilution/todd-coin-api/compare/v1.6.0...v1.7.0) (2022-05-03)
+
+
+### Features
+
+* cleaned up pending transactions ([d8810cd](https://github.com/xilution/todd-coin-api/commit/d8810cd8dc023cd9447fa4288abdf8a93a6afff2))
+
 # [1.6.0](https://github.com/xilution/todd-coin-api/compare/v1.5.0...v1.6.0) (2022-05-03)
 
 

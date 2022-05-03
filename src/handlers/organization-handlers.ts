@@ -228,9 +228,7 @@ export const postOrganizationRequestHandler =
 
     // todo - check for dupe organizations
 
-    // todo - once validated, sync up with the new organization
-
-    const newOrganization: Organization = {
+    const newOrganization = {
       id: payload.data.id,
       ...payload.data.attributes,
     } as Organization;

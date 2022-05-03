@@ -141,7 +141,11 @@ export const getParticipantRequestHandler =
         .code(404);
     }
 
-    return buildParticipantSerializer(apiSettings).serialize(participant);
+    return h
+      .response(
+        await buildParticipantSerializer(apiSettings).serialize(participant)
+      )
+      .code(200);
   };
 
 export const getParticipantOrganizationRequestHandler =
@@ -237,7 +241,7 @@ export const postParticipantRequestHandler =
 
     const participantKey: ParticipantKey = keyUtils.generateParticipantKey();
 
-    const newParticipant: Participant = {
+    const newParticipant = {
       id: payload.data.id,
       ...payload.data.attributes,
       keys: [
@@ -247,7 +251,7 @@ export const postParticipantRequestHandler =
           effective: participantKey.effective,
         },
       ],
-    };
+    } as Participant;
 
     let createdParticipant: Participant | undefined;
     try {

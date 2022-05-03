@@ -42,11 +42,13 @@ import {
   FIRST_PAGE_LINK_LABEL,
   FROM_DATE_LABEL,
   FROM_PARTICIPANT_ID_LABEL,
+  FROM_PARTICIPANT_LABEL,
   GEO_LOCATION_POSITION_LABEL,
   GEO_LOCATION_POSITIONS_LABEL,
   GOOD_POINTS_LABEL,
   HASH_LABEL,
   HEADING_LABEL,
+  ID_LABEL,
   ISO_8601_FORMAT_DESCRIPTION,
   ITEMS_PER_PAGE_DESCRIPTION,
   JSON_API_LABEL,
@@ -99,6 +101,7 @@ import {
   TIME_TRANSACTIONS_DETAILS_LABEL,
   TO_DATE_LABEL,
   TO_PARTICIPANT_ID_LABEL,
+  TO_PARTICIPANT_LABEL,
   TOTAL_ITEMS_DESCRIPTION,
   TOTAL_NUMBER_OF_PAGES_DESCRIPTION,
   TRANSACTION_DETAILS_LABEL,
@@ -350,6 +353,229 @@ export const BASE_URL_SCHEMA = Joi.string()
   .example("http://example.com/todd-coin")
   .label(BASE_URL_LABEL);
 
+export const READ_PARTICIPANT_SCHEMA = Joi.object({
+  type: Joi.string().allow("participant").label(TYPE_LABEL),
+  id: ID_SCHEMA,
+  attributes: Joi.object({
+    createdAt: CREATED_AT_SCHEMA,
+    updatedAt: UPDATED_AT_SCHEMA,
+    email: EMAIL_SCHEMA,
+    firstName: FIRST_NAME_SCHEMA,
+    lastName: LAST_NAME_SCHEMA,
+    phone: PHONE_NUMBER_SCHEMA,
+    roles: Joi.array()
+      .items(
+        Joi.string()
+          .allow(...ParticipantRoles)
+          .label(PARTICIPANT_ROLE_TYPES_LABEL)
+      )
+      .min(1)
+      .label(ROLES_LABEL),
+  }).label(PARTICIPANT_ATTRIBUTES_LABEL),
+});
+
+export const CREATE_PARTICIPANT_SCHEMA = Joi.object({
+  type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+  attributes: Joi.object({
+    email: EMAIL_SCHEMA.required(),
+    password: PASSWORD_SCHEMA.required(),
+    firstName: FIRST_NAME_SCHEMA,
+    lastName: LAST_NAME_SCHEMA,
+    phone: PHONE_NUMBER_SCHEMA,
+    roles: Joi.array()
+      .items(
+        Joi.string()
+          .allow(...ParticipantRoles)
+          .label(PARTICIPANT_ROLE_TYPES_LABEL)
+      )
+      .min(1)
+      .label(ROLES_LABEL)
+      .required(),
+  })
+    .unknown(false)
+    .label(PARTICIPANT_ATTRIBUTES_LABEL)
+    .required(),
+})
+  .unknown(false)
+  .label(PARTICIPANT_DATA_LABEL)
+  .required();
+
+export const UPDATE_PARTICIPANT_SCHEMA = Joi.object({
+  type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+  attributes: Joi.object({
+    email: EMAIL_SCHEMA,
+    password: PASSWORD_SCHEMA,
+    firstName: FIRST_NAME_SCHEMA,
+    lastName: LAST_NAME_SCHEMA,
+    phone: PHONE_NUMBER_SCHEMA,
+    roles: Joi.array()
+      .items(
+        Joi.string()
+          .allow(...ParticipantRoles)
+          .label(PARTICIPANT_ROLE_TYPES_LABEL)
+      )
+      .min(1)
+      .label(ROLES_LABEL),
+  })
+    .unknown(false)
+    .label(PARTICIPANT_ATTRIBUTES_LABEL)
+    .required(),
+})
+  .unknown(false)
+  .label(PARTICIPANT_DATA_LABEL)
+  .required();
+
+export const READ_PARTICIPANT_KEY_SCHEMA = Joi.object({
+  type: Joi.string().allow("participant-key").label(TYPE_LABEL),
+  id: ID_SCHEMA,
+  attributes: Joi.object({
+    createdAt: CREATED_AT_SCHEMA,
+    updatedAt: UPDATED_AT_SCHEMA,
+    public: PUBLIC_KEY_SCHEMA,
+    effective: EFFECTIVE_DATE_RANGE_SCHEMA,
+  }).label(PARTICIPANT_KEY_ATTRIBUTES_LABEL),
+});
+
+export const CREATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
+  type: Joi.string().allow("participant-key").label(TYPE_LABEL).required(),
+})
+  .unknown(false)
+  .label(PARTICIPANT_KEY_DATA_LABEL)
+  .required();
+
+export const UPDATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
+  type: Joi.string().allow("participant-key").label(TYPE_LABEL).required(),
+})
+  .unknown(false)
+  .label(PARTICIPANT_KEY_DATA_LABEL)
+  .required();
+
+export const READ_NODE_SCHEMA = Joi.object({
+  type: Joi.string().allow("node").label(TYPE_LABEL),
+  attributes: Joi.object({
+    createdAt: CREATED_AT_SCHEMA,
+    updatedAt: UPDATED_AT_SCHEMA,
+    baseUrl: BASE_URL_SCHEMA,
+  }).label(NODE_ATTRIBUTES_LABEL),
+});
+
+export const CREATE_NODE_SCHEMA = Joi.object({
+  type: Joi.string().allow("node").label(TYPE_LABEL).required(),
+  attributes: Joi.object({
+    baseUrl: BASE_URL_SCHEMA.required(),
+  })
+    .unknown(false)
+    .label(NODE_ATTRIBUTES_LABEL)
+    .required(),
+})
+  .unknown(false)
+  .label(NODE_DATA_LABEL)
+  .required();
+
+export const UPDATE_NODE_SCHEMA = Joi.object({
+  type: Joi.string().allow("node").label(TYPE_LABEL).required(),
+  attributes: Joi.object({
+    baseUrl: BASE_URL_SCHEMA,
+  })
+    .unknown(false)
+    .label(NODE_ATTRIBUTES_LABEL)
+    .required(),
+})
+  .unknown(false)
+  .label(NODE_DATA_LABEL)
+  .required();
+
+export const READ_ORGANIZATION_SCHEMA = Joi.object({
+  type: Joi.string().allow("organization").label(TYPE_LABEL),
+  id: ID_SCHEMA,
+  attributes: Joi.object({
+    createdAt: CREATED_AT_SCHEMA,
+    updatedAt: UPDATED_AT_SCHEMA,
+    email: EMAIL_SCHEMA,
+    name: ORGANIZATION_NAME_SCHEMA,
+    phone: PHONE_NUMBER_SCHEMA,
+    roles: Joi.array()
+      .items(
+        Joi.string()
+          .allow(...OrganizationRoles)
+          .label(ORGANIZATION_ROLE_TYPES_LABEL)
+      )
+      .min(1)
+      .label(ROLES_LABEL),
+  }).label(ORGANIZATION_ATTRIBUTES_LABEL),
+}).label(READ_ORGANIZATION_LABEL);
+
+export const CREATE_ORGANIZATION_SCHEMA = Joi.object({
+  type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
+  attributes: Joi.object({
+    email: EMAIL_SCHEMA.required(),
+    name: ORGANIZATION_NAME_SCHEMA.required(),
+    phone: PHONE_NUMBER_SCHEMA,
+    roles: Joi.array()
+      .items(
+        Joi.string()
+          .allow(...OrganizationRoles)
+          .label(ORGANIZATION_ROLE_TYPES_LABEL)
+      )
+      .min(1)
+      .label(ROLES_LABEL)
+      .required(),
+  })
+    .unknown(false)
+    .label(ORGANIZATION_ATTRIBUTES_LABEL)
+    .required(),
+})
+  .unknown(false)
+  .label(CREATE_ORGANIZATION_LABEL)
+  .required();
+
+export const UPDATE_ORGANIZATION_SCHEMA = Joi.object({
+  type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
+  attributes: Joi.object({
+    email: EMAIL_SCHEMA,
+    name: ORGANIZATION_NAME_SCHEMA,
+    phone: PHONE_NUMBER_SCHEMA,
+    roles: Joi.array()
+      .items(
+        Joi.string()
+          .allow(...OrganizationRoles)
+          .label(ORGANIZATION_ROLE_TYPES_LABEL)
+      )
+      .min(1)
+      .label(ROLES_LABEL),
+  })
+    .unknown(false)
+    .label(ORGANIZATION_ATTRIBUTES_LABEL)
+    .required(),
+})
+  .unknown(false)
+  .label(UPDATE_ORGANIZATION_LABEL)
+  .required();
+
+export const CREATE_ORGANIZATION_PARTICIPANT_REFERENCE_SCHEMA = Joi.array()
+  .items(
+    Joi.object({
+      id: ID_SCHEMA,
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+    }).label(PARTICIPANTS_LABEL)
+  )
+  .min(1)
+  .max(ORGANIZATION_PARTICIPANTS_MAX)
+  .label(ORGANIZATION_PARTICIPANTS_REF_DATA_LABEL)
+  .required();
+
+export const CREATE_PARTICIPANT_ORGANIZATION_REFERENCE_SCHEMA = Joi.array()
+  .items(
+    Joi.object({
+      id: ID_SCHEMA,
+      type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
+    }).label(ORGANIZATIONS_LABEL)
+  )
+  .min(1)
+  .max(ORGANIZATION_PARTICIPANTS_MAX)
+  .label(ORGANIZATION_PARTICIPANTS_REF_DATA_LABEL)
+  .required();
+
 export const TRANSACTION_TYPE_SCHEMA = Joi.string()
   .allow(...TransactionTypes)
   .label(TRANSACTION_TYPE_LABEL);
@@ -543,8 +769,6 @@ export const TRANSACTION_DETAILS_SCHEMA = Joi.alt()
   .label(TRANSACTION_DETAILS_LABEL);
 
 export const BASE_TRANSACTION_SCHEMA = Joi.object({
-  from: FROM_PARTICIPANT_ID_SCHEMA,
-  to: TO_PARTICIPANT_ID_SCHEMA,
   type: TRANSACTION_TYPE_SCHEMA.required(),
   details: TRANSACTION_DETAILS_SCHEMA.required(),
   description: DESCRIPTION_SCHEMA,
@@ -567,9 +791,21 @@ export const READ_BLOCK_TRANSACTION_SCHEMA = Joi.object({
 }).label(READ_BLOCK_TRANSACTION_DATA_LABEL);
 
 export const CREATE_BLOCK_TRANSACTION_SCHEMA = Joi.object({
-  type: Joi.string().allow("block-transaction").required().label(TYPE_LABEL),
-  id: ID_SCHEMA.required(),
+  type: Joi.string().allow("block-transaction").label(TYPE_LABEL).required(),
+  id: ID_SCHEMA.required().label("Block Transaction ID"),
   attributes: BASE_TRANSACTION_SCHEMA.keys({
+    from: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    })
+      .label(FROM_PARTICIPANT_LABEL)
+      .required(),
+    to: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    })
+      .label(TO_PARTICIPANT_LABEL)
+      .required(),
     goodPoints: GOOD_POINTS_SCHEMA.required(),
     signature: SIGNATURE_SCHEMA.required(),
   })
@@ -585,14 +821,36 @@ export const READ_PENDING_TRANSACTION_SCHEMA = Joi.object({
   type: Joi.string().allow("pending-transaction").label(TYPE_LABEL),
   id: ID_SCHEMA,
   attributes: BASE_TRANSACTION_SCHEMA.keys({
+    from: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL),
+      id: ID_SCHEMA.label(ID_LABEL),
+    }).label(FROM_PARTICIPANT_LABEL),
+    to: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL),
+      id: ID_SCHEMA.label(ID_LABEL),
+    }).label(TO_PARTICIPANT_LABEL),
     createdAt: CREATED_AT_SCHEMA,
     updatedAt: UPDATED_AT_SCHEMA,
   }).label(PENDING_TRANSACTION_ATTRIBUTES_LABEL),
 }).label(PENDING_TRANSACTION_DATA_LABEL);
 
 export const CREATE_PENDING_TRANSACTION_SCHEMA = Joi.object({
-  type: Joi.string().allow("pending-transaction").required().label(TYPE_LABEL),
-  attributes: BASE_TRANSACTION_SCHEMA.unknown(false)
+  type: Joi.string().allow("pending-transaction").label(TYPE_LABEL).required(),
+  attributes: BASE_TRANSACTION_SCHEMA.keys({
+    from: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    })
+      .label(FROM_PARTICIPANT_LABEL)
+      .required(),
+    to: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    })
+      .label(TO_PARTICIPANT_LABEL)
+      .required(),
+  })
+    .unknown(false)
     .label(PENDING_TRANSACTION_ATTRIBUTES_LABEL)
     .required(),
 })
@@ -601,8 +859,16 @@ export const CREATE_PENDING_TRANSACTION_SCHEMA = Joi.object({
   .required();
 
 export const UPDATE_PENDING_TRANSACTION_SCHEMA = Joi.object({
-  type: Joi.string().allow("pending-transaction").required().label(TYPE_LABEL),
+  type: Joi.string().allow("pending-transaction").label(TYPE_LABEL).required(),
   attributes: Joi.object({
+    from: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    }).label(FROM_PARTICIPANT_LABEL),
+    to: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    }).label(TO_PARTICIPANT_LABEL),
     description: DESCRIPTION_SCHEMA,
     details: TRANSACTION_DETAILS_SCHEMA,
   })
@@ -626,9 +892,21 @@ export const READ_SIGNED_TRANSACTION_SCHEMA = Joi.object({
 }).label(SIGNED_TRANSACTION_DATA_LABEL);
 
 export const CREATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
-  type: Joi.string().allow("signed-transaction").required().label(TYPE_LABEL),
+  type: Joi.string().allow("signed-transaction").label(TYPE_LABEL).required(),
   id: ID_SCHEMA,
   attributes: BASE_TRANSACTION_SCHEMA.keys({
+    from: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    })
+      .label(FROM_PARTICIPANT_LABEL)
+      .required(),
+    to: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    })
+      .label(TO_PARTICIPANT_LABEL)
+      .required(),
     goodPoints: GOOD_POINTS_SCHEMA.required(),
     signature: SIGNATURE_SCHEMA.required(),
   })
@@ -641,9 +919,17 @@ export const CREATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
   .required();
 
 export const UPDATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
-  type: Joi.string().allow("signed-transaction").required().label(TYPE_LABEL),
+  type: Joi.string().allow("signed-transaction").label(TYPE_LABEL).required(),
   id: ID_SCHEMA,
   attributes: Joi.object({
+    from: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    }).label(FROM_PARTICIPANT_LABEL),
+    to: Joi.object({
+      type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
+      id: ID_SCHEMA.label(ID_LABEL).required(),
+    }).label(TO_PARTICIPANT_LABEL),
     description: DESCRIPTION_SCHEMA,
     details: TRANSACTION_DETAILS_SCHEMA,
     goodPoints: GOOD_POINTS_SCHEMA,
@@ -682,7 +968,7 @@ export const READ_BLOCK_SCHEMA = Joi.object({
 });
 
 export const CREATE_BLOCK_SCHEMA = Joi.object({
-  type: Joi.string().allow("block").required().label(TYPE_LABEL),
+  type: Joi.string().allow("block").label(TYPE_LABEL).required(),
   id: ID_SCHEMA,
   attributes: Joi.object({
     sequenceId: SEQUENCE_ID_SCHEMA.required(),
@@ -711,227 +997,4 @@ export const CREATE_BLOCK_SCHEMA = Joi.object({
 })
   .unknown(false)
   .label(BLOCK_DATA_LABEL)
-  .required();
-
-export const READ_PARTICIPANT_SCHEMA = Joi.object({
-  type: Joi.string().allow("participant").label(TYPE_LABEL),
-  id: ID_SCHEMA,
-  attributes: Joi.object({
-    createdAt: CREATED_AT_SCHEMA,
-    updatedAt: UPDATED_AT_SCHEMA,
-    email: EMAIL_SCHEMA,
-    firstName: FIRST_NAME_SCHEMA,
-    lastName: LAST_NAME_SCHEMA,
-    phone: PHONE_NUMBER_SCHEMA,
-    roles: Joi.array()
-      .items(
-        Joi.string()
-          .allow(...ParticipantRoles)
-          .label(PARTICIPANT_ROLE_TYPES_LABEL)
-      )
-      .min(1)
-      .label(ROLES_LABEL),
-  }).label(PARTICIPANT_ATTRIBUTES_LABEL),
-});
-
-export const CREATE_PARTICIPANT_SCHEMA = Joi.object({
-  type: Joi.string().allow("participant").required().label(TYPE_LABEL),
-  attributes: Joi.object({
-    email: EMAIL_SCHEMA.required(),
-    password: PASSWORD_SCHEMA.required(),
-    firstName: FIRST_NAME_SCHEMA,
-    lastName: LAST_NAME_SCHEMA,
-    phone: PHONE_NUMBER_SCHEMA,
-    roles: Joi.array()
-      .items(
-        Joi.string()
-          .allow(...ParticipantRoles)
-          .label(PARTICIPANT_ROLE_TYPES_LABEL)
-      )
-      .min(1)
-      .label(ROLES_LABEL)
-      .required(),
-  })
-    .unknown(false)
-    .label(PARTICIPANT_ATTRIBUTES_LABEL)
-    .required(),
-})
-  .unknown(false)
-  .label(PARTICIPANT_DATA_LABEL)
-  .required();
-
-export const UPDATE_PARTICIPANT_SCHEMA = Joi.object({
-  type: Joi.string().allow("participant").required().label(TYPE_LABEL),
-  attributes: Joi.object({
-    email: EMAIL_SCHEMA,
-    password: PASSWORD_SCHEMA,
-    firstName: FIRST_NAME_SCHEMA,
-    lastName: LAST_NAME_SCHEMA,
-    phone: PHONE_NUMBER_SCHEMA,
-    roles: Joi.array()
-      .items(
-        Joi.string()
-          .allow(...ParticipantRoles)
-          .label(PARTICIPANT_ROLE_TYPES_LABEL)
-      )
-      .min(1)
-      .label(ROLES_LABEL),
-  })
-    .unknown(false)
-    .label(PARTICIPANT_ATTRIBUTES_LABEL)
-    .required(),
-})
-  .unknown(false)
-  .label(PARTICIPANT_DATA_LABEL)
-  .required();
-
-export const READ_PARTICIPANT_KEY_SCHEMA = Joi.object({
-  type: Joi.string().allow("participant-key").label(TYPE_LABEL),
-  id: ID_SCHEMA,
-  attributes: Joi.object({
-    createdAt: CREATED_AT_SCHEMA,
-    updatedAt: UPDATED_AT_SCHEMA,
-    public: PUBLIC_KEY_SCHEMA,
-    effective: EFFECTIVE_DATE_RANGE_SCHEMA,
-  }).label(PARTICIPANT_KEY_ATTRIBUTES_LABEL),
-});
-
-export const CREATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
-  type: Joi.string().allow("participant-key").required().label(TYPE_LABEL),
-})
-  .unknown(false)
-  .label(PARTICIPANT_KEY_DATA_LABEL)
-  .required();
-
-export const UPDATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
-  type: Joi.string().allow("participant-key").required().label(TYPE_LABEL),
-})
-  .unknown(false)
-  .label(PARTICIPANT_KEY_DATA_LABEL)
-  .required();
-
-export const READ_NODE_SCHEMA = Joi.object({
-  type: Joi.string().allow("node").label(TYPE_LABEL),
-  attributes: Joi.object({
-    createdAt: CREATED_AT_SCHEMA,
-    updatedAt: UPDATED_AT_SCHEMA,
-    baseUrl: BASE_URL_SCHEMA,
-  }).label(NODE_ATTRIBUTES_LABEL),
-});
-
-export const CREATE_NODE_SCHEMA = Joi.object({
-  type: Joi.string().allow("node").required().label(TYPE_LABEL),
-  attributes: Joi.object({
-    baseUrl: BASE_URL_SCHEMA.required(),
-  })
-    .unknown(false)
-    .label(NODE_ATTRIBUTES_LABEL)
-    .required(),
-})
-  .unknown(false)
-  .label(NODE_DATA_LABEL)
-  .required();
-
-export const UPDATE_NODE_SCHEMA = Joi.object({
-  type: Joi.string().allow("node").required().label(TYPE_LABEL),
-  attributes: Joi.object({
-    baseUrl: BASE_URL_SCHEMA,
-  })
-    .unknown(false)
-    .label(NODE_ATTRIBUTES_LABEL)
-    .required(),
-})
-  .unknown(false)
-  .label(NODE_DATA_LABEL)
-  .required();
-
-export const READ_ORGANIZATION_SCHEMA = Joi.object({
-  type: Joi.string().allow("organization").label(TYPE_LABEL),
-  id: ID_SCHEMA,
-  attributes: Joi.object({
-    createdAt: CREATED_AT_SCHEMA,
-    updatedAt: UPDATED_AT_SCHEMA,
-    email: EMAIL_SCHEMA,
-    name: ORGANIZATION_NAME_SCHEMA,
-    phone: PHONE_NUMBER_SCHEMA,
-    roles: Joi.array()
-      .items(
-        Joi.string()
-          .allow(...OrganizationRoles)
-          .label(ORGANIZATION_ROLE_TYPES_LABEL)
-      )
-      .min(1)
-      .label(ROLES_LABEL),
-  }).label(ORGANIZATION_ATTRIBUTES_LABEL),
-}).label(READ_ORGANIZATION_LABEL);
-
-export const CREATE_ORGANIZATION_SCHEMA = Joi.object({
-  type: Joi.string().allow("organization").required().label(TYPE_LABEL),
-  attributes: Joi.object({
-    email: EMAIL_SCHEMA.required(),
-    name: ORGANIZATION_NAME_SCHEMA.required(),
-    phone: PHONE_NUMBER_SCHEMA,
-    roles: Joi.array()
-      .items(
-        Joi.string()
-          .allow(...OrganizationRoles)
-          .label(ORGANIZATION_ROLE_TYPES_LABEL)
-      )
-      .min(1)
-      .label(ROLES_LABEL)
-      .required(),
-  })
-    .unknown(false)
-    .label(ORGANIZATION_ATTRIBUTES_LABEL)
-    .required(),
-})
-  .unknown(false)
-  .label(CREATE_ORGANIZATION_LABEL)
-  .required();
-
-export const UPDATE_ORGANIZATION_SCHEMA = Joi.object({
-  type: Joi.string().allow("organization").required().label(TYPE_LABEL),
-  attributes: Joi.object({
-    email: EMAIL_SCHEMA,
-    name: ORGANIZATION_NAME_SCHEMA,
-    phone: PHONE_NUMBER_SCHEMA,
-    roles: Joi.array()
-      .items(
-        Joi.string()
-          .allow(...OrganizationRoles)
-          .label(ORGANIZATION_ROLE_TYPES_LABEL)
-      )
-      .min(1)
-      .label(ROLES_LABEL),
-  })
-    .unknown(false)
-    .label(ORGANIZATION_ATTRIBUTES_LABEL)
-    .required(),
-})
-  .unknown(false)
-  .label(UPDATE_ORGANIZATION_LABEL)
-  .required();
-
-export const CREATE_ORGANIZATION_PARTICIPANT_REFERENCE_SCHEMA = Joi.array()
-  .items(
-    Joi.object({
-      id: ID_SCHEMA,
-      type: Joi.string().allow("participant").required().label(TYPE_LABEL),
-    }).label(PARTICIPANTS_LABEL)
-  )
-  .min(1)
-  .max(ORGANIZATION_PARTICIPANTS_MAX)
-  .label(ORGANIZATION_PARTICIPANTS_REF_DATA_LABEL)
-  .required();
-
-export const CREATE_PARTICIPANT_ORGANIZATION_REFERENCE_SCHEMA = Joi.array()
-  .items(
-    Joi.object({
-      id: ID_SCHEMA,
-      type: Joi.string().allow("organization").required().label(TYPE_LABEL),
-    }).label(ORGANIZATIONS_LABEL)
-  )
-  .min(1)
-  .max(ORGANIZATION_PARTICIPANTS_MAX)
-  .label(ORGANIZATION_PARTICIPANTS_REF_DATA_LABEL)
   .required();

@@ -173,6 +173,8 @@ export const postPendingTransactionRequestHandler =
       data: ApiData<PendingTransaction<TransactionDetails>>;
     };
 
+    // todo - validate that the from/to participants exist and can take place in the transaction
+
     const newPendingTransaction = {
       id: payload.data.id,
       ...payload.data.attributes,
@@ -239,6 +241,8 @@ export const patchPendingTransactionRequestHandler =
     };
 
     // todo - confirm that the user can do this
+
+    // todo - validate that the from/to participants exist and can take place in the transaction
 
     const updatedPendingTransaction: PendingTransaction<TransactionDetails> = {
       id: pendingTransactionId,

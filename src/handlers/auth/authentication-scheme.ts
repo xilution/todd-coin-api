@@ -42,28 +42,17 @@ export const authenticationScheme =
       }
 
       let participantId: string | undefined = undefined;
-      let exp: number | undefined = undefined;
       try {
         const decode = jwt.decode(accessToken) as {
           participantId: string;
           exp: number;
         };
         participantId = decode.participantId;
-        exp = decode.exp;
       } catch (error) {
         console.error((error as Error).message);
         return h
           .response({
             errors: buildUnauthorizedError("Unable to decode token."),
-          })
-          .code(401)
-          .takeover();
-      }
-
-      if (Math.floor(Date.now() / 1000) > exp) {
-        return h
-          .response({
-            errors: buildUnauthorizedError("Token is expired."),
           })
           .code(401)
           .takeover();

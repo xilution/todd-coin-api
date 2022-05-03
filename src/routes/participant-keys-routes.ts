@@ -3,9 +3,12 @@ import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   AUTH_HEADER_SCHEMA,
   GET_PARTICIPANT_KEY_PARAMETERS_SCHEMA,
+  GET_PARTICIPANT_KEYS_PARAMETERS_SCHEMA,
   GET_PARTICIPANTS_QUERY_SCHEMA,
   PATCH_PARTICIPANT_KEY_REQUEST_SCHEMA,
+  PATCH_PARTICIPANT_KEYS_PARAMETERS_SCHEMA,
   POST_PARTICIPANT_KEY_REQUEST_SCHEMA,
+  POST_PARTICIPANT_KEYS_PARAMETERS_SCHEMA,
 } from "./request-schemas";
 import {
   getParticipantKeyRequestHandler,
@@ -38,12 +41,13 @@ export const addParticipantKeyRoutes = (
 ): void => {
   server.route({
     method: "GET",
-    path: "/participant-keys",
+    path: "/participants/{participantId}/participant-keys",
     options: {
       description: GET_PARTICIPANT_KEYS_DESCRIPTION,
       tags: ["api"],
       auth: "custom",
       validate: {
+        params: GET_PARTICIPANT_KEYS_PARAMETERS_SCHEMA,
         query: GET_PARTICIPANTS_QUERY_SCHEMA,
         headers: AUTH_HEADER_SCHEMA,
         options: {
@@ -61,7 +65,7 @@ export const addParticipantKeyRoutes = (
 
   server.route({
     method: "GET",
-    path: "/participant-keys/{participantKeyId}",
+    path: "/participants/{participantId}/participant-keys/{participantKeyId}",
     options: {
       description: GET_PARTICIPANT_KEY_DESCRIPTION,
       tags: ["api"],
@@ -84,12 +88,13 @@ export const addParticipantKeyRoutes = (
 
   server.route({
     method: "POST",
-    path: "/participant-keys",
+    path: "/participants/{participantId}/participant-keys",
     options: {
       description: POST_PARTICIPANT_KEY_DESCRIPTION,
       tags: ["api"],
       auth: "custom",
       validate: {
+        params: POST_PARTICIPANT_KEYS_PARAMETERS_SCHEMA,
         payload: POST_PARTICIPANT_KEY_REQUEST_SCHEMA,
         headers: AUTH_HEADER_SCHEMA,
         options: {
@@ -121,13 +126,13 @@ export const addParticipantKeyRoutes = (
 
   server.route({
     method: "PATCH",
-    path: "/participant-keys/{participantKeyId}",
+    path: "/participants/{participantId}/participant-keys/{participantKeyId}",
     options: {
       description: PATCH_PARTICIPANT_KEY_DESCRIPTION,
       tags: ["api"],
       auth: "custom",
       validate: {
-        params: GET_PARTICIPANT_KEY_PARAMETERS_SCHEMA,
+        params: PATCH_PARTICIPANT_KEYS_PARAMETERS_SCHEMA,
         payload: PATCH_PARTICIPANT_KEY_REQUEST_SCHEMA,
         headers: AUTH_HEADER_SCHEMA,
         options: {

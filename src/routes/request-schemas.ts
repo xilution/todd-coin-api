@@ -102,7 +102,21 @@ export const GET_PARTICIPANT_PARAMETERS_SCHEMA = Joi.object({
   participantId: ID_SCHEMA.description(PARTICIPANT_ID_DESCRIPTION),
 });
 
+export const GET_PARTICIPANT_KEYS_PARAMETERS_SCHEMA = Joi.object({
+  participantId: ID_SCHEMA.description(PARTICIPANT_ID_DESCRIPTION),
+});
+
 export const GET_PARTICIPANT_KEY_PARAMETERS_SCHEMA = Joi.object({
+  participantId: ID_SCHEMA.description(PARTICIPANT_ID_DESCRIPTION),
+  participantKeyId: ID_SCHEMA.description(PARTICIPANT_KEY_ID_DESCRIPTION),
+});
+
+export const POST_PARTICIPANT_KEYS_PARAMETERS_SCHEMA = Joi.object({
+  participantId: ID_SCHEMA.description(PARTICIPANT_ID_DESCRIPTION),
+});
+
+export const PATCH_PARTICIPANT_KEYS_PARAMETERS_SCHEMA = Joi.object({
+  participantId: ID_SCHEMA.description(PARTICIPANT_ID_DESCRIPTION),
   participantKeyId: ID_SCHEMA.description(PARTICIPANT_KEY_ID_DESCRIPTION),
 });
 

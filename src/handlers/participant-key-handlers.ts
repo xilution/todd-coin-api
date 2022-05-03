@@ -1,4 +1,8 @@
-import { DbClient, participantKeysBroker } from "@xilution/todd-coin-brokers";
+import {
+  DbClient,
+  participantKeysBroker,
+  participantsBroker,
+} from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
@@ -28,9 +32,12 @@ export const getParticipantKeysValidationFailAction = (
   return h
     .response({
       jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidQueryError(errorItem)
-      ),
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "participantId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
     })
     .code(validationError?.output.statusCode || 400)
     .takeover();
@@ -39,6 +46,8 @@ export const getParticipantKeysValidationFailAction = (
 export const getParticipantKeysRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
+    const { participantId } = request.params;
+
     const pageNumber: number =
       Number(request.query["page[number]"]) || FIRST_PAGE;
 
@@ -50,7 +59,8 @@ export const getParticipantKeysRequestHandler =
       response = await participantKeysBroker.getParticipantKeys(
         dbClient,
         pageNumber,
-        pageSize
+        pageSize,
+        participantId
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -158,7 +168,37 @@ export const postParticipantKeyValidationFailAction = (
 export const postParticipantKeyRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const participant = request.auth.credentials.participant as Participant;
+    const { participantId } = request.params;
+
+    let participant: Participant | undefined;
+    try {
+      participant = await participantsBroker.getParticipantById(
+        dbClient,
+        participantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (participant === undefined) {
+      h.response({
+        jsonapi: { version: "1.0" },
+        errors: [
+          buildNofFountError(
+            `Participant with id: ${participantId} was not found.`
+          ),
+        ],
+      }).code(404);
+    }
+
+    // todo - verify that the user can do this.
+    // const authParticipant = request.auth.credentials.participant as Participant;
 
     const newParticipantKey = keyUtils.generateParticipantKey();
 
@@ -166,7 +206,7 @@ export const postParticipantKeyRequestHandler =
     try {
       createdParticipantKey = await participantKeysBroker.createParticipantKey(
         dbClient,
-        participant,
+        participant as Participant,
         newParticipantKey
       );
     } catch (error) {
@@ -215,10 +255,38 @@ export const patchParticipantKeyValidationFailAction = (
 
 export const patchParticipantKeyRequestHandler =
   (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
-    const { participantKeyId } = request.params;
+    const { participantId, participantKeyId } = request.params;
     const payload = request.payload as { data: ApiData<ParticipantKey> };
 
-    // todo - confirm that the user can do this
+    let participant: Participant | undefined;
+    try {
+      participant = await participantsBroker.getParticipantById(
+        dbClient,
+        participantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (participant === undefined) {
+      h.response({
+        jsonapi: { version: "1.0" },
+        errors: [
+          buildNofFountError(
+            `Participant with id: ${participantId} was not found.`
+          ),
+        ],
+      }).code(404);
+    }
+
+    // todo - verify that the user can do this.
+    // const authParticipant = request.auth.credentials.participant as Participant;
 
     const updatedParticipantKey: ParticipantKey = {
       id: participantKeyId,

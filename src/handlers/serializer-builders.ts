@@ -400,7 +400,37 @@ export const buildParticipantSerializer = (
     nullData: false,
     projection: {
       password: 0,
+      keys: 0,
+      organizations: 0,
     },
+    relators: [
+      new Relator<Participant, ParticipantKey>(
+        async (participant: Participant) => participant.keys,
+        new Serializer<ParticipantKey>("keys", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[Participant]>(() => {
+              return `${apiSettings.apiBaseUrl}/participant-keys?page[number]=${FIRST_PAGE}&page[size]=${DEFAULT_PAGE_SIZE}`;
+            }),
+          },
+        }
+      ),
+      new Relator<Participant, Organization>(
+        async (block: Participant) => block.organizations,
+        new Serializer<Organization>("organizations", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[Participant]>(() => {
+              return `${apiSettings.apiBaseUrl}/organizations?page[number]=${FIRST_PAGE}&page[size]=${DEFAULT_PAGE_SIZE}`;
+            }),
+          },
+        }
+      ),
+    ],
     linkers: {
       document: new Linker<[SingleOrArray<Participant> | nullish]>(
         (participant: nullish | SingleOrArray<Participant>) => {
@@ -429,7 +459,38 @@ export const buildParticipantsSerializer = (
     nullData: false,
     projection: {
       password: 0,
+      keys: 0,
+      organizations: 0,
     },
+    relators: [
+      new Relator<Participant, ParticipantKey>(
+        async (participant: Participant) =>
+          _.first(_.chunk(participant.keys, 10)),
+        new Serializer<ParticipantKey>("keys", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[Participant]>((participant: Participant) => {
+              return `${apiSettings.apiBaseUrl}/participants/${participant.id}/participant-keys?page[number]=${FIRST_PAGE}&page[size]=${DEFAULT_PAGE_SIZE}`;
+            }),
+          },
+        }
+      ),
+      new Relator<Participant, Organization>(
+        async (block: Participant) => block.organizations,
+        new Serializer<Organization>("organizations", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[Participant]>(() => {
+              return `${apiSettings.apiBaseUrl}/organizations?page[number]=${FIRST_PAGE}&page[size]=${DEFAULT_PAGE_SIZE}`;
+            }),
+          },
+        }
+      ),
+    ],
     linkers: {
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/participants?page[number]=${pageNumber}&page[size]=${pageSize}`;
@@ -536,6 +597,24 @@ export const buildOrganizationSerializer = (
 ): Serializer<Organization> => {
   return new Serializer<Organization>("organization", {
     nullData: false,
+    projection: {
+      participants: 0,
+    },
+    relators: [
+      new Relator<Organization, Participant>(
+        async (organization: Organization) => organization.participants,
+        new Serializer<Participant>("participants", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[Organization]>(() => {
+              return `${apiSettings.apiBaseUrl}/participants?page[number]=${FIRST_PAGE}&page[size]=${DEFAULT_PAGE_SIZE}`;
+            }),
+          },
+        }
+      ),
+    ],
     linkers: {
       document: new Linker<[SingleOrArray<Organization> | nullish]>(
         (organization: nullish | SingleOrArray<Organization>) => {
@@ -562,6 +641,24 @@ export const buildOrganizationsSerializer = (
 
   return new Serializer<Organization>("organization", {
     nullData: false,
+    projection: {
+      participants: 0,
+    },
+    relators: [
+      new Relator<Organization, Participant>(
+        async (organization: Organization) => organization.participants,
+        new Serializer<Participant>("participants", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[Organization]>(() => {
+              return `${apiSettings.apiBaseUrl}/participants?page[number]=${FIRST_PAGE}&page[size]=${DEFAULT_PAGE_SIZE}`;
+            }),
+          },
+        }
+      ),
+    ],
     linkers: {
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/organizations?page[number]=${pageNumber}&page[size]=${pageSize}`;

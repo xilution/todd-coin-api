@@ -103,6 +103,7 @@ export const addParticipantKeyRoutes = (
         failAction: postParticipantKeyValidationFailAction,
       },
       plugins: {
+        // todo - apply this to other patch and delete routes
         "hapi-swagger": {
           responses: {
             200: {

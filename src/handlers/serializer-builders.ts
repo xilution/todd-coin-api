@@ -27,10 +27,10 @@ export const buildBlockSerializer = (
     projection: {
       transactions: 0,
     },
-    relators: [
-      new Relator<Block, BlockTransaction<TransactionDetails>>(
+    relators: {
+      transactions: new Relator<Block, BlockTransaction<TransactionDetails>>(
         async (block: Block) => block.transactions,
-        new Serializer<BlockTransaction<TransactionDetails>>("transactions", {
+        new Serializer<BlockTransaction<TransactionDetails>>("transaction", {
           onlyIdentifier: true,
         }),
         {
@@ -41,7 +41,7 @@ export const buildBlockSerializer = (
           },
         }
       ),
-    ],
+    },
     linkers: {
       document: new Linker<[SingleOrArray<Block> | nullish]>(
         (block: nullish | SingleOrArray<Block>) => {
@@ -71,10 +71,10 @@ export const buildBlocksSerializer = (
     projection: {
       transactions: 0,
     },
-    relators: [
-      new Relator<Block, BlockTransaction<TransactionDetails>>(
-        async (block: Block) => _.first(_.chunk(block.transactions, 10)),
-        new Serializer<BlockTransaction<TransactionDetails>>("transactions", {
+    relators: {
+      transactions: new Relator<Block, BlockTransaction<TransactionDetails>>(
+        async (block: Block) => block.transactions,
+        new Serializer<BlockTransaction<TransactionDetails>>("transaction", {
           onlyIdentifier: true,
         }),
         {
@@ -85,7 +85,7 @@ export const buildBlocksSerializer = (
           },
         }
       ),
-    ],
+    },
     linkers: {
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/blocks?page[number]=${pageNumber}&page[size]=${pageSize}`;
@@ -286,44 +286,51 @@ export const buildSignedTransactionsSerializer = (
 };
 
 export const buildBlockTransactionSerializer = (
-  apiSettings: ApiSettings,
-  block: Block
+  apiSettings: ApiSettings
 ): Serializer<BlockTransaction<TransactionDetails>> => {
   return new Serializer<BlockTransaction<TransactionDetails>>("transaction", {
     nullData: false,
-    relators: [
-      new Relator<BlockTransaction<TransactionDetails>, Block>(
-        async () => block,
+    projection: {
+      block: 0,
+    },
+    relators: {
+      block: new Relator<BlockTransaction<TransactionDetails>, Block>(
+        async (blockTransaction: BlockTransaction<TransactionDetails>) =>
+          blockTransaction.block,
         new Serializer<Block>("block", {
           onlyIdentifier: true,
         }),
         {
           linkers: {
-            related: new Linker(() => {
-              return `${apiSettings.apiBaseUrl}/blocks/${block.id}`;
-            }),
+            related: new Linker(
+              (blockTransaction: BlockTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.id}`;
+              }
+            ),
           },
         }
       ),
-    ],
+    },
     linkers: {
       document: new Linker<
         [SingleOrArray<BlockTransaction<TransactionDetails>> | nullish]
       >(
         (
-          transaction:
+          blockTransaction:
             | nullish
             | SingleOrArray<BlockTransaction<TransactionDetails>>
         ) => {
-          if (!Array.isArray(transaction) && transaction) {
-            return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
+          if (!Array.isArray(blockTransaction) && blockTransaction) {
+            return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.block?.id}/transactions/${blockTransaction.id}`;
           }
-          return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions`;
+          return `${apiSettings.apiBaseUrl}/blocks/${
+            _.first(blockTransaction)?.block?.id
+          }/transactions`;
         }
       ),
       resource: new Linker(
-        (transaction: BlockTransaction<TransactionDetails>) => {
-          return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
+        (blockTransaction: BlockTransaction<TransactionDetails>) => {
+          return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.block?.id}/transactions/${blockTransaction.id}`;
         }
       ),
     },
@@ -332,7 +339,6 @@ export const buildBlockTransactionSerializer = (
 
 export const buildBlockTransactionsSerializer = (
   apiSettings: ApiSettings,
-  block: Block,
   count: number,
   pageNumber: number,
   pageSize: number
@@ -341,46 +347,82 @@ export const buildBlockTransactionsSerializer = (
 
   return new Serializer<BlockTransaction<TransactionDetails>>("transaction", {
     nullData: false,
-    relators: [
-      new Relator<BlockTransaction<TransactionDetails>, Block>(
-        async () => block,
+    projection: {
+      block: 0,
+    },
+    relators: {
+      block: new Relator<BlockTransaction<TransactionDetails>, Block>(
+        async (blockTransaction: BlockTransaction<TransactionDetails>) =>
+          blockTransaction.block,
         new Serializer<Block>("block", {
           onlyIdentifier: true,
         }),
         {
           linkers: {
-            related: new Linker(() => {
-              return `${apiSettings.apiBaseUrl}/blocks/${block.id}`;
-            }),
+            related: new Linker(
+              (blockTransaction: BlockTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.block?.id}`;
+              }
+            ),
           },
         }
       ),
-    ],
+    },
     linkers: {
-      document: new Linker(() => {
-        return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions?page[number]=${pageNumber}&page[size]=${pageSize}`;
-      }),
-      resource: new Linker(
-        (transaction: BlockTransaction<TransactionDetails>) => {
-          return `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions/${transaction.id}`;
+      document: new Linker<
+        [SingleOrArray<BlockTransaction<TransactionDetails>> | nullish]
+      >(
+        (
+          blockTransaction:
+            | nullish
+            | SingleOrArray<BlockTransaction<TransactionDetails>>
+        ) => {
+          if (!Array.isArray(blockTransaction) && blockTransaction) {
+            return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.block?.id}/transactions/${blockTransaction.id}`;
+          }
+          return `${apiSettings.apiBaseUrl}/blocks/${
+            _.first(blockTransaction)?.block?.id
+          }/transactions`;
         }
       ),
-      paginator: new Paginator(() => {
-        const nextPage = pageNumber + 1;
-        const previousPage = pageNumber - 1;
-        return {
-          first: `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions?page[number]=${FIRST_PAGE}&page[size]=${pageSize}`,
-          last: `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions?page[number]=${pages}&page[size]=${pageSize}`,
-          next:
-            nextPage <= pages
-              ? `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions?page[number]=${nextPage}&page[size]=${pageSize}`
-              : null,
-          prev:
-            previousPage >= 0
-              ? `${apiSettings.apiBaseUrl}/blocks/${block.id}/transactions?page[number]=${previousPage}&page[size]=${pageSize}`
-              : null,
-        };
-      }),
+      resource: new Linker(
+        (blockTransaction: BlockTransaction<TransactionDetails>) => {
+          return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.block?.id}/transactions/${blockTransaction.id}`;
+        }
+      ),
+      paginator: new Paginator(
+        (
+          blockTransaction:
+            | nullish
+            | SingleOrArray<BlockTransaction<TransactionDetails>>
+        ) => {
+          if (!Array.isArray(blockTransaction) && blockTransaction) {
+            return;
+          }
+          const nextPage = pageNumber + 1;
+          const previousPage = pageNumber - 1;
+          return {
+            first: `${apiSettings.apiBaseUrl}/blocks/${
+              _.first(blockTransaction)?.block?.id
+            }/transactions?page[number]=${FIRST_PAGE}&page[size]=${pageSize}`,
+            last: `${apiSettings.apiBaseUrl}/blocks/${
+              _.first(blockTransaction)?.block?.id
+            }/transactions?page[number]=${pages}&page[size]=${pageSize}`,
+            next:
+              nextPage <= pages
+                ? `${apiSettings.apiBaseUrl}/blocks/${
+                    _.first(blockTransaction)?.block?.id
+                  }/transactions?page[number]=${nextPage}&page[size]=${pageSize}`
+                : null,
+            prev:
+              previousPage >= 0
+                ? `${apiSettings.apiBaseUrl}/blocks/${
+                    _.first(blockTransaction)?.block?.id
+                  }/transactions?page[number]=${previousPage}&page[size]=${pageSize}`
+                : null,
+          };
+        }
+      ),
     },
     metaizers: {
       document: new Metaizer(() => ({
@@ -403,10 +445,10 @@ export const buildParticipantSerializer = (
       keys: 0,
       organizations: 0,
     },
-    relators: [
-      new Relator<Participant, ParticipantKey>(
+    relators: {
+      keys: new Relator<Participant, ParticipantKey>(
         async (participant: Participant) => participant.keys,
-        new Serializer<ParticipantKey>("keys", {
+        new Serializer<ParticipantKey>("key", {
           onlyIdentifier: true,
         }),
         {
@@ -417,9 +459,9 @@ export const buildParticipantSerializer = (
           },
         }
       ),
-      new Relator<Participant, Organization>(
+      organizations: new Relator<Participant, Organization>(
         async (block: Participant) => block.organizations,
-        new Serializer<Organization>("organizations", {
+        new Serializer<Organization>("organization", {
           onlyIdentifier: true,
         }),
         {
@@ -430,7 +472,7 @@ export const buildParticipantSerializer = (
           },
         }
       ),
-    ],
+    },
     linkers: {
       document: new Linker<[SingleOrArray<Participant> | nullish]>(
         (participant: nullish | SingleOrArray<Participant>) => {
@@ -462,11 +504,10 @@ export const buildParticipantsSerializer = (
       keys: 0,
       organizations: 0,
     },
-    relators: [
-      new Relator<Participant, ParticipantKey>(
-        async (participant: Participant) =>
-          _.first(_.chunk(participant.keys, 10)),
-        new Serializer<ParticipantKey>("keys", {
+    relators: {
+      keys: new Relator<Participant, ParticipantKey>(
+        async (participant: Participant) => participant.keys,
+        new Serializer<ParticipantKey>("key", {
           onlyIdentifier: true,
         }),
         {
@@ -477,9 +518,9 @@ export const buildParticipantsSerializer = (
           },
         }
       ),
-      new Relator<Participant, Organization>(
+      organizations: new Relator<Participant, Organization>(
         async (block: Participant) => block.organizations,
-        new Serializer<Organization>("organizations", {
+        new Serializer<Organization>("organization", {
           onlyIdentifier: true,
         }),
         {
@@ -490,7 +531,7 @@ export const buildParticipantsSerializer = (
           },
         }
       ),
-    ],
+    },
     linkers: {
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/participants?page[number]=${pageNumber}&page[size]=${pageSize}`;
@@ -600,10 +641,10 @@ export const buildOrganizationSerializer = (
     projection: {
       participants: 0,
     },
-    relators: [
-      new Relator<Organization, Participant>(
+    relators: {
+      participants: new Relator<Organization, Participant>(
         async (organization: Organization) => organization.participants,
-        new Serializer<Participant>("participants", {
+        new Serializer<Participant>("participant", {
           onlyIdentifier: true,
         }),
         {
@@ -614,7 +655,7 @@ export const buildOrganizationSerializer = (
           },
         }
       ),
-    ],
+    },
     linkers: {
       document: new Linker<[SingleOrArray<Organization> | nullish]>(
         (organization: nullish | SingleOrArray<Organization>) => {
@@ -644,10 +685,10 @@ export const buildOrganizationsSerializer = (
     projection: {
       participants: 0,
     },
-    relators: [
-      new Relator<Organization, Participant>(
+    relators: {
+      participants: new Relator<Organization, Participant>(
         async (organization: Organization) => organization.participants,
-        new Serializer<Participant>("participants", {
+        new Serializer<Participant>("participant", {
           onlyIdentifier: true,
         }),
         {
@@ -658,7 +699,7 @@ export const buildOrganizationsSerializer = (
           },
         }
       ),
-    ],
+    },
     linkers: {
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/organizations?page[number]=${pageNumber}&page[size]=${pageSize}`;

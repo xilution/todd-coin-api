@@ -57,9 +57,8 @@ export const getBlockTransactionsRequestHandler =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
     let block: Block | undefined;
-
     try {
-      block = await blocksBroker.getBlockById(dbClient, blockId);
+      block = await blocksBroker.getBlockById(dbClient, blockId, true);
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -108,7 +107,6 @@ export const getBlockTransactionsRequestHandler =
       .response(
         await buildBlockTransactionsSerializer(
           apiSettings,
-          block,
           count,
           pageNumber,
           pageSize
@@ -197,7 +195,7 @@ export const getBlockTransactionRequestHandler =
 
     return h
       .response(
-        await buildBlockTransactionSerializer(apiSettings, block).serialize(
+        await buildBlockTransactionSerializer(apiSettings).serialize(
           blockTransaction
         )
       )

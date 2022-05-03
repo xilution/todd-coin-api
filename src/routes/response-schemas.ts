@@ -96,7 +96,7 @@ export const GET_BLOCK_TRANSACTIONS_RESPONSE_SCHEMA = Joi.object({
   jsonapi: JSON_API_SCHEMA,
   meta: GET_MANY_META_SCHEMA,
   links: buildReturnManyLinks(
-    `${API_BASE_URL}/blocks/b3af823a-cb10-4c04-bb42-b055dd005992/block-transactions`
+    `${API_BASE_URL}/blocks/b3af823a-cb10-4c04-bb42-b055dd005992/transactions`
   ).label(GET_BLOCK_TRANSACTIONS_LINKS_LABEL),
   data: Joi.array()
     .items(READ_BLOCK_TRANSACTION_SCHEMA)
@@ -106,7 +106,7 @@ export const GET_BLOCK_TRANSACTIONS_RESPONSE_SCHEMA = Joi.object({
 export const GET_BLOCK_TRANSACTION_RESPONSE_SCHEMA = Joi.object({
   jsonapi: JSON_API_SCHEMA,
   links: buildReturnOneLinks(
-    `${API_BASE_URL}/blocks/4ddfd4a9-df0e-40dc-98fc-a8987e842a21/block-transactions/f56825d3-c7a6-4c14-963e-ce4a4714d021`
+    `${API_BASE_URL}/blocks/4ddfd4a9-df0e-40dc-98fc-a8987e842a21/transactions/f56825d3-c7a6-4c14-963e-ce4a4714d021`
   ).label(GET_BLOCK_TRANSACTION_LINKS_LABEL),
   data: READ_BLOCK_TRANSACTION_SCHEMA,
 }).label(GET_BLOCK_TRANSACTION_RESPONSE_LABEL);

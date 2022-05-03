@@ -780,7 +780,7 @@ export const PAGINATION_QUERY_SCHEMA = Joi.object({
 });
 
 export const READ_BLOCK_TRANSACTION_SCHEMA = Joi.object({
-  type: Joi.string().allow("block-transaction").label(TYPE_LABEL),
+  type: Joi.string().allow("transaction").label(TYPE_LABEL),
   id: ID_SCHEMA,
   attributes: BASE_TRANSACTION_SCHEMA.keys({
     createdAt: CREATED_AT_SCHEMA,
@@ -791,7 +791,7 @@ export const READ_BLOCK_TRANSACTION_SCHEMA = Joi.object({
 }).label(READ_BLOCK_TRANSACTION_DATA_LABEL);
 
 export const CREATE_BLOCK_TRANSACTION_SCHEMA = Joi.object({
-  type: Joi.string().allow("block-transaction").label(TYPE_LABEL).required(),
+  type: Joi.string().allow("transaction").label(TYPE_LABEL).required(),
   id: ID_SCHEMA.required().label("Block Transaction ID"),
   attributes: BASE_TRANSACTION_SCHEMA.keys({
     from: Joi.object({

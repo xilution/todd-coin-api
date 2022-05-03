@@ -1,3 +1,15 @@
+# [1.6.0](https://github.com/xilution/todd-coin-api/compare/v1.5.0...v1.6.0) (2022-05-03)
+
+
+### Bug Fixes
+
+* fixed block transaction response serializers ([2b11cc3](https://github.com/xilution/todd-coin-api/commit/2b11cc3bd68a0b4da2c111c2cd4553369a2e6fdc))
+
+
+### Features
+
+* added relations ([46c6adb](https://github.com/xilution/todd-coin-api/commit/46c6adb4300933e23cb28ce831aeb064da7c26b4))
+
 # [1.5.0](https://github.com/xilution/todd-coin-api/compare/v1.4.1...v1.5.0) (2022-05-02)
 
 

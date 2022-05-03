@@ -52,6 +52,8 @@ export const POST_PENDING_TRANSACTION_DESCRIPTION =
   "Use to create a Todd Coin pending transaction record.";
 export const PATCH_PENDING_TRANSACTION_DESCRIPTION =
   "Used to update a Todd Coin pending transaction record.";
+export const DELETE_PENDING_TRANSACTION_DESCRIPTION =
+  "Used to delete a Todd Coin pending transaction record.";
 export const GET_SIGNED_TRANSACTIONS_DESCRIPTION =
   "Used to get Todd Coin signed transaction records.";
 export const GET_SIGNED_TRANSACTION_DESCRIPTION =

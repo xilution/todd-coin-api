@@ -135,7 +135,7 @@ export const getSignedTransactionRequestHandler =
 
     return h
       .response(
-        buildSignedTransactionSerializer(apiSettings).serialize(
+        await buildSignedTransactionSerializer(apiSettings).serialize(
           signedTransaction
         )
       )

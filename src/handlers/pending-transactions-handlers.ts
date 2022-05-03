@@ -266,3 +266,71 @@ export const patchPendingTransactionRequestHandler =
 
     return h.response().code(204);
   };
+
+export const deletePendingTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const deletePendingTransactionRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const { pendingTransactionId } = request.params;
+
+    let pendingTransaction: PendingTransaction<TransactionDetails> | undefined;
+    try {
+      pendingTransaction = await transactionsBroker.getPendingTransactionById(
+        dbClient,
+        pendingTransactionId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (pendingTransaction === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A pending transaction with id: ${pendingTransactionId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
+    try {
+      await transactionsBroker.deletePendingTransactionById(
+        dbClient,
+        pendingTransactionId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    return h.response().code(204);
+  };

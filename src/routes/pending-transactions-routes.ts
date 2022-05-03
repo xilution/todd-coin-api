@@ -2,12 +2,15 @@ import { Server } from "@hapi/hapi";
 import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   AUTH_HEADER_SCHEMA,
+  DELETE_PENDING_TRANSACTION_PARAMETERS_SCHEMA,
   GET_PENDING_TRANSACTION_PARAMETERS_SCHEMA,
   GET_PENDING_TRANSACTIONS_QUERY_SCHEMA,
   PATCH_PENDING_TRANSACTION_REQUEST_SCHEMA,
   POST_PENDING_TRANSACTION_REQUEST_SCHEMA,
 } from "./request-schemas";
 import {
+  deletePendingTransactionRequestHandler,
+  deletePendingTransactionValidationFailAction,
   getPendingTransactionRequestHandler,
   getPendingTransactionsRequestHandler,
   getPendingTransactionsValidationFailAction,
@@ -24,6 +27,7 @@ import {
   POST_PENDING_TRANSACTION_RESPONSE_SCHEMA,
 } from "./response-schemas";
 import {
+  DELETE_PENDING_TRANSACTION_DESCRIPTION,
   GET_PENDING_TRANSACTION_DESCRIPTION,
   GET_PENDING_TRANSACTIONS_DESCRIPTION,
   PATCH_PENDING_TRANSACTION_DESCRIPTION,
@@ -122,5 +126,24 @@ export const addPendingTransactionsRoutes = (
       },
     },
     handler: patchPendingTransactionRequestHandler(dbClient),
+  });
+
+  server.route({
+    method: "DELETE",
+    path: "/pending-transactions/{pendingTransactionId}",
+    options: {
+      description: DELETE_PENDING_TRANSACTION_DESCRIPTION,
+      tags: ["api"],
+      auth: "custom",
+      validate: {
+        params: DELETE_PENDING_TRANSACTION_PARAMETERS_SCHEMA,
+        headers: AUTH_HEADER_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: deletePendingTransactionValidationFailAction,
+      },
+    },
+    handler: deletePendingTransactionRequestHandler(dbClient),
   });
 };

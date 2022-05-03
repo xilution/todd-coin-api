@@ -869,8 +869,9 @@ export const UPDATE_PENDING_TRANSACTION_SCHEMA = Joi.object({
       type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
       id: ID_SCHEMA.label(ID_LABEL).required(),
     }).label(TO_PARTICIPANT_LABEL),
-    description: DESCRIPTION_SCHEMA,
+    type: TRANSACTION_TYPE_SCHEMA,
     details: TRANSACTION_DETAILS_SCHEMA,
+    description: DESCRIPTION_SCHEMA,
   })
     .unknown(false)
     .label(PENDING_TRANSACTION_ATTRIBUTES_LABEL)

@@ -366,7 +366,10 @@ export const patchParticipantRequestHandler =
 
     try {
       // todo - what if the user is changing their email or password?
-      await participantsBroker.updateParticipant(dbClient, updatedParticipant);
+      await participantsBroker.updateParticipant(dbClient, {
+        ...updatedParticipant,
+        password: hashUtils.calculateStringHash(updatedParticipant.password),
+      });
     } catch (error) {
       console.error((error as Error).message);
       return h

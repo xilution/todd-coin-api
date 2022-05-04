@@ -324,6 +324,8 @@ export const patchOrganizationRequestHandler =
     const { organizationId } = request.params;
     const payload = request.payload as { data: ApiData<Organization> };
 
+    // todo - validate that the path id equals the payload id
+
     // todo - confirm that the user can do this
 
     const updatedOrganization: Organization = {

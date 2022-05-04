@@ -128,6 +128,38 @@ export const buildPendingTransactionSerializer = (
     "pending-transaction",
     {
       nullData: false,
+      projection: {
+        from: 0,
+        to: 0,
+      },
+      relators: {
+        from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+          new Serializer<Participant>("participant", {
+            onlyIdentifier: true,
+          }),
+          {
+            linkers: {
+              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+              }),
+            },
+          }
+        ),
+        to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+          new Serializer<Participant>("participant", {
+            onlyIdentifier: true,
+          }),
+          {
+            linkers: {
+              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+              }),
+            },
+          }
+        ),
+      },
       linkers: {
         document: new Linker<
           [SingleOrArray<PendingTransaction<TransactionDetails>> | nullish]
@@ -165,6 +197,10 @@ export const buildPendingTransactionsSerializer = (
     "pending-transaction",
     {
       nullData: false,
+      projection: {
+        from: 0,
+        to: 0,
+      },
       linkers: {
         document: new Linker(() => {
           return `${apiSettings.apiBaseUrl}/pending-transactions?page[number]=${pageNumber}&page[size]=${pageSize}`;
@@ -191,6 +227,34 @@ export const buildPendingTransactionsSerializer = (
           };
         }),
       },
+      relators: {
+        from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+          new Serializer<Participant>("participant", {
+            onlyIdentifier: true,
+          }),
+          {
+            linkers: {
+              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+              }),
+            },
+          }
+        ),
+        to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+          new Serializer<Participant>("participant", {
+            onlyIdentifier: true,
+          }),
+          {
+            linkers: {
+              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+              }),
+            },
+          }
+        ),
+      },
       metaizers: {
         document: new Metaizer(() => ({
           itemsPerPage: pageSize,
@@ -210,6 +274,38 @@ export const buildSignedTransactionSerializer = (
     "signed-transaction",
     {
       nullData: false,
+      projection: {
+        from: 0,
+        to: 0,
+      },
+      relators: {
+        from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+          new Serializer<Participant>("participant", {
+            onlyIdentifier: true,
+          }),
+          {
+            linkers: {
+              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+              }),
+            },
+          }
+        ),
+        to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+          new Serializer<Participant>("participant", {
+            onlyIdentifier: true,
+          }),
+          {
+            linkers: {
+              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+              }),
+            },
+          }
+        ),
+      },
       linkers: {
         document: new Linker<
           [SingleOrArray<SignedTransaction<TransactionDetails>> | nullish]
@@ -247,6 +343,38 @@ export const buildSignedTransactionsSerializer = (
     "signed-transaction",
     {
       nullData: false,
+      projection: {
+        from: 0,
+        to: 0,
+      },
+      relators: {
+        from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+          new Serializer<Participant>("participant", {
+            onlyIdentifier: true,
+          }),
+          {
+            linkers: {
+              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+              }),
+            },
+          }
+        ),
+        to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+          new Serializer<Participant>("participant", {
+            onlyIdentifier: true,
+          }),
+          {
+            linkers: {
+              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+              }),
+            },
+          }
+        ),
+      },
       linkers: {
         document: new Linker(() => {
           return `${apiSettings.apiBaseUrl}/signed-transactions?page[number]=${pageNumber}&page[size]=${pageSize}`;
@@ -292,6 +420,8 @@ export const buildBlockTransactionSerializer = (
     nullData: false,
     projection: {
       block: 0,
+      from: 0,
+      to: 0,
     },
     relators: {
       block: new Relator<BlockTransaction<TransactionDetails>, Block>(
@@ -307,6 +437,32 @@ export const buildBlockTransactionSerializer = (
                 return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.id}`;
               }
             ),
+          },
+        }
+      ),
+      from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+        async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+        new Serializer<Participant>("participant", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+              return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+            }),
+          },
+        }
+      ),
+      to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+        async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+        new Serializer<Participant>("participant", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+              return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+            }),
           },
         }
       ),
@@ -349,6 +505,8 @@ export const buildBlockTransactionsSerializer = (
     nullData: false,
     projection: {
       block: 0,
+      from: 0,
+      to: 0,
     },
     relators: {
       block: new Relator<BlockTransaction<TransactionDetails>, Block>(
@@ -361,9 +519,35 @@ export const buildBlockTransactionsSerializer = (
           linkers: {
             related: new Linker(
               (blockTransaction: BlockTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.block?.id}`;
+                return `${apiSettings.apiBaseUrl}/blocks/${blockTransaction.id}`;
               }
             ),
+          },
+        }
+      ),
+      from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+        async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+        new Serializer<Participant>("participant", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+              return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+            }),
+          },
+        }
+      ),
+      to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
+        async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+        new Serializer<Participant>("participant", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
+              return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+            }),
           },
         }
       ),

@@ -357,6 +357,8 @@ export const patchParticipantRequestHandler =
     const { participantId } = request.params;
     const payload = request.payload as { data: ApiData<Participant> };
 
+    // todo - validate that the path id equals the payload id
+
     // todo - confirm that the user can do this
 
     const updatedParticipant: Participant = {

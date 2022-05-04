@@ -321,3 +321,10 @@ export const POST_SIGNED_TRANSACTION_LINKS_LABEL =
   "Post Signed Transaction Links";
 export const CREATED_AT_LABEL = "Created At";
 export const UPDATED_AT_LABEL = "Created At";
+export const PENDING_TRANSACTIONS_RELATIONSHIPS_LABEL =
+  "Pending Transaction Relationships";
+export const SIGNED_TRANSACTIONS_RELATIONSHIPS_LABEL =
+  "Signed Transaction Relationships";
+export const BLOCK_TRANSACTIONS_RELATIONSHIPS_LABEL =
+  "Signed Transaction Relationships";
+export const ORGANIZATION_DATA_LABEL = "Organization Data";

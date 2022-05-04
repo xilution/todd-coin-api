@@ -234,6 +234,8 @@ export const patchSignedTransactionRequestHandler =
       data: ApiData<SignedTransaction<TransactionDetails>>;
     };
 
+    // todo - validate that the path id equals the payload id
+
     // todo - confirm that the user can do this
 
     const updatedSignedTransaction: SignedTransaction<TransactionDetails> = {

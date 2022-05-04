@@ -202,6 +202,8 @@ export const patchNodeRequestHandler =
     const { nodeId } = request.params;
     const payload = request.payload as { data: ApiData<Node> };
 
+    // todo - validate that the path id equals the payload id
+
     // todo - confirm that the user can do this
 
     const updatedNode: Node = {

@@ -258,6 +258,8 @@ export const patchParticipantKeyRequestHandler =
     const { participantId, participantKeyId } = request.params;
     const payload = request.payload as { data: ApiData<ParticipantKey> };
 
+    // todo - validate that the path id equals the payload id
+
     let participant: Participant | undefined;
     try {
       participant = await participantsBroker.getParticipantById(

@@ -12,6 +12,7 @@ import { DbClient, transactionsBroker } from "@xilution/todd-coin-brokers";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import {
+  Participant,
   PendingTransaction,
   TransactionDetails,
 } from "@xilution/todd-coin-types";
@@ -175,9 +176,18 @@ export const postPendingTransactionRequestHandler =
 
     // todo - validate that the from/to participants exist and can take place in the transaction
 
+    const fromParticipantId = (payload.data.relationships.from.data as ApiData<Participant>).id;
+    const toParticipantId = (payload.data.relationships.to.data as ApiData<Participant>).id;
+
     const newPendingTransaction = {
       id: payload.data.id,
       ...payload.data.attributes,
+      from: {
+        id: fromParticipantId,
+      },
+      to: {
+        id: toParticipantId,
+      }
     } as PendingTransaction<TransactionDetails>;
 
     // todo - check for duplicate pending transactions (rules?)
@@ -240,13 +250,24 @@ export const patchPendingTransactionRequestHandler =
       data: ApiData<PendingTransaction<TransactionDetails>>;
     };
 
+    // todo - validate that the path id equals the payload id
+
     // todo - confirm that the user can do this
 
     // todo - validate that the from/to participants exist and can take place in the transaction
 
+    const fromParticipantId = (payload.data.relationships.from.data as ApiData<Participant>).id;
+    const toParticipantId = (payload.data.relationships.to.data as ApiData<Participant>).id;
+
     const updatedPendingTransaction: PendingTransaction<TransactionDetails> = {
       id: pendingTransactionId,
       ...payload.data.attributes,
+      from: {
+        id: fromParticipantId,
+      },
+      to: {
+        id: toParticipantId,
+      }
     } as PendingTransaction<TransactionDetails>;
 
     try {

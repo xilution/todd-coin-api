@@ -176,8 +176,12 @@ export const postPendingTransactionRequestHandler =
 
     // todo - validate that the from/to participants exist and can take place in the transaction
 
-    const fromParticipantId = (payload.data.relationships.from.data as ApiData<Participant>).id;
-    const toParticipantId = (payload.data.relationships.to.data as ApiData<Participant>).id;
+    const fromParticipantId = (
+      payload.data.relationships.from.data as ApiData<Participant>
+    ).id;
+    const toParticipantId = (
+      payload.data.relationships.to.data as ApiData<Participant>
+    ).id;
 
     const newPendingTransaction = {
       id: payload.data.id,
@@ -187,7 +191,7 @@ export const postPendingTransactionRequestHandler =
       },
       to: {
         id: toParticipantId,
-      }
+      },
     } as PendingTransaction<TransactionDetails>;
 
     // todo - check for duplicate pending transactions (rules?)
@@ -256,8 +260,12 @@ export const patchPendingTransactionRequestHandler =
 
     // todo - validate that the from/to participants exist and can take place in the transaction
 
-    const fromParticipantId = (payload.data.relationships.from.data as ApiData<Participant>).id;
-    const toParticipantId = (payload.data.relationships.to.data as ApiData<Participant>).id;
+    const fromParticipantId = (
+      payload.data.relationships.from.data as ApiData<Participant>
+    ).id;
+    const toParticipantId = (
+      payload.data.relationships.to.data as ApiData<Participant>
+    ).id;
 
     const updatedPendingTransaction: PendingTransaction<TransactionDetails> = {
       id: pendingTransactionId,
@@ -267,7 +275,7 @@ export const patchPendingTransactionRequestHandler =
       },
       to: {
         id: toParticipantId,
-      }
+      },
     } as PendingTransaction<TransactionDetails>;
 
     try {

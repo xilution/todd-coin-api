@@ -134,28 +134,38 @@ export const buildPendingTransactionSerializer = (
       },
       relators: {
         from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+            pendingTransaction.from,
           new Serializer<Participant>("participant", {
             onlyIdentifier: true,
           }),
           {
             linkers: {
-              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
-              }),
+              related: new Linker<[PendingTransaction<TransactionDetails>]>(
+                (
+                  pendingTransaction: PendingTransaction<TransactionDetails>
+                ) => {
+                  return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+                }
+              ),
             },
           }
         ),
         to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+            pendingTransaction.to,
           new Serializer<Participant>("participant", {
             onlyIdentifier: true,
           }),
           {
             linkers: {
-              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
-              }),
+              related: new Linker<[PendingTransaction<TransactionDetails>]>(
+                (
+                  pendingTransaction: PendingTransaction<TransactionDetails>
+                ) => {
+                  return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+                }
+              ),
             },
           }
         ),
@@ -229,28 +239,38 @@ export const buildPendingTransactionsSerializer = (
       },
       relators: {
         from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+            pendingTransaction.from,
           new Serializer<Participant>("participant", {
             onlyIdentifier: true,
           }),
           {
             linkers: {
-              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
-              }),
+              related: new Linker<[PendingTransaction<TransactionDetails>]>(
+                (
+                  pendingTransaction: PendingTransaction<TransactionDetails>
+                ) => {
+                  return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+                }
+              ),
             },
           }
         ),
         to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+            pendingTransaction.to,
           new Serializer<Participant>("participant", {
             onlyIdentifier: true,
           }),
           {
             linkers: {
-              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
-              }),
+              related: new Linker<[PendingTransaction<TransactionDetails>]>(
+                (
+                  pendingTransaction: PendingTransaction<TransactionDetails>
+                ) => {
+                  return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+                }
+              ),
             },
           }
         ),
@@ -280,28 +300,38 @@ export const buildSignedTransactionSerializer = (
       },
       relators: {
         from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+            pendingTransaction.from,
           new Serializer<Participant>("participant", {
             onlyIdentifier: true,
           }),
           {
             linkers: {
-              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
-              }),
+              related: new Linker<[PendingTransaction<TransactionDetails>]>(
+                (
+                  pendingTransaction: PendingTransaction<TransactionDetails>
+                ) => {
+                  return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+                }
+              ),
             },
           }
         ),
         to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+            pendingTransaction.to,
           new Serializer<Participant>("participant", {
             onlyIdentifier: true,
           }),
           {
             linkers: {
-              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
-              }),
+              related: new Linker<[PendingTransaction<TransactionDetails>]>(
+                (
+                  pendingTransaction: PendingTransaction<TransactionDetails>
+                ) => {
+                  return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+                }
+              ),
             },
           }
         ),
@@ -349,28 +379,38 @@ export const buildSignedTransactionsSerializer = (
       },
       relators: {
         from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+            pendingTransaction.from,
           new Serializer<Participant>("participant", {
             onlyIdentifier: true,
           }),
           {
             linkers: {
-              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
-              }),
+              related: new Linker<[PendingTransaction<TransactionDetails>]>(
+                (
+                  pendingTransaction: PendingTransaction<TransactionDetails>
+                ) => {
+                  return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+                }
+              ),
             },
           }
         ),
         to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-          async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+          async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+            pendingTransaction.to,
           new Serializer<Participant>("participant", {
             onlyIdentifier: true,
           }),
           {
             linkers: {
-              related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
-              }),
+              related: new Linker<[PendingTransaction<TransactionDetails>]>(
+                (
+                  pendingTransaction: PendingTransaction<TransactionDetails>
+                ) => {
+                  return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+                }
+              ),
             },
           }
         ),
@@ -441,28 +481,34 @@ export const buildBlockTransactionSerializer = (
         }
       ),
       from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-        async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+        async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+          pendingTransaction.from,
         new Serializer<Participant>("participant", {
           onlyIdentifier: true,
         }),
         {
           linkers: {
-            related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-              return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
-            }),
+            related: new Linker<[PendingTransaction<TransactionDetails>]>(
+              (pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+              }
+            ),
           },
         }
       ),
       to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-        async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+        async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+          pendingTransaction.to,
         new Serializer<Participant>("participant", {
           onlyIdentifier: true,
         }),
         {
           linkers: {
-            related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-              return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
-            }),
+            related: new Linker<[PendingTransaction<TransactionDetails>]>(
+              (pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+              }
+            ),
           },
         }
       ),
@@ -526,28 +572,34 @@ export const buildBlockTransactionsSerializer = (
         }
       ),
       from: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-        async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.from,
+        async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+          pendingTransaction.from,
         new Serializer<Participant>("participant", {
           onlyIdentifier: true,
         }),
         {
           linkers: {
-            related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-              return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
-            }),
+            related: new Linker<[PendingTransaction<TransactionDetails>]>(
+              (pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.from?.id}`;
+              }
+            ),
           },
         }
       ),
       to: new Relator<PendingTransaction<TransactionDetails>, Participant>(
-        async (pendingTransaction: PendingTransaction<TransactionDetails>) => pendingTransaction.to,
+        async (pendingTransaction: PendingTransaction<TransactionDetails>) =>
+          pendingTransaction.to,
         new Serializer<Participant>("participant", {
           onlyIdentifier: true,
         }),
         {
           linkers: {
-            related: new Linker<[PendingTransaction<TransactionDetails>]>((pendingTransaction: PendingTransaction<TransactionDetails>) => {
-              return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
-            }),
+            related: new Linker<[PendingTransaction<TransactionDetails>]>(
+              (pendingTransaction: PendingTransaction<TransactionDetails>) => {
+                return `${apiSettings.apiBaseUrl}/participants/${pendingTransaction.to?.id}`;
+              }
+            ),
           },
         }
       ),

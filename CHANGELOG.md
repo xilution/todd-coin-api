@@ -1,3 +1,16 @@
+# [1.8.0](https://github.com/xilution/todd-coin-api/compare/v1.7.0...v1.8.0) (2022-05-05)
+
+
+### Bug Fixes
+
+* improved participant keys ([4882b73](https://github.com/xilution/todd-coin-api/commit/4882b73c74cfe8455eb5cd7c7259e4eb3ad3ffb7))
+
+
+### Features
+
+* bumped todd-coin-brokers, todd-coin-types and todd-coin-utils versions ([82b6a9e](https://github.com/xilution/todd-coin-api/commit/82b6a9ed0ec4d43783265a4fb8adf824544fdd22))
+* improved signed transactions ([a7267c0](https://github.com/xilution/todd-coin-api/commit/a7267c032e6809a47d131486b94e7a8e1ef2e57b))
+
 # [1.7.0](https://github.com/xilution/todd-coin-api/compare/v1.6.0...v1.7.0) (2022-05-03)
 
 

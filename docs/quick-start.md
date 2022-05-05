@@ -2,7 +2,7 @@
 2. docker run --name postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -v ~/.todd-coin/pg-data:/var/lib/postgresql/data -d postgres
 3. docker run --name todd-coin-tasks -e OPERATION=INIT xilution/todd-coin-tasks
 4. docker run --name todd-coin-tasks -e OPERATION=SYNC xilution/todd-coin-tasks
-5. docker run --name todd-coin-api -d  xilution/todd-coin-api
+5. docker run --name todd-coin-api -d xilution/todd-coin-api
 6. mkdir -p ~/.todd-coin/quick-start
 7. todd-coin create-participant $TODD_COIN_API_BASE_URL tbrunia20@gmail.com secret > ~/.todd-coin/quick-start/participant-1.json && cat ~/.todd-coin/quick-start/participant-1.json
 8. export TODD_COIN_PARTICIPANT_1_ID=`cat ~/.todd-coin/quick-start/participant-1.json | jq '.id' -r`

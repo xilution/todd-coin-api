@@ -813,18 +813,15 @@ export const buildParticipantKeySerializer = (
     },
     relators: {
       participant: new Relator<ParticipantKey, Participant>(
-        async (participantKey: ParticipantKey) =>
-          participantKey.participant,
+        async (participantKey: ParticipantKey) => participantKey.participant,
         new Serializer<Participant>("participant", {
           onlyIdentifier: true,
         }),
         {
           linkers: {
-            related: new Linker(
-              (participantKey: ParticipantKey) => {
-                return `${apiSettings.apiBaseUrl}/participants/${participantKey.participant?.id}`;
-              }
-            ),
+            related: new Linker((participantKey: ParticipantKey) => {
+              return `${apiSettings.apiBaseUrl}/participants/${participantKey.participant?.id}`;
+            }),
           },
         }
       ),
@@ -860,18 +857,15 @@ export const buildParticipantKeysSerializer = (
     },
     relators: {
       participant: new Relator<ParticipantKey, Participant>(
-        async (participantKey: ParticipantKey) =>
-          participantKey.participant,
+        async (participantKey: ParticipantKey) => participantKey.participant,
         new Serializer<Participant>("participant", {
           onlyIdentifier: true,
         }),
         {
           linkers: {
-            related: new Linker(
-              (participantKey: ParticipantKey) => {
-                return `${apiSettings.apiBaseUrl}/participants/${participantKey.participant?.id}`;
-              }
-            ),
+            related: new Linker((participantKey: ParticipantKey) => {
+              return `${apiSettings.apiBaseUrl}/participants/${participantKey.participant?.id}`;
+            }),
           },
         }
       ),

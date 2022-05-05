@@ -41,7 +41,7 @@ export const addParticipantKeyRoutes = (
 ): void => {
   server.route({
     method: "GET",
-    path: "/participants/{participantId}/participant-keys",
+    path: "/participants/{participantId}/keys",
     options: {
       description: GET_PARTICIPANT_KEYS_DESCRIPTION,
       tags: ["api"],
@@ -65,7 +65,7 @@ export const addParticipantKeyRoutes = (
 
   server.route({
     method: "GET",
-    path: "/participants/{participantId}/participant-keys/{participantKeyId}",
+    path: "/participants/{participantId}/keys/{participantKeyId}",
     options: {
       description: GET_PARTICIPANT_KEY_DESCRIPTION,
       tags: ["api"],
@@ -88,7 +88,7 @@ export const addParticipantKeyRoutes = (
 
   server.route({
     method: "POST",
-    path: "/participants/{participantId}/participant-keys",
+    path: "/participants/{participantId}/keys",
     options: {
       description: POST_PARTICIPANT_KEY_DESCRIPTION,
       tags: ["api"],
@@ -127,7 +127,7 @@ export const addParticipantKeyRoutes = (
 
   server.route({
     method: "PATCH",
-    path: "/participants/{participantId}/participant-keys/{participantKeyId}",
+    path: "/participants/{participantId}/keys/{participantKeyId}",
     options: {
       description: PATCH_PARTICIPANT_KEY_DESCRIPTION,
       tags: ["api"],

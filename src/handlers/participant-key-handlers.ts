@@ -20,7 +20,6 @@ import {
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
-import { keyUtils } from "@xilution/todd-coin-utils";
 
 export const getParticipantKeysValidationFailAction = (
   request: Request,
@@ -168,6 +167,7 @@ export const postParticipantKeyValidationFailAction = (
 export const postParticipantKeyRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
+    const payload = request.payload as { data: ApiData<ParticipantKey> };
     const { participantId } = request.params;
 
     let participant: Participant | undefined;
@@ -200,7 +200,10 @@ export const postParticipantKeyRequestHandler =
     // todo - verify that the user can do this.
     // const authParticipant = request.auth.credentials.participant as Participant;
 
-    const newParticipantKey = keyUtils.generateParticipantKey();
+    const newParticipantKey = {
+      id: payload.data.id,
+      ...payload.data.attributes,
+    } as ParticipantKey;
 
     let createdParticipantKey: ParticipantKey | undefined;
     try {
@@ -296,7 +299,7 @@ export const patchParticipantKeyRequestHandler =
     } as ParticipantKey;
 
     try {
-      await participantKeysBroker.deactivateParticipantKey(
+      await participantKeysBroker.updateParticipantKey(
         dbClient,
         updatedParticipantKey
       );

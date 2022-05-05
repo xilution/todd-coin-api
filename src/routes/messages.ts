@@ -120,6 +120,7 @@ export const EMAIL_LABEL = "Email";
 export const PASSWORD_LABEL = "Password";
 export const AUTHORIZATION_LABEL = "Authorization";
 export const PUBLIC_KEY_LABEL = "Public Key";
+export const PRIVATE_KEY_LABEL = "Private Key";
 export const GOOD_POINTS_LABEL = "Good Points";
 export const SIGNATURE_LABEL = "Signature";
 export const EFFECTIVE_DATE_RANGE_LABEL = "Effective Date Range";

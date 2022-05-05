@@ -808,6 +808,27 @@ export const buildParticipantKeySerializer = (
 ): Serializer<ParticipantKey> => {
   return new Serializer<ParticipantKey>("participant-key", {
     nullData: false,
+    projection: {
+      participant: 0,
+    },
+    relators: {
+      participant: new Relator<ParticipantKey, Participant>(
+        async (participantKey: ParticipantKey) =>
+          participantKey.participant,
+        new Serializer<Participant>("participant", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker(
+              (participantKey: ParticipantKey) => {
+                return `${apiSettings.apiBaseUrl}/participants/${participantKey.participant?.id}`;
+              }
+            ),
+          },
+        }
+      ),
+    },
     linkers: {
       document: new Linker<[SingleOrArray<ParticipantKey> | nullish]>(
         (participantKey: nullish | SingleOrArray<ParticipantKey>) => {
@@ -834,6 +855,27 @@ export const buildParticipantKeysSerializer = (
 
   return new Serializer<ParticipantKey>("participant-key", {
     nullData: false,
+    projection: {
+      participant: 0,
+    },
+    relators: {
+      participant: new Relator<ParticipantKey, Participant>(
+        async (participantKey: ParticipantKey) =>
+          participantKey.participant,
+        new Serializer<Participant>("participant", {
+          onlyIdentifier: true,
+        }),
+        {
+          linkers: {
+            related: new Linker(
+              (participantKey: ParticipantKey) => {
+                return `${apiSettings.apiBaseUrl}/participants/${participantKey.participant?.id}`;
+              }
+            ),
+          },
+        }
+      ),
+    },
     linkers: {
       document: new Linker(() => {
         return `${apiSettings.apiBaseUrl}/participants?page[number]=${pageNumber}&page[size]=${pageSize}`;

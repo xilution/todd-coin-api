@@ -89,6 +89,7 @@ import {
   PREVIOUS_HASH_LABEL,
   PREVIOUS_PAGE_LINK_DESCRIPTION,
   PREVIOUS_PAGE_LINK_LABEL,
+  PRIVATE_KEY_LABEL,
   PUBLIC_KEY_LABEL,
   ROLES_LABEL,
   SELF_PAGE_LABEL,
@@ -120,6 +121,7 @@ import {
   HASH_REGEX,
   JWT_REGEX,
   PHONE_REGEX,
+  PRIVATE_KEY_REGEX,
   PUBLIC_KEY_REGEX,
   SIGNATURE_REGEX,
 } from "./regex";
@@ -205,6 +207,10 @@ export const AUTHORIZATION_SCHEMA = Joi.string()
 export const PUBLIC_KEY_SCHEMA = Joi.string()
   .regex(PUBLIC_KEY_REGEX)
   .label(PUBLIC_KEY_LABEL);
+
+export const PRIVATE_KEY_SCHEMA = Joi.string()
+  .regex(PRIVATE_KEY_REGEX)
+  .label(PRIVATE_KEY_LABEL);
 
 export const ID_SCHEMA = Joi.string()
   .guid()
@@ -441,6 +447,13 @@ export const READ_PARTICIPANT_KEY_SCHEMA = Joi.object({
 export const CREATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL),
   type: Joi.string().allow("participant-key").label(TYPE_LABEL).required(),
+  attributes: Joi.object({
+    public: PUBLIC_KEY_SCHEMA.required(),
+    private: PRIVATE_KEY_SCHEMA.required(),
+    effective: EFFECTIVE_DATE_RANGE_SCHEMA.required(),
+  })
+    .label(PARTICIPANT_KEY_ATTRIBUTES_LABEL)
+    .required(),
 })
   .unknown(false)
   .label(PARTICIPANT_KEY_DATA_LABEL)
@@ -449,6 +462,11 @@ export const CREATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
 export const UPDATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL).required(),
   type: Joi.string().allow("participant-key").label(TYPE_LABEL).required(),
+  attributes: Joi.object({
+    effective: EFFECTIVE_DATE_RANGE_SCHEMA.required(),
+  })
+    .label(PARTICIPANT_KEY_ATTRIBUTES_LABEL)
+    .required(),
 })
   .unknown(false)
   .label(PARTICIPANT_KEY_DATA_LABEL)
@@ -992,7 +1010,7 @@ export const CREATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
       .label(TO_PARTICIPANT_LABEL)
       .required(),
   })
-    .label(PENDING_TRANSACTIONS_RELATIONSHIPS_LABEL)
+    .label(SIGNED_TRANSACTIONS_RELATIONSHIPS_LABEL)
     .required(),
 })
   .unknown(false)
@@ -1033,7 +1051,7 @@ export const UPDATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
       .label(TO_PARTICIPANT_LABEL)
       .required(),
   })
-    .label(PENDING_TRANSACTIONS_RELATIONSHIPS_LABEL)
+    .label(SIGNED_TRANSACTIONS_RELATIONSHIPS_LABEL)
     .required(),
 })
   .unknown(false)

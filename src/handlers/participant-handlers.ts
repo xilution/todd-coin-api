@@ -10,17 +10,13 @@ import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
-import {
-  Organization,
-  Participant,
-  ParticipantKey,
-} from "@xilution/todd-coin-types";
+import { Organization, Participant } from "@xilution/todd-coin-types";
 import {
   buildOrganizationsSerializer,
   buildParticipantSerializer,
   buildParticipantsSerializer,
 } from "./serializer-builders";
-import { hashUtils, keyUtils } from "@xilution/todd-coin-utils";
+import { hashUtils } from "@xilution/todd-coin-utils";
 import {
   buildInternalServerError,
   buildInvalidAttributeError,
@@ -239,18 +235,10 @@ export const postParticipantRequestHandler =
 
     // todo - check for dupe participants
 
-    const participantKey: ParticipantKey = keyUtils.generateParticipantKey();
-
     const newParticipant = {
       id: payload.data.id,
       ...payload.data.attributes,
-      keys: [
-        {
-          public: participantKey.public,
-          private: participantKey.private,
-          effective: participantKey.effective,
-        },
-      ],
+      keys: [],
     } as Participant;
 
     let createdParticipant: Participant | undefined;

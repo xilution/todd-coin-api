@@ -1,7 +1,7 @@
 dist
 insomnia
 node_modules
-pgdata
+pg-data
 .gitignore
 docker-compose.yml
 LICENCE

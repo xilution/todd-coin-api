@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/xilution/todd-coin-api/compare/v1.8.0...v1.9.0) (2022-05-05)
+
+
+### Features
+
+* bumped todd-coin-brokers version ([0cb0bb4](https://github.com/xilution/todd-coin-api/commit/0cb0bb4b3ea48ca7b7c9d3b67c0603a84fc9645b))
+
 # [1.8.0](https://github.com/xilution/todd-coin-api/compare/v1.7.0...v1.8.0) (2022-05-05)
 
 

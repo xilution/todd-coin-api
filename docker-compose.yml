@@ -37,7 +37,6 @@ services:
       API_HOST: 0.0.0.0
       API_PORT: 3000
       API_BASE_URL: http://localhost:3000
-      HOST_MAINTAINER_ID: e937bf76-56ae-4b60-af35-9be4df06af26
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter
     ports:

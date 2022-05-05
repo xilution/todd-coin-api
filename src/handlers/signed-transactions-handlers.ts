@@ -167,6 +167,8 @@ export const postSignedTransactionRequestHandler =
       data: ApiData<SignedTransaction<TransactionDetails>>;
     };
 
+    // todo - validate the crap out of this.
+
     const newSignedTransaction = {
       id: payload.data.id,
       ...payload.data.attributes,

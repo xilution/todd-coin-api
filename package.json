@@ -14,7 +14,7 @@
     "clean": "rm -rf ./coverage ./dist",
     "format": "prettier --write .",
     "open": "open http://localhost:3000",
-    "start": "ts-node ./src/index.ts",
+    "start": "API_HOST=localhost ts-node ./src/index.ts",
     "watch": "nodemon --watch src -e ts --exec \"npm run build && npm run start\"",
     "verify": "prettier --check . && eslint . --ext .js,.ts && npm run test && npm run build",
     "semantic-release": "semantic-release",

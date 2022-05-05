@@ -1,7 +1,7 @@
 import { ApiSettings } from "./types";
 
 const DEFAULT_JWT_SIGNING_SECRET = "all your base are belong to us";
-const DEFAULT_API_HOST = "localhost";
+const DEFAULT_API_HOST = "0.0.0.0";
 const DEFAULT_API_PORT = 3000;
 const DEFAULT_API_PROTOCOL = "http";
 const DEFAULT_API_BASE_URL = "http://localhost:3000";

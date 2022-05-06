@@ -8,7 +8,6 @@ import { ApiSettings } from "../types";
 import {
   AUTH_TOKEN_RESPONSE_SCHEMA,
   ERROR_RESPONSE_SCHEMA,
-  POST_PARTICIPANT_KEY_RESPONSE_SCHEMA,
 } from "./response-schemas";
 import { AUTH_TOKEN_DESCRIPTION } from "./messages";
 import { AUTH_REQUEST_SCHEMA } from "./request-schemas";

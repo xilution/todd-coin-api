@@ -19,8 +19,10 @@ import {
 } from "../handlers/signed-transactions-handlers";
 import { ApiSettings } from "../types";
 import {
+  ERROR_RESPONSE_SCHEMA,
   GET_SIGNED_TRANSACTION_RESPONSE_SCHEMA,
   GET_SIGNED_TRANSACTIONS_RESPONSE_SCHEMA,
+  POST_PARTICIPANT_KEY_RESPONSE_SCHEMA,
   POST_SIGNED_TRANSACTION_RESPONSE_SCHEMA,
 } from "./response-schemas";
 import {
@@ -50,9 +52,23 @@ export const addSignedTransactionsRoutes = (
         },
         failAction: getSignedTransactionsValidationFailAction,
       },
-      response: {
-        schema: GET_SIGNED_TRANSACTIONS_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_SIGNED_TRANSACTIONS_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getSignedTransactionsRequestHandler(dbClient, apiSettings),
@@ -73,9 +89,23 @@ export const addSignedTransactionsRoutes = (
         },
         failAction: getSignedTransactionValidationFailAction,
       },
-      response: {
-        schema: GET_SIGNED_TRANSACTION_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_SIGNED_TRANSACTION_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getSignedTransactionRequestHandler(dbClient, apiSettings),
@@ -96,9 +126,23 @@ export const addSignedTransactionsRoutes = (
         },
         failAction: postSignedTransactionValidationFailAction,
       },
-      response: {
-        schema: POST_SIGNED_TRANSACTION_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            201: {
+              description: "Successful",
+              schema: POST_SIGNED_TRANSACTION_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: postSignedTransactionRequestHandler(dbClient, apiSettings),
@@ -119,6 +163,23 @@ export const addSignedTransactionsRoutes = (
           abortEarly: false,
         },
         failAction: patchSignedTransactionValidationFailAction,
+      },
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            204: {
+              description: "No Response",
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: patchSignedTransactionRequestHandler(dbClient),

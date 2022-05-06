@@ -280,7 +280,7 @@ export const postParticipantRequestHandler =
       )
       .header(
         "location",
-        `${apiSettings.apiBaseUrl}/participants/${createdParticipant?.id}` // todo - this id is undefined.
+        `${apiSettings.apiBaseUrl}/participants/${createdParticipant?.id}`
       )
       .code(201);
   };

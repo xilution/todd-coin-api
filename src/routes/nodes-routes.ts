@@ -19,9 +19,11 @@ import {
 } from "../handlers/node-handlers";
 import { ApiSettings } from "../types";
 import {
+  ERROR_RESPONSE_SCHEMA,
   GET_NODE_RESPONSE_SCHEMA,
   GET_NODES_RESPONSE_SCHEMA,
   POST_NODE_RESPONSE_SCHEMA,
+  POST_PARTICIPANT_KEY_RESPONSE_SCHEMA,
 } from "./response-schemas";
 import {
   GET_NODE_DESCRIPTION,
@@ -50,9 +52,23 @@ export const addNodesRoutes = (
         },
         failAction: getNodesValidationFailAction,
       },
-      response: {
-        schema: GET_NODES_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_NODES_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getNodesRequestHandler(dbClient, apiSettings),
@@ -73,9 +89,23 @@ export const addNodesRoutes = (
         },
         failAction: getNodeValidationFailAction,
       },
-      response: {
-        schema: GET_NODE_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_NODE_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getNodeRequestHandler(dbClient, apiSettings),
@@ -96,9 +126,23 @@ export const addNodesRoutes = (
         },
         failAction: postNodeValidationFailAction,
       },
-      response: {
-        schema: POST_NODE_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            201: {
+              description: "Successful",
+              schema: POST_NODE_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: postNodeRequestHandler(dbClient, apiSettings),
@@ -119,6 +163,23 @@ export const addNodesRoutes = (
           abortEarly: false,
         },
         failAction: patchNodeValidationFailAction,
+      },
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            204: {
+              description: "No Response",
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: patchNodeRequestHandler(dbClient),

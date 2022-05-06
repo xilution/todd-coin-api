@@ -55,9 +55,23 @@ export const addParticipantKeyRoutes = (
         },
         failAction: getParticipantKeysValidationFailAction,
       },
-      response: {
-        schema: GET_PARTICIPANT_KEYS_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_PARTICIPANT_KEYS_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getParticipantKeysRequestHandler(dbClient, apiSettings),
@@ -78,9 +92,23 @@ export const addParticipantKeyRoutes = (
         },
         failAction: getParticipantKeyValidationFailAction,
       },
-      response: {
-        schema: GET_PARTICIPANT_KEY_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_PARTICIPANT_KEY_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getParticipantKeyRequestHandler(dbClient, apiSettings),
@@ -103,10 +131,9 @@ export const addParticipantKeyRoutes = (
         failAction: postParticipantKeyValidationFailAction,
       },
       plugins: {
-        // todo - apply this to other patch and delete routes
         "hapi-swagger": {
           responses: {
-            200: {
+            201: {
               description: "Successful",
               schema: POST_PARTICIPANT_KEY_RESPONSE_SCHEMA,
             },

@@ -24,32 +24,27 @@ export const getRoot =
           authentication: buildAuthenticationInstructions(apiBaseUrl),
         },
         relationships: {
-          // todo - add some paginated blocks data (id only)
           blocks: {
             links: {
               related: `${apiBaseUrl}/blocks`,
             },
           },
           nodes: {
-            // todo - add some paginated nodes data (id only)
             links: {
               related: `${apiBaseUrl}/nodes`,
             },
           },
           participants: {
-            // todo - add some paginated participants data (id only)
             links: {
               related: `${apiBaseUrl}/participants`,
             },
           },
           pendingTransactions: {
-            // todo - add some paginated pending transactions data (id only)
             links: {
               related: `${apiBaseUrl}/pending-transactions`,
             },
           },
           signedTransactions: {
-            // todo - add some paginated signed transactions data (id only)
             links: {
               related: `${apiBaseUrl}/signed-transactions`,
             },

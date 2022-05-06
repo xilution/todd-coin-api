@@ -22,8 +22,10 @@ import {
 } from "../handlers/pending-transactions-handlers";
 import { ApiSettings } from "../types";
 import {
+  ERROR_RESPONSE_SCHEMA,
   GET_PENDING_TRANSACTION_RESPONSE_SCHEMA,
   GET_PENDING_TRANSACTIONS_RESPONSE_SCHEMA,
+  POST_PARTICIPANT_KEY_RESPONSE_SCHEMA,
   POST_PENDING_TRANSACTION_RESPONSE_SCHEMA,
 } from "./response-schemas";
 import {
@@ -54,9 +56,23 @@ export const addPendingTransactionsRoutes = (
         },
         failAction: getPendingTransactionsValidationFailAction,
       },
-      response: {
-        schema: GET_PENDING_TRANSACTIONS_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_PENDING_TRANSACTIONS_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getPendingTransactionsRequestHandler(dbClient, apiSettings),
@@ -77,9 +93,23 @@ export const addPendingTransactionsRoutes = (
         },
         failAction: getPendingTransactionValidationFailAction,
       },
-      response: {
-        schema: GET_PENDING_TRANSACTION_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_PENDING_TRANSACTION_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getPendingTransactionRequestHandler(dbClient, apiSettings),
@@ -100,9 +130,23 @@ export const addPendingTransactionsRoutes = (
         },
         failAction: postPendingTransactionValidationFailAction,
       },
-      response: {
-        schema: POST_PENDING_TRANSACTION_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            201: {
+              description: "Successful",
+              schema: POST_PENDING_TRANSACTION_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: postPendingTransactionRequestHandler(dbClient, apiSettings),
@@ -124,6 +168,23 @@ export const addPendingTransactionsRoutes = (
         },
         failAction: patchPendingTransactionValidationFailAction,
       },
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            204: {
+              description: "No Response",
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
+      },
     },
     handler: patchPendingTransactionRequestHandler(dbClient),
   });
@@ -142,6 +203,23 @@ export const addPendingTransactionsRoutes = (
           abortEarly: false,
         },
         failAction: deletePendingTransactionValidationFailAction,
+      },
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            204: {
+              description: "No Response",
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: deletePendingTransactionRequestHandler(dbClient),

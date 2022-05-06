@@ -16,9 +16,11 @@ import {
 } from "../handlers/blocks-handlers";
 import { ApiSettings } from "../types";
 import {
+  ERROR_RESPONSE_SCHEMA,
   GET_BLOCK_RESPONSE_SCHEMA,
   GET_BLOCKS_RESPONSE_SCHEMA,
   POST_BLOCK_RESPONSE_SCHEMA,
+  POST_PARTICIPANT_KEY_RESPONSE_SCHEMA,
 } from "./response-schemas";
 import {
   GET_BLOCK_DESCRIPTION,
@@ -46,9 +48,23 @@ export const addBlocksRoutes = (
         },
         failAction: getBlocksValidationFailAction,
       },
-      response: {
-        schema: GET_BLOCKS_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_BLOCKS_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getBlocksRequestHandler(dbClient, apiSettings),
@@ -69,9 +85,23 @@ export const addBlocksRoutes = (
         },
         failAction: getBlockValidationFailAction,
       },
-      response: {
-        schema: GET_BLOCK_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_BLOCK_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getBlockRequestHandler(dbClient, apiSettings),
@@ -92,9 +122,23 @@ export const addBlocksRoutes = (
         },
         failAction: postBlockValidationFailAction,
       },
-      response: {
-        schema: POST_BLOCK_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            201: {
+              description: "Successful",
+              schema: POST_BLOCK_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: postBlockRequestHandler(dbClient, apiSettings),

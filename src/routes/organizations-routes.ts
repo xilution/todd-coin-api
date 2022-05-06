@@ -22,10 +22,12 @@ import {
 } from "../handlers/organization-handlers";
 import { ApiSettings } from "../types";
 import {
+  ERROR_RESPONSE_SCHEMA,
   GET_ORGANIZATION_RESPONSE_SCHEMA,
   GET_ORGANIZATIONS_RESPONSE_SCHEMA,
   GET_PARTICIPANTS_RESPONSE_SCHEMA,
   POST_ORGANIZATION_RESPONSE_SCHEMA,
+  POST_PARTICIPANT_KEY_RESPONSE_SCHEMA,
 } from "./response-schemas";
 import {
   GET_ORGANIZATION_DESCRIPTION,
@@ -56,9 +58,23 @@ export const addOrganizationsRoutes = (
         },
         failAction: getOrganizationsValidationFailAction,
       },
-      response: {
-        schema: GET_ORGANIZATIONS_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_ORGANIZATIONS_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getOrganizationsRequestHandler(dbClient, apiSettings),
@@ -79,9 +95,23 @@ export const addOrganizationsRoutes = (
         },
         failAction: getOrganizationValidationFailAction,
       },
-      response: {
-        schema: GET_ORGANIZATION_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_ORGANIZATION_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getOrganizationRequestHandler(dbClient, apiSettings),
@@ -102,9 +132,23 @@ export const addOrganizationsRoutes = (
         },
         failAction: postOrganizationValidationFailAction,
       },
-      response: {
-        schema: POST_ORGANIZATION_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            201: {
+              description: "Successful",
+              schema: POST_ORGANIZATION_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: postOrganizationRequestHandler(dbClient, apiSettings),
@@ -126,6 +170,23 @@ export const addOrganizationsRoutes = (
         },
         failAction: patchOrganizationValidationFailAction,
       },
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            204: {
+              description: "No Response",
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
+      },
     },
     handler: patchOrganizationRequestHandler(dbClient),
   });
@@ -145,9 +206,23 @@ export const addOrganizationsRoutes = (
         },
         failAction: getOrganizationValidationFailAction,
       },
-      response: {
-        schema: GET_PARTICIPANTS_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_PARTICIPANTS_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getOrganizationParticipantRequestHandler(dbClient, apiSettings),
@@ -168,9 +243,23 @@ export const addOrganizationsRoutes = (
         },
         failAction: getOrganizationValidationFailAction,
       },
-      response: {
-        schema: GET_PARTICIPANTS_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_ORGANIZATION_PARAMETERS_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getOrganizationParticipantRequestHandler(dbClient, apiSettings),
@@ -191,6 +280,23 @@ export const addOrganizationsRoutes = (
           abortEarly: false,
         },
         failAction: postOrganizationValidationFailAction,
+      },
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            204: {
+              description: "No Response",
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: postOrganizationParticipantsRequestHandler(dbClient),

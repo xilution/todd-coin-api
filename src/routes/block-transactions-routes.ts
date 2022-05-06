@@ -14,8 +14,10 @@ import {
 } from "../handlers/block-transactions-handlers";
 import { ApiSettings } from "../types";
 import {
+  ERROR_RESPONSE_SCHEMA,
   GET_BLOCK_TRANSACTION_RESPONSE_SCHEMA,
   GET_BLOCK_TRANSACTIONS_RESPONSE_SCHEMA,
+  POST_PARTICIPANT_KEY_RESPONSE_SCHEMA,
 } from "./response-schemas";
 import {
   GET_BLOCK_TRANSACTION_DESCRIPTION,
@@ -43,9 +45,23 @@ export const addBlockTransactionsRoutes = (
         },
         failAction: getBlockTransactionsValidationFailAction,
       },
-      response: {
-        schema: GET_BLOCK_TRANSACTIONS_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_BLOCK_TRANSACTIONS_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getBlockTransactionsRequestHandler(dbClient, apiSettings),
@@ -66,9 +82,23 @@ export const addBlockTransactionsRoutes = (
         },
         failAction: getBlockTransactionValidationFailAction,
       },
-      response: {
-        schema: GET_BLOCK_TRANSACTION_RESPONSE_SCHEMA,
-        failAction: "log",
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            200: {
+              description: "Successful",
+              schema: GET_BLOCK_TRANSACTION_RESPONSE_SCHEMA,
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
       },
     },
     handler: getBlockTransactionRequestHandler(dbClient, apiSettings),

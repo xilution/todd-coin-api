@@ -65,10 +65,11 @@ export const buildForbiddenError = (detail: string) => {
   };
 };
 
-export const buildBadRequestError = () => {
+export const buildBadRequestError = (detail?: string) => {
   return {
     status: "400",
     title: "Bad Request",
+    detail,
   };
 };
 

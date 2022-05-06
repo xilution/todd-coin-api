@@ -385,7 +385,7 @@ export const CREATE_PARTICIPANT_SCHEMA = Joi.object({
   type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
   attributes: Joi.object({
     email: EMAIL_SCHEMA.required(),
-    password: PASSWORD_SCHEMA.required(),
+    password: PASSWORD_SCHEMA,
     firstName: FIRST_NAME_SCHEMA,
     lastName: LAST_NAME_SCHEMA,
     phone: PHONE_NUMBER_SCHEMA,

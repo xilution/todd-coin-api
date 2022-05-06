@@ -18,6 +18,7 @@ import {
 } from "./serializer-builders";
 import { hashUtils } from "@xilution/todd-coin-utils";
 import {
+  buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -233,13 +234,30 @@ export const postParticipantRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const payload = request.payload as { data: ApiData<Participant> };
 
-    // todo - check for dupe participants
-
     const newParticipant = {
       id: payload.data.id,
       ...payload.data.attributes,
       keys: [],
     } as Participant;
+
+    const existingParticipant: Participant | undefined =
+      await participantsBroker.getParticipantByEmail(
+        dbClient,
+        newParticipant.email
+      );
+
+    if (existingParticipant !== null) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `another participant is already using the email address: ${newParticipant.email}`
+            ),
+          ],
+        })
+        .code(400);
+    }
 
     let createdParticipant: Participant | undefined;
     try {

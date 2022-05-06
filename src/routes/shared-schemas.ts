@@ -533,7 +533,7 @@ export const CREATE_ORGANIZATION_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL),
   type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
   attributes: Joi.object({
-    email: EMAIL_SCHEMA.required(),
+    email: EMAIL_SCHEMA,
     name: ORGANIZATION_NAME_SCHEMA.required(),
     phone: PHONE_NUMBER_SCHEMA,
     roles: Joi.array()

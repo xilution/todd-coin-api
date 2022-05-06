@@ -265,7 +265,9 @@ export const postParticipantRequestHandler =
         dbClient,
         {
           ...newParticipant,
-          password: hashUtils.calculateStringHash(newParticipant.password),
+          password: newParticipant.password
+            ? hashUtils.calculateStringHash(newParticipant.password)
+            : undefined,
         }
       );
     } catch (error) {
@@ -376,7 +378,9 @@ export const patchParticipantRequestHandler =
       // todo - what if the user is changing their email or password?
       await participantsBroker.updateParticipant(dbClient, {
         ...updatedParticipant,
-        password: hashUtils.calculateStringHash(updatedParticipant.password),
+        password: updatedParticipant.password
+          ? hashUtils.calculateStringHash(updatedParticipant.password)
+          : undefined,
       });
     } catch (error) {
       console.error((error as Error).message);

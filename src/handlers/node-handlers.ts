@@ -180,7 +180,7 @@ export const postNodeRequestHandler =
           jsonapi: { version: "1.0" },
           errors: [
             buildBadRequestError(
-              `another node is already using the base URL: ${newNode.baseUrl}`
+              `Another node is already using the base URL: ${newNode.baseUrl}.`
             ),
           ],
         })

@@ -248,17 +248,41 @@ export const patchNodeRequestHandler =
     const payload = request.payload as { data: ApiData<Node> };
 
     if (payload.data.id !== nodeId) {
-      h.response({
-        jsonapi: { version: "1.0" },
-        errors: [
-          buildBadRequestError(
-            `The path node ID does not match the request body node ID.`
-          ),
-        ],
-      }).code(400);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `The path node ID does not match the request body node ID.`
+            ),
+          ],
+        })
+        .code(400);
     }
 
-    // todo - confirm that the user can do this
+    let existingNode: Node | undefined;
+    try {
+      existingNode = await nodesBroker.getNodeById(dbClient, nodeId);
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (existingNode === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(`A node with id: ${nodeId} was not found.`),
+          ],
+        })
+        .code(404);
+    }
 
     const updatedNode: Node = {
       id: nodeId,

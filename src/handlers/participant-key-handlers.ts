@@ -189,14 +189,16 @@ export const postParticipantKeyRequestHandler =
     }
 
     if (participant === undefined) {
-      h.response({
-        jsonapi: { version: "1.0" },
-        errors: [
-          buildNofFountError(
-            `Participant with id: ${participantId} was not found.`
-          ),
-        ],
-      }).code(404);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `Participant with id: ${participantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
     }
 
     const authParticipant = request.auth.credentials.participant as Participant;
@@ -270,6 +272,18 @@ export const postParticipantKeyRequestHandler =
         .code(500);
     }
 
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "create-participant-key",
+        result: "success",
+        details: {
+          is: createdParticipantKey,
+        },
+      })
+    );
+
     return h
       .response(
         await buildParticipantKeySerializer(apiSettings).serialize(
@@ -310,14 +324,46 @@ export const patchParticipantKeyRequestHandler =
     const payload = request.payload as { data: ApiData<ParticipantKey> };
 
     if (payload.data.id !== participantKeyId) {
-      h.response({
-        jsonapi: { version: "1.0" },
-        errors: [
-          buildBadRequestError(
-            `The path participant ID does not match the request body participant ID.`
-          ),
-        ],
-      }).code(400);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `The path participant ID does not match the request body participant ID.`
+            ),
+          ],
+        })
+        .code(400);
+    }
+
+    let existingParticipantKey: ParticipantKey | undefined;
+    try {
+      existingParticipantKey =
+        await participantKeysBroker.getParticipantKeyById(
+          dbClient,
+          participantKeyId
+        );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (existingParticipantKey === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A participantKey with id: ${participantKeyId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
     }
 
     let participant: Participant | undefined;
@@ -337,14 +383,16 @@ export const patchParticipantKeyRequestHandler =
     }
 
     if (participant === undefined) {
-      h.response({
-        jsonapi: { version: "1.0" },
-        errors: [
-          buildNofFountError(
-            `Participant with id: ${participantId} was not found.`
-          ),
-        ],
-      }).code(404);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `Participant with id: ${participantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
     }
 
     const authParticipant = request.auth.credentials.participant as Participant;
@@ -381,6 +429,19 @@ export const patchParticipantKeyRequestHandler =
         })
         .code(500);
     }
+
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "update-participant-key",
+        result: "success",
+        details: {
+          before: existingParticipantKey,
+          after: updatedParticipantKey,
+        },
+      })
+    );
 
     return h.response().code(204);
   };

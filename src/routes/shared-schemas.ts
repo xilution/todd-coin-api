@@ -452,6 +452,7 @@ export const CREATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
     public: PUBLIC_KEY_SCHEMA.required(),
     effective: EFFECTIVE_DATE_RANGE_SCHEMA.required(),
   })
+    .unknown(false)
     .label(PARTICIPANT_KEY_ATTRIBUTES_LABEL)
     .required(),
 })
@@ -465,6 +466,7 @@ export const UPDATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
   attributes: Joi.object({
     effective: EFFECTIVE_DATE_RANGE_SCHEMA.required(),
   })
+    .unknown(false)
     .label(PARTICIPANT_KEY_ATTRIBUTES_LABEL)
     .required(),
 })
@@ -583,7 +585,8 @@ export const CREATE_ORGANIZATION_PARTICIPANT_REFERENCE_SCHEMA = Joi.array()
     Joi.object({
       id: ID_SCHEMA,
       type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
-    }).label(PARTICIPANTS_LABEL)
+    })
+      .unknown(false).label(PARTICIPANTS_LABEL).required()
   )
   .min(1)
   .max(ORGANIZATION_PARTICIPANTS_MAX)
@@ -595,7 +598,8 @@ export const CREATE_PARTICIPANT_ORGANIZATION_REFERENCE_SCHEMA = Joi.array()
     Joi.object({
       id: ID_SCHEMA,
       type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
-    }).label(ORGANIZATIONS_LABEL)
+    })
+      .unknown(false).label(ORGANIZATIONS_LABEL).required()
   )
   .min(1)
   .max(ORGANIZATION_PARTICIPANTS_MAX)
@@ -832,9 +836,11 @@ export const CREATE_BLOCK_TRANSACTION_SCHEMA = Joi.object({
         type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
         id: ID_SCHEMA.label(ID_LABEL).required(),
       })
+        .unknown(false)
         .label(PENDING_TRANSACTION_DATA_LABEL)
         .required(),
     })
+      .unknown(false)
       .label(FROM_PARTICIPANT_LABEL)
       .required(),
     to: Joi.object({
@@ -842,12 +848,15 @@ export const CREATE_BLOCK_TRANSACTION_SCHEMA = Joi.object({
         type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
         id: ID_SCHEMA.label(ID_LABEL).required(),
       })
+        .unknown(false)
         .label(PENDING_TRANSACTION_DATA_LABEL)
         .required(),
     })
+      .unknown(false)
       .label(TO_PARTICIPANT_LABEL)
       .required(),
   })
+    .unknown(false)
     .label(BLOCK_TRANSACTIONS_RELATIONSHIPS_LABEL)
     .required(),
 })
@@ -890,9 +899,11 @@ export const CREATE_PENDING_TRANSACTION_SCHEMA = Joi.object({
         type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
         id: ID_SCHEMA.label(ID_LABEL).required(),
       })
+        .unknown(false)
         .label(PENDING_TRANSACTION_DATA_LABEL)
         .required(),
     })
+      .unknown(false)
       .label(FROM_PARTICIPANT_LABEL)
       .required(),
     to: Joi.object({
@@ -900,12 +911,15 @@ export const CREATE_PENDING_TRANSACTION_SCHEMA = Joi.object({
         type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
         id: ID_SCHEMA.label(ID_LABEL).required(),
       })
+        .unknown(false)
         .label(PENDING_TRANSACTION_DATA_LABEL)
         .required(),
     })
+      .unknown(false)
       .label(TO_PARTICIPANT_LABEL)
       .required(),
   })
+    .unknown(false)
     .label(PENDING_TRANSACTIONS_RELATIONSHIPS_LABEL)
     .required(),
 })
@@ -930,9 +944,11 @@ export const UPDATE_PENDING_TRANSACTION_SCHEMA = Joi.object({
         type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
         id: ID_SCHEMA.label(ID_LABEL).required(),
       })
+        .unknown(false)
         .label(PENDING_TRANSACTION_DATA_LABEL)
         .required(),
     })
+      .unknown(false)
       .label(FROM_PARTICIPANT_LABEL)
       .required(),
     to: Joi.object({
@@ -940,12 +956,15 @@ export const UPDATE_PENDING_TRANSACTION_SCHEMA = Joi.object({
         type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
         id: ID_SCHEMA.label(ID_LABEL).required(),
       })
+        .unknown(false)
         .label(PENDING_TRANSACTION_DATA_LABEL)
         .required(),
     })
+      .unknown(false)
       .label(TO_PARTICIPANT_LABEL)
       .required(),
   })
+    .unknown(false)
     .label(PENDING_TRANSACTIONS_RELATIONSHIPS_LABEL)
     .required(),
 })
@@ -1035,9 +1054,11 @@ export const UPDATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
         type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
         id: ID_SCHEMA.label(ID_LABEL).required(),
       })
+        .unknown(false)
         .label(PENDING_TRANSACTION_DATA_LABEL)
         .required(),
     })
+      .unknown(false)
       .label(FROM_PARTICIPANT_LABEL)
       .required(),
     to: Joi.object({
@@ -1045,12 +1066,15 @@ export const UPDATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
         type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
         id: ID_SCHEMA.label(ID_LABEL).required(),
       })
+        .unknown(false)
         .label(PENDING_TRANSACTION_DATA_LABEL)
         .required(),
     })
+      .unknown(false)
       .label(TO_PARTICIPANT_LABEL)
       .required(),
   })
+    .unknown(false)
     .label(SIGNED_TRANSACTIONS_RELATIONSHIPS_LABEL)
     .required(),
 })
@@ -1099,7 +1123,8 @@ export const CREATE_BLOCK_SCHEMA = Joi.object({
       .items(
         Joi.object({
           data: CREATE_BLOCK_TRANSACTION_SCHEMA,
-        }).label(BLOCK_TRANSACTION_LABEL)
+        })
+          .unknown(false).label(BLOCK_TRANSACTION_LABEL).required()
       )
       .min(1)
       .max(MAX_TRANSACTIONS_PER_BLOCK)

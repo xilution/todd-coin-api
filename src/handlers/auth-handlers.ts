@@ -11,6 +11,7 @@ import { hashUtils } from "@xilution/todd-coin-utils";
 import { ApiSettings } from "../types";
 import { Participant } from "@xilution/todd-coin-types";
 import jwt from "jsonwebtoken";
+import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 
 export const authTokenValidationFailAction = (
   request: Request,
@@ -37,11 +38,15 @@ export const authTokenRequestHandler =
 
     const { email, password } = payload;
 
-    let participant: Participant | undefined;
+    let getParticipantsResponse: { count: number; rows: Participant[] };
     try {
-      participant = await participantsBroker.getParticipantByEmail(
+      getParticipantsResponse = await participantsBroker.getParticipants(
         dbClient,
-        email
+        FIRST_PAGE,
+        DEFAULT_PAGE_SIZE,
+        {
+          email,
+        }
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -53,10 +58,13 @@ export const authTokenRequestHandler =
         .code(500);
     }
 
-    if (
-      participant === undefined ||
-      participant.password !== hashUtils.calculateStringHash(password)
-    ) {
+    const participant: Participant | undefined =
+      getParticipantsResponse.rows.find(
+        (participant: Participant) =>
+          participant.password === hashUtils.calculateStringHash(password)
+      );
+
+    if (participant === undefined) {
       return h
         .response({
           jsonapi: { version: "1.0" },

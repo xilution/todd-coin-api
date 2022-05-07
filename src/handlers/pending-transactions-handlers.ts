@@ -9,7 +9,11 @@ import {
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
-import { DbClient, transactionsBroker } from "@xilution/todd-coin-brokers";
+import {
+  DbClient,
+  participantsBroker,
+  transactionsBroker,
+} from "@xilution/todd-coin-brokers";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import {
@@ -177,14 +181,86 @@ export const postPendingTransactionRequestHandler =
       data: ApiData<PendingTransaction<TransactionDetails>>;
     };
 
-    // todo - validate that the from/to participants exist and can take place in the transaction
-
     const fromParticipantId = (
       payload.data.relationships.from.data as ApiData<Participant>
     ).id;
+
+    let fromParticipant: Participant | undefined;
+    try {
+      fromParticipant = await participantsBroker.getParticipantById(
+        dbClient,
+        fromParticipantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (fromParticipant === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A participant with id: ${fromParticipantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
+
     const toParticipantId = (
       payload.data.relationships.to.data as ApiData<Participant>
     ).id;
+
+    let toParticipant: Participant | undefined;
+    try {
+      toParticipant = await participantsBroker.getParticipantById(
+        dbClient,
+        toParticipantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (toParticipant === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A participant with id: ${toParticipantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
+
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    if (toParticipant.id !== authParticipant.id) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `The to participant must be the same as the authenticated participant.`
+            ),
+          ],
+        })
+        .code(400);
+    }
 
     const newPendingTransaction = {
       id: payload.data.id,
@@ -275,9 +351,83 @@ export const patchPendingTransactionRequestHandler =
     const fromParticipantId = (
       payload.data.relationships.from.data as ApiData<Participant>
     ).id;
+
+    let fromParticipant: Participant | undefined;
+    try {
+      fromParticipant = await participantsBroker.getParticipantById(
+        dbClient,
+        fromParticipantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (fromParticipant === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A participant with id: ${fromParticipantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
+
     const toParticipantId = (
       payload.data.relationships.to.data as ApiData<Participant>
     ).id;
+
+    let toParticipant: Participant | undefined;
+    try {
+      toParticipant = await participantsBroker.getParticipantById(
+        dbClient,
+        toParticipantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (toParticipant === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A participant with id: ${toParticipantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
+
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    if (toParticipant.id !== authParticipant.id) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `The to participant must be the same as the authenticated participant.`
+            ),
+          ],
+        })
+        .code(400);
+    }
 
     const updatedPendingTransaction: PendingTransaction<TransactionDetails> = {
       id: pendingTransactionId,

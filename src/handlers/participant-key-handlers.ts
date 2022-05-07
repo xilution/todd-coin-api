@@ -15,6 +15,7 @@ import {
 } from "./serializer-builders";
 import {
   buildBadRequestError,
+  buildForbiddenError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -198,8 +199,20 @@ export const postParticipantKeyRequestHandler =
       }).code(404);
     }
 
-    // todo - verify that the user can do this.
-    // const authParticipant = request.auth.credentials.participant as Participant;
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    if (participant.id !== authParticipant.id) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildForbiddenError(
+              `You are not allowed to create a participant key for this participant.`
+            ),
+          ],
+        })
+        .code(403);
+    }
 
     const newParticipantKey = {
       id: payload.data.id,
@@ -300,8 +313,20 @@ export const patchParticipantKeyRequestHandler =
       }).code(404);
     }
 
-    // todo - verify that the user can do this.
-    // const authParticipant = request.auth.credentials.participant as Participant;
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    if (participant.id !== authParticipant.id) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildForbiddenError(
+              `You are not allowed to update this participant key for this participant.`
+            ),
+          ],
+        })
+        .code(403);
+    }
 
     const updatedParticipantKey: ParticipantKey = {
       id: participantKeyId,

@@ -1,10 +1,15 @@
-import { DbClient, transactionsBroker } from "@xilution/todd-coin-brokers";
+import {
+  DbClient,
+  transactionsBroker,
+} from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import {
+  Participant,
+  PendingTransaction,
   SignedTransaction,
   TransactionDetails,
 } from "@xilution/todd-coin-types";
@@ -14,6 +19,7 @@ import {
 } from "./serializer-builders";
 import {
   buildBadRequestError,
+  buildForbiddenError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -175,6 +181,53 @@ export const postSignedTransactionRequestHandler =
       ...payload.data.attributes,
     } as SignedTransaction<TransactionDetails>;
 
+    let existingPendingTransaction:
+      | PendingTransaction<TransactionDetails>
+      | undefined;
+    try {
+      existingPendingTransaction =
+        await transactionsBroker.getPendingTransactionById(
+          dbClient,
+          newSignedTransaction.id as string
+        );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (existingPendingTransaction === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A pending transaction with id: ${newSignedTransaction.id} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
+
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    if (existingPendingTransaction.from?.id !== authParticipant.id) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildForbiddenError(
+              `Only the from participant can create a signed transaction.`
+            ),
+          ],
+        })
+        .code(403);
+    }
+
     let createdSignedTransaction:
       | SignedTransaction<TransactionDetails>
       | undefined;
@@ -195,6 +248,18 @@ export const postSignedTransactionRequestHandler =
     }
 
     // todo - when the number of signed transactions reaches a threshold, automatically mine a new block
+
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "create-signed-transaction",
+        result: "success",
+        details: {
+          is: createdSignedTransaction,
+        },
+      })
+    );
 
     return h
       .response(
@@ -238,14 +303,48 @@ export const patchSignedTransactionRequestHandler =
     };
 
     if (payload.data.id !== signedTransactionId) {
-      h.response({
-        jsonapi: { version: "1.0" },
-        errors: [
-          buildBadRequestError(
-            `The path signedTransaction ID does not match the request body signedTransaction ID.`
-          ),
-        ],
-      }).code(400);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `The path signedTransaction ID does not match the request body signedTransaction ID.`
+            ),
+          ],
+        })
+        .code(400);
+    }
+
+    let existingSignedTransaction:
+      | SignedTransaction<TransactionDetails>
+      | undefined;
+    try {
+      existingSignedTransaction =
+        await transactionsBroker.getSignedTransactionById(
+          dbClient,
+          signedTransactionId
+        );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (existingSignedTransaction === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A signedTransaction with id: ${signedTransactionId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
     }
 
     // todo - confirm that the user can do this
@@ -269,6 +368,19 @@ export const patchSignedTransactionRequestHandler =
         })
         .code(500);
     }
+
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "update-signed-transaction",
+        result: "success",
+        details: {
+          before: existingSignedTransaction,
+          after: updatedSignedTransaction,
+        },
+      })
+    );
 
     return h.response().code(204);
   };

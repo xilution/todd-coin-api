@@ -258,7 +258,7 @@ export const postOrganizationRequestHandler =
           jsonapi: { version: "1.0" },
           errors: [
             buildBadRequestError(
-              `another organization is already using the name: ${newOrganization.name}`
+              `Another organization is already using the name: ${newOrganization.name}.`
             ),
           ],
         })

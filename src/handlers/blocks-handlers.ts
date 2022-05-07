@@ -177,15 +177,12 @@ export const postBlockRequestHandler =
       );
 
     if (participantKey === undefined) {
-      console.error(
-        `Unable to post a new block because the miner does not have an effective key.`
-      );
       return h
         .response({
           jsonapi: { version: "1.0" },
-          errors: [buildBadRequestError()],
+          errors: [buildBadRequestError(`Unable to post a new block because the miner does not have an effective key.`)],
         })
-        .code(500);
+        .code(400);
     }
 
     const newBlock = {

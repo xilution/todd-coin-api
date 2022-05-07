@@ -187,7 +187,7 @@ export const getParticipantOrganizationRequestHandler =
         dbClient,
         pageNumber,
         pageSize,
-        organizationIds
+        { ids: organizationIds }
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -240,13 +240,27 @@ export const postParticipantRequestHandler =
       keys: [],
     } as Participant;
 
-    const existingParticipant: Participant | undefined =
-      await participantsBroker.getParticipantByEmail(
+    let getParticipantsResponse: { count: number };
+    try {
+      getParticipantsResponse = await participantsBroker.getParticipants(
         dbClient,
-        newParticipant.email
+        FIRST_PAGE,
+        DEFAULT_PAGE_SIZE,
+        {
+          email: newParticipant.email,
+        }
       );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
 
-    if (existingParticipant !== null) {
+    if (getParticipantsResponse.count !== 0) {
       return h
         .response({
           jsonapi: { version: "1.0" },

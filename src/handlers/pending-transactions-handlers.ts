@@ -48,9 +48,9 @@ export const getPendingTransactionsRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    const fromFilter: string = request.query["filter[from]"];
+    const fromParticipantId = request.query["filter[from]"] as string;
 
-    const toFilter: string = request.query["filter[to]"];
+    const toParticipantId = request.query["filter[to]"] as string;
 
     let response: {
       count: number;
@@ -61,8 +61,10 @@ export const getPendingTransactionsRequestHandler =
         dbClient,
         pageNumber,
         pageSize,
-        fromFilter,
-        toFilter
+        {
+          fromParticipantId,
+          toParticipantId,
+        }
       );
     } catch (error) {
       console.error((error as Error).message);

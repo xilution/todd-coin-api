@@ -216,14 +216,14 @@ export const ID_SCHEMA = Joi.string()
   .guid()
   .example("9e1e3b0f-661d-4d45-9a29-3e53fa5453ec");
 
-export const CREATED_AT_SCHEMA = Joi.string()
-  .isoDate()
+export const CREATED_AT_SCHEMA = Joi.date()
+  .iso()
   .description(ISO_8601_FORMAT_DESCRIPTION)
   .example("2022-05-01T15:52:52.395Z")
   .label(CREATED_AT_LABEL);
 
-export const UPDATED_AT_SCHEMA = Joi.string()
-  .isoDate()
+export const UPDATED_AT_SCHEMA = Joi.date()
+  .iso()
   .description(ISO_8601_FORMAT_DESCRIPTION)
   .example("2022-05-01T15:52:52.395Z")
   .label(UPDATED_AT_LABEL);

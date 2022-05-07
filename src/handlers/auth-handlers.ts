@@ -75,18 +75,15 @@ export const authTokenRequestHandler =
 
     const { jwtSecretKey } = apiSettings;
 
+    let accessToken: string;
     try {
-      const accessToken = jwt.sign(
+      accessToken = jwt.sign(
         {
           participantId: participant?.id,
         },
         jwtSecretKey,
         { expiresIn: "1h" }
       );
-
-      return {
-        access: accessToken,
-      };
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -96,4 +93,17 @@ export const authTokenRequestHandler =
         })
         .code(500);
     }
+
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: participant,
+        action: "authentication",
+        result: "success",
+      })
+    );
+
+    return {
+      access: accessToken,
+    };
   };

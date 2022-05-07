@@ -10,6 +10,7 @@ import {
   buildNodesSerializer,
 } from "./serializer-builders";
 import {
+  buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -202,7 +203,16 @@ export const patchNodeRequestHandler =
     const { nodeId } = request.params;
     const payload = request.payload as { data: ApiData<Node> };
 
-    // todo - validate that the path id equals the payload id
+    if (payload.data.id !== nodeId) {
+      h.response({
+        jsonapi: { version: "1.0" },
+        errors: [
+          buildBadRequestError(
+            `The path node ID does not match the request body node ID.`
+          ),
+        ],
+      }).code(400);
+    }
 
     // todo - confirm that the user can do this
 

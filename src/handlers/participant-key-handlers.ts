@@ -14,6 +14,7 @@ import {
   buildParticipantKeysSerializer,
 } from "./serializer-builders";
 import {
+  buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -261,7 +262,16 @@ export const patchParticipantKeyRequestHandler =
     const { participantId, participantKeyId } = request.params;
     const payload = request.payload as { data: ApiData<ParticipantKey> };
 
-    // todo - validate that the path id equals the payload id
+    if (payload.data.id !== participantKeyId) {
+      h.response({
+        jsonapi: { version: "1.0" },
+        errors: [
+          buildBadRequestError(
+            `The path participant ID does not match the request body participant ID.`
+          ),
+        ],
+      }).code(400);
+    }
 
     let participant: Participant | undefined;
     try {

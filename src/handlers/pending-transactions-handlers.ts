@@ -2,6 +2,7 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import {
+  buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -256,7 +257,16 @@ export const patchPendingTransactionRequestHandler =
       data: ApiData<PendingTransaction<TransactionDetails>>;
     };
 
-    // todo - validate that the path id equals the payload id
+    if (payload.data.id !== pendingTransactionId) {
+      h.response({
+        jsonapi: { version: "1.0" },
+        errors: [
+          buildBadRequestError(
+            `The path pendingTransaction ID does not match the request body pendingTransaction ID.`
+          ),
+        ],
+      }).code(400);
+    }
 
     // todo - confirm that the user can do this
 

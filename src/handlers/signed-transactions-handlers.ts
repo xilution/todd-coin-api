@@ -13,6 +13,7 @@ import {
   buildSignedTransactionsSerializer,
 } from "./serializer-builders";
 import {
+  buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -236,7 +237,16 @@ export const patchSignedTransactionRequestHandler =
       data: ApiData<SignedTransaction<TransactionDetails>>;
     };
 
-    // todo - validate that the path id equals the payload id
+    if (payload.data.id !== signedTransactionId) {
+      h.response({
+        jsonapi: { version: "1.0" },
+        errors: [
+          buildBadRequestError(
+            `The path signedTransaction ID does not match the request body signedTransaction ID.`
+          ),
+        ],
+      }).code(400);
+    }
 
     // todo - confirm that the user can do this
 

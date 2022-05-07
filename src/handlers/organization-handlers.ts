@@ -356,7 +356,16 @@ export const patchOrganizationRequestHandler =
     const { organizationId } = request.params;
     const payload = request.payload as { data: ApiData<Organization> };
 
-    // todo - validate that the path id equals the payload id
+    if (payload.data.id !== organizationId) {
+      h.response({
+        jsonapi: { version: "1.0" },
+        errors: [
+          buildBadRequestError(
+            `The path organization ID does not match the request body organization ID.`
+          ),
+        ],
+      }).code(400);
+    }
 
     // todo - confirm that the user can do this
 

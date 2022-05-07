@@ -198,7 +198,7 @@ export const postBlockRequestHandler =
       ),
     } as Block;
 
-    // todo - validate that the new block can be added to the chain. return bad request if not
+    // todo - validate that the new block can be added to the chain
 
     let createdBlock: Block | undefined;
     try {

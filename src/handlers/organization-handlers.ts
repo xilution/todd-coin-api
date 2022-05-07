@@ -17,6 +17,7 @@ import {
   buildParticipantsSerializer,
 } from "./serializer-builders";
 import {
+  buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -183,7 +184,7 @@ export const getOrganizationParticipantRequestHandler =
         dbClient,
         pageNumber,
         pageSize,
-        participantIds
+        { ids: participantIds }
       );
     } catch (error) {
       console.error((error as Error).message);
@@ -226,12 +227,43 @@ export const postOrganizationRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const payload = request.payload as { data: ApiData<Organization> };
 
-    // todo - check for dupe organizations
-
     const newOrganization = {
       id: payload.data.id,
       ...payload.data.attributes,
     } as Organization;
+
+    let getOrganizationsResponse: { count: number };
+    try {
+      getOrganizationsResponse = await organizationsBroker.getOrganizations(
+        dbClient,
+        FIRST_PAGE,
+        DEFAULT_PAGE_SIZE,
+        {
+          name: newOrganization.name,
+        }
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (getOrganizationsResponse.count !== 0) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `another organization is already using the name: ${newOrganization.name}`
+            ),
+          ],
+        })
+        .code(400);
+    }
 
     let createdOrganization: Organization | undefined;
     try {

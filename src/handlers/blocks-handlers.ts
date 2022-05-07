@@ -219,6 +219,19 @@ export const postBlockRequestHandler =
 
     // todo - notify known blocks that a new block was added
 
+    const authParticipant = request.auth.credentials.participant as Participant;
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "create-block",
+        result: "success",
+        details: {
+          is: createdBlock,
+        },
+      })
+    );
+
     return h
       .response(await buildBlockSerializer(apiSettings).serialize(createdBlock))
       .header(

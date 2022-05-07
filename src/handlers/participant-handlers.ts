@@ -304,6 +304,18 @@ export const postParticipantRequestHandler =
 
     // todo - notify known participants that a new participant was added
 
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: createdParticipant,
+        action: "create-participant",
+        result: "success",
+        details: {
+          is: createdParticipant,
+        },
+      })
+    );
+
     return h
       .response(
         await buildParticipantSerializer(apiSettings).serialize(
@@ -326,15 +338,31 @@ export const postParticipantOrganizationsRequestHandler =
       (apiData: ApiData<Organization>) => apiData.id
     );
 
+    const authParticipant = request.auth.credentials.participant as Participant;
+
     try {
       await Promise.all(
         organizationIds.map((organizationId: string) => {
+          const newOrganizationParticipantRef = {
+            participantId,
+            organizationId,
+          };
+
+          console.log(
+            JSON.stringify({
+              date: new Date().toISOString(),
+              participant: authParticipant,
+              action: "post-participant-organization-reference",
+              result: "success",
+              details: {
+                is: newOrganizationParticipantRef,
+              },
+            })
+          );
+
           return organizationParticipantRefsBroker.createOrganizationParticipantRef(
             dbClient,
-            {
-              participantId,
-              organizationId,
-            }
+            newOrganizationParticipantRef
           );
         })
       );
@@ -378,14 +406,45 @@ export const patchParticipantRequestHandler =
     const payload = request.payload as { data: ApiData<Participant> };
 
     if (payload.data.id !== participantId) {
-      h.response({
-        jsonapi: { version: "1.0" },
-        errors: [
-          buildBadRequestError(
-            `The path participant ID does not match the request body participant ID.`
-          ),
-        ],
-      }).code(400);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `The path participant ID does not match the request body participant ID.`
+            ),
+          ],
+        })
+        .code(400);
+    }
+
+    let existingParticipant: Participant | undefined;
+    try {
+      existingParticipant = await participantsBroker.getParticipantById(
+        dbClient,
+        participantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (existingParticipant === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A participant with id: ${participantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
     }
 
     // todo - confirm that the user can do this
@@ -412,6 +471,19 @@ export const patchParticipantRequestHandler =
         })
         .code(500);
     }
+
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "update-participant",
+        result: "success",
+        details: {
+          before: existingParticipant,
+          after: updatedParticipant,
+        },
+      })
+    );
 
     return h.response().code(204);
   };

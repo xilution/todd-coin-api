@@ -347,7 +347,20 @@ export const patchSignedTransactionRequestHandler =
         .code(404);
     }
 
-    // todo - confirm that the user can do this
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    if (existingSignedTransaction.from?.id !== authParticipant.id) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildForbiddenError(
+              `Only the from participant can update a signed transaction.`
+            ),
+          ],
+        })
+        .code(403);
+    }
 
     const updatedSignedTransaction: SignedTransaction<TransactionDetails> = {
       id: signedTransactionId,

@@ -264,7 +264,7 @@ export const postParticipantRequestHandler =
           jsonapi: { version: "1.0" },
           errors: [
             buildBadRequestError(
-              `another participant is already using the email address: ${newParticipant.email}`
+              `Another participant is already using the email address: ${newParticipant.email}.`
             ),
           ],
         })

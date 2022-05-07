@@ -4,7 +4,7 @@ import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
-import { Node } from "@xilution/todd-coin-types";
+import { Node, Participant } from "@xilution/todd-coin-types";
 import {
   buildNodeSerializer,
   buildNodesSerializer,
@@ -202,6 +202,19 @@ export const postNodeRequestHandler =
 
     // todo - notify known nodes that a new node was added
 
+    const authParticipant = request.auth.credentials.participant as Participant;
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "create-node",
+        result: "success",
+        details: {
+          is: createdNode,
+        },
+      })
+    );
+
     return h
       .response(await buildNodeSerializer(apiSettings).serialize(createdNode))
       .header("location", `${apiSettings.apiBaseUrl}/nodes/${createdNode?.id}`)
@@ -263,6 +276,20 @@ export const patchNodeRequestHandler =
         })
         .code(500);
     }
+
+    const authParticipant = request.auth.credentials.participant as Participant;
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "update-node",
+        result: "success",
+        details: {
+          before: existingNode,
+          after: updatedNode,
+        },
+      })
+    );
 
     return h.response().code(204);
   };

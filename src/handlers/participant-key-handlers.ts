@@ -223,15 +223,16 @@ export const postParticipantKeyRequestHandler =
 
     let getParticipantKeysResponse: { count: number };
     try {
-      getParticipantKeysResponse = await participantKeysBroker.getParticipantKeys(
-        dbClient,
-        FIRST_PAGE,
-        DEFAULT_PAGE_SIZE,
-        participantId,
-        {
-          publicKey: newParticipantKey.public,
-        }
-      );
+      getParticipantKeysResponse =
+        await participantKeysBroker.getParticipantKeys(
+          dbClient,
+          FIRST_PAGE,
+          DEFAULT_PAGE_SIZE,
+          participantId,
+          {
+            publicKey: newParticipantKey.public,
+          }
+        );
     } catch (error) {
       console.error((error as Error).message);
       return h

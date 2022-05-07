@@ -586,7 +586,9 @@ export const CREATE_ORGANIZATION_PARTICIPANT_REFERENCE_SCHEMA = Joi.array()
       id: ID_SCHEMA,
       type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
     })
-      .unknown(false).label(PARTICIPANTS_LABEL).required()
+      .unknown(false)
+      .label(PARTICIPANTS_LABEL)
+      .required()
   )
   .min(1)
   .max(ORGANIZATION_PARTICIPANTS_MAX)
@@ -599,7 +601,9 @@ export const CREATE_PARTICIPANT_ORGANIZATION_REFERENCE_SCHEMA = Joi.array()
       id: ID_SCHEMA,
       type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
     })
-      .unknown(false).label(ORGANIZATIONS_LABEL).required()
+      .unknown(false)
+      .label(ORGANIZATIONS_LABEL)
+      .required()
   )
   .min(1)
   .max(ORGANIZATION_PARTICIPANTS_MAX)
@@ -1124,7 +1128,9 @@ export const CREATE_BLOCK_SCHEMA = Joi.object({
         Joi.object({
           data: CREATE_BLOCK_TRANSACTION_SCHEMA,
         })
-          .unknown(false).label(BLOCK_TRANSACTION_LABEL).required()
+          .unknown(false)
+          .label(BLOCK_TRANSACTION_LABEL)
+          .required()
       )
       .min(1)
       .max(MAX_TRANSACTIONS_PER_BLOCK)

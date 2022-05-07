@@ -180,7 +180,11 @@ export const postBlockRequestHandler =
       return h
         .response({
           jsonapi: { version: "1.0" },
-          errors: [buildBadRequestError(`Unable to post a new block because the miner does not have an effective key.`)],
+          errors: [
+            buildBadRequestError(
+              `Unable to post a new block because the miner does not have an effective key.`
+            ),
+          ],
         })
         .code(400);
     }

@@ -1,3 +1,24 @@
+# [1.10.0](https://github.com/xilution/todd-coin-api/compare/v1.9.0...v1.10.0) (2022-05-07)
+
+
+### Bug Fixes
+
+* adapted to optional password ([c1b3377](https://github.com/xilution/todd-coin-api/commit/c1b3377b822b2dd91a3ea93a15dc0ae52a416c04))
+* fixed from/to filters ([eee1f5f](https://github.com/xilution/todd-coin-api/commit/eee1f5f204f79f056774947bcc7a134b3e0364b9))
+
+
+### Features
+
+* added a detail to the bad request error ([d1e5aa8](https://github.com/xilution/todd-coin-api/commit/d1e5aa81ed2517d18f7f20ef3757b8f8c321409c))
+* added better response documentation ([f721871](https://github.com/xilution/todd-coin-api/commit/f7218715d12228001e6a0b4cd5bfc9e61d51a751))
+* bumped todd-coin-brokers version ([634e1ae](https://github.com/xilution/todd-coin-api/commit/634e1ae1c442b6c5c0fbc8b21dc13df66bd63c8d))
+* bumped todd-coin-brokers, todd-coin-types and todd-coin-utils versions ([5c5b0cc](https://github.com/xilution/todd-coin-api/commit/5c5b0cc120bb719c9868117f8cbf8df520e00962))
+* checking for duplicate participants ([87a20fb](https://github.com/xilution/todd-coin-api/commit/87a20fb109522273f57cf60b804cdb971f471717))
+* controlled for duplicate orgs ([215038a](https://github.com/xilution/todd-coin-api/commit/215038a9f06cb75ef30012112f27ba86856c0581))
+* controlled for duplicate participants ([16a7908](https://github.com/xilution/todd-coin-api/commit/16a7908d7e602a3f9589cb3772d5f34b2b13c98f))
+* removed email requirement for organizations ([801a5e2](https://github.com/xilution/todd-coin-api/commit/801a5e2e3da5bdb1960f6d2d3db4bb5e5e0e01a8))
+* removed password requirement for participants ([09c3c76](https://github.com/xilution/todd-coin-api/commit/09c3c7603a3afbf1dc26ab49bb9c590b9e11343c))
+
 # [1.9.0](https://github.com/xilution/todd-coin-api/compare/v1.8.0...v1.9.0) (2022-05-05)
 
 

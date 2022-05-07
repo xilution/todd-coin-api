@@ -53,8 +53,6 @@ export const getParticipantsRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    // const publicKeyFilter: string = request.query["filter[publicKey]"]; // todo - implement this
-
     let response: { count: number; rows: Participant[] };
     try {
       response = await participantsBroker.getParticipants(

@@ -450,7 +450,6 @@ export const CREATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
   type: Joi.string().allow("participant-key").label(TYPE_LABEL).required(),
   attributes: Joi.object({
     public: PUBLIC_KEY_SCHEMA.required(),
-    private: PRIVATE_KEY_SCHEMA.required(),
     effective: EFFECTIVE_DATE_RANGE_SCHEMA.required(),
   })
     .label(PARTICIPANT_KEY_ATTRIBUTES_LABEL)

@@ -240,14 +240,15 @@ export const SIGNATURE_SCHEMA = Joi.string()
   .label(SIGNATURE_LABEL);
 
 export const EFFECTIVE_DATE_RANGE_SCHEMA = Joi.object({
-  from: Joi.string()
-    .isoDate()
+  from: Joi.date()
+    .iso()
     .description(ISO_8601_FORMAT_DESCRIPTION)
     .example("2022-05-01T15:52:52.395Z")
     .label(FROM_DATE_LABEL)
     .required(),
-  to: Joi.string()
-    .isoDate()
+  to: Joi.date()
+    .iso()
+    .min(Joi.ref("from"))
     .description(ISO_8601_FORMAT_DESCRIPTION)
     .example("2022-05-03T15:52:52.395Z")
     .label(TO_DATE_LABEL)

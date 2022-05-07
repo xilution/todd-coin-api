@@ -1,4 +1,4 @@
-import { DbClient, nodesBroker } from "@xilution/todd-coin-brokers";
+import {DbClient, nodesBroker} from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
@@ -147,14 +147,45 @@ export const postNodeRequestHandler =
   async (request: Request, h: ResponseToolkit) => {
     const payload = request.payload as { data: ApiData<Node> };
 
-    // todo - check for dupe nodes
-
     // todo - once validated, sync up with the new node
 
     const newNode: Node = {
       id: payload.data.id,
       ...payload.data.attributes,
     } as Node;
+
+    let getNodesResponse: { count: number };
+    try {
+      getNodesResponse = await nodesBroker.getNodes(
+        dbClient,
+        FIRST_PAGE,
+        DEFAULT_PAGE_SIZE,
+        {
+          baseUrl: newNode.baseUrl,
+        }
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (getNodesResponse.count !== 0) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `another node is already using the base URL: ${newNode.baseUrl}`
+            ),
+          ],
+        })
+        .code(400);
+    }
 
     let createdNode: Node | undefined;
     try {

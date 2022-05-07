@@ -1,4 +1,4 @@
-import {DbClient, nodesBroker} from "@xilution/todd-coin-brokers";
+import { DbClient, nodesBroker } from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";

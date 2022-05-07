@@ -275,25 +275,15 @@ export const postPendingTransactionRequestHandler =
 
     // todo - check for duplicate pending transactions (rules?)
 
+    let createdPendingTransaction:
+      | PendingTransaction<TransactionDetails>
+      | undefined;
     try {
-      const createdPendingTransaction:
-        | PendingTransaction<TransactionDetails>
-        | undefined = await transactionsBroker.createPendingTransaction(
-        dbClient,
-        newPendingTransaction
-      );
-
-      return h
-        .response(
-          await buildPendingTransactionSerializer(apiSettings).serialize(
-            createdPendingTransaction
-          )
-        )
-        .header(
-          "location",
-          `${apiSettings.apiBaseUrl}/pending-transactions/${createdPendingTransaction?.id}`
-        )
-        .code(201);
+      createdPendingTransaction =
+        await transactionsBroker.createPendingTransaction(
+          dbClient,
+          newPendingTransaction
+        );
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -303,6 +293,30 @@ export const postPendingTransactionRequestHandler =
         })
         .code(500);
     }
+
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "create-pending-transaction",
+        result: "success",
+        details: {
+          is: createdPendingTransaction,
+        },
+      })
+    );
+
+    return h
+      .response(
+        await buildPendingTransactionSerializer(apiSettings).serialize(
+          createdPendingTransaction
+        )
+      )
+      .header(
+        "location",
+        `${apiSettings.apiBaseUrl}/pending-transactions/${createdPendingTransaction?.id}`
+      )
+      .code(201);
   };
 
 export const patchPendingTransactionValidationFailAction = (
@@ -334,19 +348,49 @@ export const patchPendingTransactionRequestHandler =
     };
 
     if (payload.data.id !== pendingTransactionId) {
-      h.response({
-        jsonapi: { version: "1.0" },
-        errors: [
-          buildBadRequestError(
-            `The path pendingTransaction ID does not match the request body pendingTransaction ID.`
-          ),
-        ],
-      }).code(400);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `The path pendingTransaction ID does not match the request body pendingTransaction ID.`
+            ),
+          ],
+        })
+        .code(400);
     }
 
-    // todo - confirm that the user can do this
+    let existingPendingTransaction:
+      | PendingTransaction<TransactionDetails>
+      | undefined;
+    try {
+      existingPendingTransaction =
+        await transactionsBroker.getPendingTransactionById(
+          dbClient,
+          pendingTransactionId
+        );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
 
-    // todo - validate that the from/to participants exist and can take place in the transaction
+    if (existingPendingTransaction === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A pendingTransaction with id: ${pendingTransactionId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
 
     const fromParticipantId = (
       payload.data.relationships.from.data as ApiData<Participant>
@@ -455,6 +499,19 @@ export const patchPendingTransactionRequestHandler =
         .code(500);
     }
 
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "update-pending-transaction",
+        result: "success",
+        details: {
+          before: existingPendingTransaction,
+          after: updatedPendingTransaction,
+        },
+      })
+    );
+
     return h.response().code(204);
   };
 
@@ -480,12 +537,15 @@ export const deletePendingTransactionRequestHandler =
   (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
     const { pendingTransactionId } = request.params;
 
-    let pendingTransaction: PendingTransaction<TransactionDetails> | undefined;
+    let existingPendingTransaction:
+      | PendingTransaction<TransactionDetails>
+      | undefined;
     try {
-      pendingTransaction = await transactionsBroker.getPendingTransactionById(
-        dbClient,
-        pendingTransactionId
-      );
+      existingPendingTransaction =
+        await transactionsBroker.getPendingTransactionById(
+          dbClient,
+          pendingTransactionId
+        );
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -496,7 +556,7 @@ export const deletePendingTransactionRequestHandler =
         .code(500);
     }
 
-    if (pendingTransaction === undefined) {
+    if (existingPendingTransaction === undefined) {
       return h
         .response({
           jsonapi: { version: "1.0" },
@@ -522,6 +582,19 @@ export const deletePendingTransactionRequestHandler =
         })
         .code(500);
     }
+
+    const authParticipant = request.auth.credentials.participant as Participant;
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "delete-pending-transaction",
+        result: "success",
+        details: {
+          was: existingPendingTransaction,
+        },
+      })
+    );
 
     return h.response().code(204);
   };

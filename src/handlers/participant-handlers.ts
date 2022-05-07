@@ -19,6 +19,7 @@ import {
 import { hashUtils } from "@xilution/todd-coin-utils";
 import {
   buildBadRequestError,
+  buildForbiddenError,
   buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
@@ -447,7 +448,20 @@ export const patchParticipantRequestHandler =
         .code(404);
     }
 
-    // todo - confirm that the user can do this
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    if (existingParticipant.id !== authParticipant.id) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildForbiddenError(
+              `You are not allowed to update this participant.`
+            ),
+          ],
+        })
+        .code(403);
+    }
 
     const updatedParticipant: Participant = {
       id: participantId,

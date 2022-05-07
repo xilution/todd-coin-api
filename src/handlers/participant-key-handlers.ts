@@ -219,6 +219,40 @@ export const postParticipantKeyRequestHandler =
       ...payload.data.attributes,
     } as ParticipantKey;
 
+    let getParticipantKeysResponse: { count: number };
+    try {
+      getParticipantKeysResponse = await participantKeysBroker.getParticipantKeys(
+        dbClient,
+        FIRST_PAGE,
+        DEFAULT_PAGE_SIZE,
+        participantId,
+        {
+          publicKey: newParticipantKey.public,
+        }
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (getParticipantKeysResponse.count !== 0) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `Another participant key already exists with the public key: ${newParticipantKey.public}.`
+            ),
+          ],
+        })
+        .code(400);
+    }
+
     let createdParticipantKey: ParticipantKey | undefined;
     try {
       createdParticipantKey = await participantKeysBroker.createParticipantKey(

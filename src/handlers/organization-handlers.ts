@@ -283,6 +283,19 @@ export const postOrganizationRequestHandler =
 
     // todo - notify known organizations that a new organization was added
 
+    const authParticipant = request.auth.credentials.participant as Participant;
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "create-organization",
+        result: "success",
+        details: {
+          is: createdOrganization,
+        },
+      })
+    );
+
     return h
       .response(
         await buildOrganizationSerializer(apiSettings).serialize(
@@ -305,15 +318,31 @@ export const postOrganizationParticipantsRequestHandler =
       (apiData: ApiData<Participant>) => apiData.id
     );
 
+    const authParticipant = request.auth.credentials.participant as Participant;
+
     try {
       await Promise.all(
         participantIds.map((participantId: string) => {
+          const newOrganizationParticipantRef = {
+            participantId,
+            organizationId,
+          };
+
+          console.log(
+            JSON.stringify({
+              date: new Date().toISOString(),
+              participant: authParticipant,
+              action: "post-organization-participant-reference",
+              result: "success",
+              details: {
+                is: newOrganizationParticipantRef,
+              },
+            })
+          );
+
           return organizationParticipantRefsBroker.createOrganizationParticipantRef(
             dbClient,
-            {
-              participantId,
-              organizationId,
-            }
+            newOrganizationParticipantRef
           );
         })
       );
@@ -357,17 +386,46 @@ export const patchOrganizationRequestHandler =
     const payload = request.payload as { data: ApiData<Organization> };
 
     if (payload.data.id !== organizationId) {
-      h.response({
-        jsonapi: { version: "1.0" },
-        errors: [
-          buildBadRequestError(
-            `The path organization ID does not match the request body organization ID.`
-          ),
-        ],
-      }).code(400);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildBadRequestError(
+              `The path organization ID does not match the request body organization ID.`
+            ),
+          ],
+        })
+        .code(400);
     }
 
-    // todo - confirm that the user can do this
+    let existingOrganization: Organization | undefined;
+    try {
+      existingOrganization = await organizationsBroker.getOrganizationById(
+        dbClient,
+        organizationId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (existingOrganization === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `A organization with id: ${organizationId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
 
     const updatedOrganization: Organization = {
       id: organizationId,
@@ -388,6 +446,20 @@ export const patchOrganizationRequestHandler =
         })
         .code(500);
     }
+
+    const authParticipant = request.auth.credentials.participant as Participant;
+    console.log(
+      JSON.stringify({
+        date: new Date().toISOString(),
+        participant: authParticipant,
+        action: "update-organization",
+        result: "success",
+        details: {
+          before: existingOrganization,
+          after: updatedOrganization,
+        },
+      })
+    );
 
     return h.response().code(204);
   };

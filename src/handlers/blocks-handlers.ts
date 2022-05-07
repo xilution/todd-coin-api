@@ -168,12 +168,12 @@ export const postBlockRequestHandler =
       };
     };
 
-    const participant = request.auth.credentials.participant as Participant;
+    const authParticipant = request.auth.credentials.participant as Participant;
 
     const participantKey: ParticipantKey | undefined =
       await participantKeysBroker.getEffectiveParticipantKeyByParticipant(
         dbClient,
-        participant
+        authParticipant
       );
 
     if (participantKey === undefined) {
@@ -223,11 +223,11 @@ export const postBlockRequestHandler =
 
     // todo - notify known blocks that a new block was added
 
-    const authParticipant = request.auth.credentials.participant as Participant;
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "create-block",
         result: "success",
         details: {

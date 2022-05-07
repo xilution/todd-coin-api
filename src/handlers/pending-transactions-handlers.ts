@@ -297,7 +297,8 @@ export const postPendingTransactionRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "create-pending-transaction",
         result: "success",
         details: {
@@ -502,7 +503,8 @@ export const patchPendingTransactionRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "update-pending-transaction",
         result: "success",
         details: {
@@ -587,7 +589,8 @@ export const deletePendingTransactionRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "delete-pending-transaction",
         result: "success",
         details: {

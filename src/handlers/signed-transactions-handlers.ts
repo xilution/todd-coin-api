@@ -249,7 +249,8 @@ export const postSignedTransactionRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "create-signed-transaction",
         result: "success",
         details: {
@@ -382,7 +383,8 @@ export const patchSignedTransactionRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "update-signed-transaction",
         result: "success",
         details: {

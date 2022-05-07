@@ -276,7 +276,8 @@ export const postParticipantKeyRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "create-participant-key",
         result: "success",
         details: {
@@ -434,7 +435,8 @@ export const patchParticipantKeyRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "update-participant-key",
         result: "success",
         details: {

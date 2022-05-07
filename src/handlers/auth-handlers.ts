@@ -97,7 +97,8 @@ export const authTokenRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: participant,
+        authParticipantEmail: participant.email,
+        authParticipantId: participant.id,
         action: "authentication",
         result: "success",
       })

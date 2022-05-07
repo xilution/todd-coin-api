@@ -206,7 +206,8 @@ export const postNodeRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "create-node",
         result: "success",
         details: {
@@ -305,7 +306,8 @@ export const patchNodeRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "update-node",
         result: "success",
         details: {

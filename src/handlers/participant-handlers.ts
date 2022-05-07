@@ -308,7 +308,8 @@ export const postParticipantRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: createdParticipant,
+        authParticipantEmail: createdParticipant.email,
+        authParticipantId: createdParticipant.id,
         action: "create-participant",
         result: "success",
         details: {
@@ -352,7 +353,8 @@ export const postParticipantOrganizationsRequestHandler =
           console.log(
             JSON.stringify({
               date: new Date().toISOString(),
-              participant: authParticipant,
+              authParticipantEmail: authParticipant.email,
+              authParticipantId: authParticipant.id,
               action: "post-participant-organization-reference",
               result: "success",
               details: {
@@ -489,7 +491,8 @@ export const patchParticipantRequestHandler =
     console.log(
       JSON.stringify({
         date: new Date().toISOString(),
-        participant: authParticipant,
+        authParticipantEmail: authParticipant.email,
+        authParticipantId: authParticipant.id,
         action: "update-participant",
         result: "success",
         details: {

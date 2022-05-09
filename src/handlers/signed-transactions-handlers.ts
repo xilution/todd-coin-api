@@ -11,10 +11,6 @@ import {
   TransactionDetails,
 } from "@xilution/todd-coin-types";
 import {
-  buildSignedTransactionSerializer,
-  buildSignedTransactionsSerializer,
-} from "./serializer-builders";
-import {
   buildBadRequestError,
   buildForbiddenError,
   buildInternalServerError,
@@ -23,6 +19,10 @@ import {
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
+import {
+  serializeSignedTransaction,
+  serializeSignedTransactions,
+} from "../serializers/signed-transaction-serializers";
 
 export const getSignedTransactionsValidationFailAction = (
   request: Request,
@@ -75,12 +75,13 @@ export const getSignedTransactionsRequestHandler =
 
     return h
       .response(
-        await buildSignedTransactionsSerializer(
+        serializeSignedTransactions(
           apiSettings,
           count,
           pageNumber,
-          pageSize
-        ).serialize(rows)
+          pageSize,
+          rows
+        )
       )
       .code(200);
   };
@@ -138,11 +139,7 @@ export const getSignedTransactionRequestHandler =
     }
 
     return h
-      .response(
-        await buildSignedTransactionSerializer(apiSettings).serialize(
-          signedTransaction
-        )
-      )
+      .response(serializeSignedTransaction(apiSettings, signedTransaction))
       .code(200);
   };
 
@@ -212,7 +209,7 @@ export const postSignedTransactionRequestHandler =
 
     const authParticipant = request.auth.credentials.participant as Participant;
 
-    if (existingPendingTransaction.from?.id !== authParticipant.id) {
+    if (existingPendingTransaction.fromParticipant?.id !== authParticipant.id) {
       return h
         .response({
           jsonapi: { version: "1.0" },
@@ -225,15 +222,13 @@ export const postSignedTransactionRequestHandler =
         .code(403);
     }
 
-    let createdSignedTransaction:
-      | SignedTransaction<TransactionDetails>
-      | undefined;
+    let createdSignedTransaction: SignedTransaction<TransactionDetails>;
     try {
       createdSignedTransaction =
-        await transactionsBroker.createSignedTransaction(
+        (await transactionsBroker.createSignedTransaction(
           dbClient,
           newSignedTransaction
-        );
+        )) as SignedTransaction<TransactionDetails>;
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -261,9 +256,7 @@ export const postSignedTransactionRequestHandler =
 
     return h
       .response(
-        await buildSignedTransactionSerializer(apiSettings).serialize(
-          createdSignedTransaction
-        )
+        serializeSignedTransaction(apiSettings, createdSignedTransaction)
       )
       .header(
         "location",
@@ -347,7 +340,7 @@ export const patchSignedTransactionRequestHandler =
 
     const authParticipant = request.auth.credentials.participant as Participant;
 
-    if (existingSignedTransaction.from?.id !== authParticipant.id) {
+    if (existingSignedTransaction.fromParticipant?.id !== authParticipant.id) {
       return h
         .response({
           jsonapi: { version: "1.0" },

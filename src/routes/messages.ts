@@ -147,10 +147,12 @@ export const TREASURE_TRANSACTION_DETAILS_LABEL =
   "Treasure Transaction Details";
 export const DETAILS_LABEL = "Details";
 export const TRANSACTION_DETAILS_LABEL = "Transaction Details";
-export const FROM_PARTICIPANT_ID_LABEL = "From Participant ID";
 export const FROM_PARTICIPANT_LABEL = "From Participant";
-export const TO_PARTICIPANT_ID_LABEL = "To Participant ID";
 export const TO_PARTICIPANT_LABEL = "To Participant";
+export const FROM_ORGANIZATION_LABEL = "From Organization";
+export const TO_ORGANIZATION_LABEL = "To Organization";
+export const BLOCK_LABEL = "Block";
+export const PARTICIPANT_KEY_LABEL = "Participant Key";
 export const TRANSACTION_LABEL = "Transaction";
 export const PAGE_NUMBER_LABEL = "Page Number";
 export const ID_LABEL = "ID";

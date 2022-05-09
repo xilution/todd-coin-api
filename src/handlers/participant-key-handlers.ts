@@ -10,10 +10,6 @@ import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import { Participant, ParticipantKey } from "@xilution/todd-coin-types";
 import {
-  buildParticipantKeySerializer,
-  buildParticipantKeysSerializer,
-} from "./serializer-builders";
-import {
   buildBadRequestError,
   buildForbiddenError,
   buildInternalServerError,
@@ -22,6 +18,10 @@ import {
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
+import {
+  serializeParticipantKey,
+  serializeParticipantKeys,
+} from "../serializers/participant-key-serializers";
 
 export const getParticipantKeysValidationFailAction = (
   request: Request,
@@ -48,6 +48,35 @@ export const getParticipantKeysRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
     const { participantId } = request.params;
+
+    let participant: Participant | undefined;
+    try {
+      participant = await participantsBroker.getParticipantById(
+        dbClient,
+        participantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (participant === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `Participant with id: ${participantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
 
     const pageNumber: number =
       Number(request.query["page[number]"]) || FIRST_PAGE;
@@ -77,12 +106,14 @@ export const getParticipantKeysRequestHandler =
 
     return h
       .response(
-        await buildParticipantKeysSerializer(
+        serializeParticipantKeys(
           apiSettings,
           count,
           pageNumber,
-          pageSize
-        ).serialize(rows)
+          pageSize,
+          participant,
+          rows
+        )
       )
       .code(200);
   };
@@ -108,7 +139,36 @@ export const getParticipantKeyValidationFailAction = (
 export const getParticipantKeyRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
-    const { participantKeyId } = request.params;
+    const { participantId, participantKeyId } = request.params;
+
+    let participant: Participant | undefined;
+    try {
+      participant = await participantsBroker.getParticipantById(
+        dbClient,
+        participantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [buildInternalServerError()],
+        })
+        .code(500);
+    }
+
+    if (participant === undefined) {
+      return h
+        .response({
+          jsonapi: { version: "1.0" },
+          errors: [
+            buildNofFountError(
+              `Participant with id: ${participantId} was not found.`
+            ),
+          ],
+        })
+        .code(404);
+    }
 
     let participantKey: ParticipantKey | undefined;
     try {
@@ -141,9 +201,7 @@ export const getParticipantKeyRequestHandler =
 
     return h
       .response(
-        await buildParticipantKeySerializer(apiSettings).serialize(
-          participantKey
-        )
+        serializeParticipantKey(apiSettings, participant, participantKey)
       )
       .code(200);
   };
@@ -256,13 +314,13 @@ export const postParticipantKeyRequestHandler =
         .code(400);
     }
 
-    let createdParticipantKey: ParticipantKey | undefined;
+    let createdParticipantKey: ParticipantKey;
     try {
-      createdParticipantKey = await participantKeysBroker.createParticipantKey(
+      createdParticipantKey = (await participantKeysBroker.createParticipantKey(
         dbClient,
         participant as Participant,
         newParticipantKey
-      );
+      )) as ParticipantKey;
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -288,9 +346,7 @@ export const postParticipantKeyRequestHandler =
 
     return h
       .response(
-        await buildParticipantKeySerializer(apiSettings).serialize(
-          createdParticipantKey
-        )
+        serializeParticipantKey(apiSettings, participant, createdParticipantKey)
       )
       .header(
         "location",

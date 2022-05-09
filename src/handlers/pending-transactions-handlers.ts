@@ -22,9 +22,9 @@ import {
   TransactionDetails,
 } from "@xilution/todd-coin-types";
 import {
-  buildPendingTransactionSerializer,
-  buildPendingTransactionsSerializer,
-} from "./serializer-builders";
+  serializePendingTransaction,
+  serializePendingTransactions,
+} from "../serializers/pending-transaction-serializers";
 
 export const getPendingTransactionsValidationFailAction = (
   request: Request,
@@ -53,9 +53,9 @@ export const getPendingTransactionsRequestHandler =
     const pageSize: number =
       Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
 
-    const fromParticipantId = request.query["filter[from]"] as string;
+    const fromId = request.query["filter[from]"] as string;
 
-    const toParticipantId = request.query["filter[to]"] as string;
+    const toId = request.query["filter[to]"] as string;
 
     let response: {
       count: number;
@@ -67,8 +67,8 @@ export const getPendingTransactionsRequestHandler =
         pageNumber,
         pageSize,
         {
-          fromParticipantId,
-          toParticipantId,
+          fromId,
+          toId,
         }
       );
     } catch (error) {
@@ -85,12 +85,13 @@ export const getPendingTransactionsRequestHandler =
 
     return h
       .response(
-        await buildPendingTransactionsSerializer(
+        serializePendingTransactions(
           apiSettings,
           count,
           pageNumber,
-          pageSize
-        ).serialize(rows)
+          pageSize,
+          rows
+        )
       )
       .code(200);
   };
@@ -148,11 +149,7 @@ export const getPendingTransactionRequestHandler =
     }
 
     return h
-      .response(
-        await buildPendingTransactionSerializer(apiSettings).serialize(
-          pendingTransaction
-        )
-      )
+      .response(serializePendingTransaction(apiSettings, pendingTransaction))
       .code(200);
   };
 
@@ -275,15 +272,13 @@ export const postPendingTransactionRequestHandler =
 
     // todo - check for duplicate pending transactions (rules?)
 
-    let createdPendingTransaction:
-      | PendingTransaction<TransactionDetails>
-      | undefined;
+    let createdPendingTransaction: PendingTransaction<TransactionDetails>;
     try {
       createdPendingTransaction =
-        await transactionsBroker.createPendingTransaction(
+        (await transactionsBroker.createPendingTransaction(
           dbClient,
           newPendingTransaction
-        );
+        )) as PendingTransaction<TransactionDetails>;
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -309,9 +304,7 @@ export const postPendingTransactionRequestHandler =
 
     return h
       .response(
-        await buildPendingTransactionSerializer(apiSettings).serialize(
-          createdPendingTransaction
-        )
+        serializePendingTransaction(apiSettings, createdPendingTransaction)
       )
       .header(
         "location",

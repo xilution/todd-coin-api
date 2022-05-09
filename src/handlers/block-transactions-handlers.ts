@@ -14,15 +14,15 @@ import {
   TransactionDetails,
 } from "@xilution/todd-coin-types";
 import {
-  buildBlockTransactionSerializer,
-  buildBlockTransactionsSerializer,
-} from "./serializer-builders";
-import {
   buildInternalServerError,
   buildInvalidParameterError,
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
+import {
+  serializeBlockTransaction,
+  serializeBlockTransactions,
+} from "../serializers/block-transaction-serializers";
 
 export const getBlockTransactionsValidationFailAction = (
   request: Request,
@@ -105,12 +105,14 @@ export const getBlockTransactionsRequestHandler =
 
     return h
       .response(
-        await buildBlockTransactionsSerializer(
+        serializeBlockTransactions(
           apiSettings,
           count,
           pageNumber,
-          pageSize
-        ).serialize(rows)
+          pageSize,
+          block,
+          rows
+        )
       )
       .code(200);
   };
@@ -194,10 +196,6 @@ export const getBlockTransactionRequestHandler =
     }
 
     return h
-      .response(
-        await buildBlockTransactionSerializer(apiSettings).serialize(
-          blockTransaction
-        )
-      )
+      .response(serializeBlockTransaction(apiSettings, block, blockTransaction))
       .code(200);
   };

@@ -6,10 +6,6 @@ import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import { Node, Participant } from "@xilution/todd-coin-types";
 import {
-  buildNodeSerializer,
-  buildNodesSerializer,
-} from "./serializer-builders";
-import {
   buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
@@ -17,6 +13,7 @@ import {
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
+import { serializeNode, serializeNodes } from "../serializers/node-serializers";
 
 export const getNodesValidationFailAction = (
   request: Request,
@@ -61,14 +58,7 @@ export const getNodesRequestHandler =
     const { count, rows } = response;
 
     return h
-      .response(
-        await buildNodesSerializer(
-          apiSettings,
-          count,
-          pageNumber,
-          pageSize
-        ).serialize(rows)
-      )
+      .response(serializeNodes(apiSettings, count, pageNumber, pageSize, rows))
       .code(200);
   };
 
@@ -119,9 +109,7 @@ export const getNodeRequestHandler =
         .code(404);
     }
 
-    return h
-      .response(await buildNodeSerializer(apiSettings).serialize(node))
-      .code(200);
+    return h.response(serializeNode(apiSettings, node)).code(200);
   };
 
 export const postNodeValidationFailAction = (
@@ -187,9 +175,9 @@ export const postNodeRequestHandler =
         .code(400);
     }
 
-    let createdNode: Node | undefined;
+    let createdNode: Node;
     try {
-      createdNode = await nodesBroker.createNode(dbClient, newNode);
+      createdNode = (await nodesBroker.createNode(dbClient, newNode)) as Node;
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -217,7 +205,7 @@ export const postNodeRequestHandler =
     );
 
     return h
-      .response(await buildNodeSerializer(apiSettings).serialize(createdNode))
+      .response(serializeNode(apiSettings, createdNode))
       .header("location", `${apiSettings.apiBaseUrl}/nodes/${createdNode?.id}`)
       .code(201);
   };

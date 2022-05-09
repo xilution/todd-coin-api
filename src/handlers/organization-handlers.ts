@@ -12,11 +12,6 @@ import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import { Organization, Participant } from "@xilution/todd-coin-types";
 import {
-  buildOrganizationSerializer,
-  buildOrganizationsSerializer,
-  buildParticipantsSerializer,
-} from "./serializer-builders";
-import {
   buildBadRequestError,
   buildInternalServerError,
   buildInvalidAttributeError,
@@ -24,6 +19,11 @@ import {
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
+import {
+  serializeOrganization,
+  serializeOrganizations,
+} from "../serializers/organization-serializers";
+import { serializeParticipants } from "../serializers/participants-serializers";
 
 export const getOrganizationsValidationFailAction = (
   request: Request,
@@ -73,12 +73,7 @@ export const getOrganizationsRequestHandler =
 
     return h
       .response(
-        await buildOrganizationsSerializer(
-          apiSettings,
-          count,
-          pageNumber,
-          pageSize
-        ).serialize(rows)
+        serializeOrganizations(apiSettings, count, pageNumber, pageSize, rows)
       )
       .code(200);
   };
@@ -136,9 +131,7 @@ export const getOrganizationRequestHandler =
     }
 
     return h
-      .response(
-        await buildOrganizationSerializer(apiSettings).serialize(organization)
-      )
+      .response(serializeOrganization(apiSettings, organization))
       .code(200);
   };
 
@@ -159,9 +152,13 @@ export const getOrganizationParticipantRequestHandler =
     };
     try {
       getOrganizationParticipantRefsResponse =
-        await organizationParticipantRefsBroker.getOrganizationParticipantRefByOrganizationId(
+        await organizationParticipantRefsBroker.getOrganizationParticipantRefs(
           dbClient,
-          organizationId
+          0,
+          DEFAULT_PAGE_SIZE,
+          {
+            organizationId,
+          }
         );
     } catch (error) {
       console.error((error as Error).message);
@@ -196,12 +193,13 @@ export const getOrganizationParticipantRequestHandler =
         .code(500);
     }
 
-    return buildParticipantsSerializer(
+    return serializeParticipants(
       apiSettings,
       getParticipantsResponse.count,
       pageNumber,
-      pageSize
-    ).serialize(getParticipantsResponse.rows);
+      pageSize,
+      getParticipantsResponse.rows
+    );
   };
 
 export const postOrganizationValidationFailAction = (
@@ -265,12 +263,12 @@ export const postOrganizationRequestHandler =
         .code(400);
     }
 
-    let createdOrganization: Organization | undefined;
+    let createdOrganization: Organization;
     try {
-      createdOrganization = await organizationsBroker.createOrganization(
+      createdOrganization = (await organizationsBroker.createOrganization(
         dbClient,
         newOrganization
-      );
+      )) as Organization;
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -298,11 +296,7 @@ export const postOrganizationRequestHandler =
     );
 
     return h
-      .response(
-        await buildOrganizationSerializer(apiSettings).serialize(
-          createdOrganization
-        )
-      )
+      .response(serializeOrganization(apiSettings, createdOrganization))
       .header(
         "location",
         `${apiSettings.apiBaseUrl}/organizations/${createdOrganization?.id}`
@@ -324,9 +318,11 @@ export const postOrganizationParticipantsRequestHandler =
     try {
       await Promise.all(
         participantIds.map((participantId: string) => {
-          const newOrganizationParticipantRef = {
+          const newOrganizationParticipantRef: OrganizationParticipantRef = {
             participantId,
             organizationId,
+            isAdministrator: false,
+            isAuthorizedSigner: false,
           };
 
           console.log(

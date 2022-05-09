@@ -2,10 +2,6 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import {
-  buildBlockSerializer,
-  buildBlocksSerializer,
-} from "./serializer-builders";
-import {
   blocksBroker,
   DbClient,
   participantKeysBroker,
@@ -27,6 +23,10 @@ import {
   ParticipantKey,
   TransactionDetails,
 } from "@xilution/todd-coin-types";
+import {
+  serializeBlock,
+  serializeBlocks,
+} from "../serializers/block-serializers";
 
 export const getBlocksValidationFailAction = (
   request: Request,
@@ -72,14 +72,7 @@ export const getBlocksRequestHandler =
     const { count, rows } = response;
 
     return h
-      .response(
-        await buildBlocksSerializer(
-          apiSettings,
-          count,
-          pageNumber,
-          pageSize
-        ).serialize(rows)
-      )
+      .response(serializeBlocks(apiSettings, count, pageNumber, pageSize, rows))
       .code(200);
   };
 
@@ -130,9 +123,7 @@ export const getBlockRequestHandler =
         .code(404);
     }
 
-    return h
-      .response(await buildBlockSerializer(apiSettings).serialize(block))
-      .code(200);
+    return h.response(serializeBlock(apiSettings, block)).code(200);
   };
 
 export const postBlockValidationFailAction = (
@@ -204,13 +195,13 @@ export const postBlockRequestHandler =
 
     // todo - validate that the new block can be added to the chain
 
-    let createdBlock: Block | undefined;
+    let createdBlock: Block;
     try {
-      createdBlock = await blocksBroker.createBlock(
+      createdBlock = (await blocksBroker.createBlock(
         dbClient,
         newBlock,
         participantKey.public
-      );
+      )) as Block;
     } catch (error) {
       console.error((error as Error).message);
       return h
@@ -237,7 +228,7 @@ export const postBlockRequestHandler =
     );
 
     return h
-      .response(await buildBlockSerializer(apiSettings).serialize(createdBlock))
+      .response(serializeBlock(apiSettings, createdBlock))
       .header(
         "location",
         `${apiSettings.apiBaseUrl}/blocks/${createdBlock?.id}`

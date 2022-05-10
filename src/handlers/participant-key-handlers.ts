@@ -316,6 +316,7 @@ export const postParticipantKeyRequestHandler =
 
     let createdParticipantKey: ParticipantKey;
     try {
+      console.log(`newParticipantKey: ${JSON.stringify(newParticipantKey)}`);
       createdParticipantKey = (await participantKeysBroker.createParticipantKey(
         dbClient,
         participant as Participant,

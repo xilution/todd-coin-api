@@ -91,6 +91,7 @@ import {
   PREVIOUS_HASH_LABEL,
   PREVIOUS_PAGE_LINK_DESCRIPTION,
   PREVIOUS_PAGE_LINK_LABEL,
+  PRIVATE_KEY_LABEL,
   PUBLIC_KEY_LABEL,
   ROLES_LABEL,
   SELF_PAGE_LABEL,
@@ -122,6 +123,7 @@ import {
   HASH_REGEX,
   JWT_REGEX,
   PHONE_REGEX,
+  PRIVATE_KEY_REGEX,
   PUBLIC_KEY_REGEX,
   SIGNATURE_REGEX,
 } from "./regex";
@@ -138,6 +140,7 @@ import {
   PASSWORD_MAX,
   PASSWORD_MIN,
 } from "./constants";
+import dayjs from "dayjs";
 
 export const JSON_API_SCHEMA = Joi.object({
   version: Joi.string().valid(JSON_API_VERSION),
@@ -208,6 +211,10 @@ export const PUBLIC_KEY_SCHEMA = Joi.string()
   .regex(PUBLIC_KEY_REGEX)
   .label(PUBLIC_KEY_LABEL);
 
+export const PRIVATE_KEY_SCHEMA = Joi.string()
+  .regex(PRIVATE_KEY_REGEX)
+  .label(PRIVATE_KEY_LABEL);
+
 export const ID_SCHEMA = Joi.string()
   .guid()
   .example("9e1e3b0f-661d-4d45-9a29-3e53fa5453ec");
@@ -236,20 +243,26 @@ export const SIGNATURE_SCHEMA = Joi.string()
   .label(SIGNATURE_LABEL);
 
 export const EFFECTIVE_DATE_RANGE_SCHEMA = Joi.object({
-  from: Joi.date()
-    .iso()
+  from: Joi.string()
+    .isoDate()
     .description(ISO_8601_FORMAT_DESCRIPTION)
     .example("2022-05-01T15:52:52.395Z")
     .label(FROM_DATE_LABEL)
     .required(),
-  to: Joi.date()
-    .iso()
-    .min(Joi.ref("from"))
+  to: Joi.string()
+    .isoDate()
     .description(ISO_8601_FORMAT_DESCRIPTION)
     .example("2022-05-03T15:52:52.395Z")
     .label(TO_DATE_LABEL)
     .required(),
-}).label(EFFECTIVE_DATE_RANGE_LABEL);
+})
+  .custom((value: { from: string; to: string }) => {
+    if (dayjs(value.from).isAfter(value.to)) {
+      throw new Error("to must be after from");
+    }
+    return value;
+  })
+  .label(EFFECTIVE_DATE_RANGE_LABEL);
 
 // todo - add more constraints to geo location position input validation
 export const GEO_LOCATION_POSITION_SCHEMA = Joi.object({
@@ -434,6 +447,7 @@ export const CREATE_PARTICIPANT_KEY_SCHEMA = Joi.object({
   type: Joi.string().allow("participant-key").label(TYPE_LABEL).required(),
   attributes: Joi.object({
     public: PUBLIC_KEY_SCHEMA.required(),
+    private: PRIVATE_KEY_SCHEMA.required(),
     effective: EFFECTIVE_DATE_RANGE_SCHEMA.required(),
   })
     .unknown(false)

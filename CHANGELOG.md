@@ -1,3 +1,15 @@
+# [1.12.0](https://github.com/xilution/todd-coin-api/compare/v1.11.0...v1.12.0) (2022-05-10)
+
+
+### Bug Fixes
+
+* fixed effective date range validation ([4cabccb](https://github.com/xilution/todd-coin-api/commit/4cabccb6850ed7bde5cfa6166c83d7c1c9190c1e))
+
+
+### Features
+
+* moved todd-coin-types back to deps ([34eff47](https://github.com/xilution/todd-coin-api/commit/34eff476810107709b4d4d181c34de516b2016b3))
+
 # [1.11.0](https://github.com/xilution/todd-coin-api/compare/v1.10.0...v1.11.0) (2022-05-10)
 
 

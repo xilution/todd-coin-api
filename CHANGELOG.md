@@ -1,3 +1,40 @@
+# [1.11.0](https://github.com/xilution/todd-coin-api/compare/v1.10.0...v1.11.0) (2022-05-10)
+
+
+### Bug Fixes
+
+* fixed error response for post block when participant key is not found ([4c76229](https://github.com/xilution/todd-coin-api/commit/4c762299582855f8920eb0d4f36d5220450f17cf))
+* fixed logging ([a200523](https://github.com/xilution/todd-coin-api/commit/a200523977cbecdfe2bb8278cf5d42eb7aef6617))
+* improved a bad request error response ([cfd5f2d](https://github.com/xilution/todd-coin-api/commit/cfd5f2d7eba21a9ba574fc7c51f7a0c4543a16bd))
+* improved authentication instructions ([e756e35](https://github.com/xilution/todd-coin-api/commit/e756e35eeb3666d0d3c50f71facdb58d626be624))
+* improved bad request error when organization already exists ([9ab6b29](https://github.com/xilution/todd-coin-api/commit/9ab6b2927785e8f3711a2b85a711a349b31eba55))
+* improved error message when participant already exists ([9bc434d](https://github.com/xilution/todd-coin-api/commit/9bc434dc842173fe97a4ac39733ce682abecaa60))
+* improved logging ([8a73d07](https://github.com/xilution/todd-coin-api/commit/8a73d079e7a69b380daf1447a867d9a690a068d9))
+
+
+### Features
+
+* added logging ([f78f341](https://github.com/xilution/todd-coin-api/commit/f78f34116814fd0b34c572d2f43cfe425516e4ea))
+* added logging ([f0cf147](https://github.com/xilution/todd-coin-api/commit/f0cf1476261f7c0af7053329bb49103acbc82320))
+* added logging ([32796fd](https://github.com/xilution/todd-coin-api/commit/32796fd6da02f46a5acacdf9fdc19715ae45de55))
+* added logging ([93445d5](https://github.com/xilution/todd-coin-api/commit/93445d52aaa98f18b5259080e7610c511c9484a3))
+* added logging ([afb0369](https://github.com/xilution/todd-coin-api/commit/afb0369d44d2046ccf2339d0b67c741fc1893ece))
+* added logging when posting a block ([3417912](https://github.com/xilution/todd-coin-api/commit/3417912fef76f738b19155953945c9dff35a8230))
+* added logging when posting and updating a node ([00a398d](https://github.com/xilution/todd-coin-api/commit/00a398da019688a8520baa57233ea18387ced7e3))
+* bumped todd-coin-brokers version ([f6aed50](https://github.com/xilution/todd-coin-api/commit/f6aed5062fe92bf3850ef9da272323f67f4af228))
+* changed response serializer ([d5eb002](https://github.com/xilution/todd-coin-api/commit/d5eb002eaabb8992ea8758a247242dbe43a8dc31))
+* controlled for duplicate nodes ([8ceda0b](https://github.com/xilution/todd-coin-api/commit/8ceda0b48fbb0a8043b1454816b9062012385453))
+* logging authentication ([d1dc40c](https://github.com/xilution/todd-coin-api/commit/d1dc40c00527ab5d7e5c34c9d9b010c82b2a2c44))
+* removed private from create participant key validation ([7c8f452](https://github.com/xilution/todd-coin-api/commit/7c8f4524276bb83542ea4b0aaafeaff59dfe5b2e))
+* restricted create and update attributes ([c71721a](https://github.com/xilution/todd-coin-api/commit/c71721af25aa4a2f1c450effa51fff278e5b2196))
+* restricted duplicate participant keys ([56a108f](https://github.com/xilution/todd-coin-api/commit/56a108f30ed72523ffaf583bce90d93a89a81d52))
+* restricted who can create and update a participant keys ([1a36657](https://github.com/xilution/todd-coin-api/commit/1a366575c529a78dea6256bfbba4452b3bf04172))
+* restricted who can sign a transaction ([4bd084f](https://github.com/xilution/todd-coin-api/commit/4bd084f4696dca53ab870ddf52a6d8fe637ff319))
+* restricted who can update a participant ([3e0c063](https://github.com/xilution/todd-coin-api/commit/3e0c063a62af328d4ea4cf4e812762947dd9883d))
+* validated that from is greater than or equal-to to date ([a69b64f](https://github.com/xilution/todd-coin-api/commit/a69b64f770fa5087a1c195ae8e387d08076ba38c))
+* validated that the path id matches the request body id ([685ab29](https://github.com/xilution/todd-coin-api/commit/685ab29c9395bc34eff574b1ba19511dfdacc5a3))
+* validated to and from participants ([bd7e9d0](https://github.com/xilution/todd-coin-api/commit/bd7e9d0c842f0fa1f1e6b7401369520bcdba9b26))
+
 # [1.10.0](https://github.com/xilution/todd-coin-api/compare/v1.9.0...v1.10.0) (2022-05-07)
 
 

@@ -3,7 +3,6 @@ import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import {
   buildBadRequestError,
-  buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
   buildInvalidQueryError,
@@ -25,6 +24,7 @@ import {
   serializePendingTransaction,
   serializePendingTransactions,
 } from "../serializers/pending-transaction-serializers";
+import { return500 } from "./response-utils";
 
 export const getPendingTransactionsValidationFailAction = (
   request: Request,
@@ -73,12 +73,7 @@ export const getPendingTransactionsRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const { count, rows } = response;
@@ -127,12 +122,7 @@ export const getPendingTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (pendingTransaction === undefined) {
@@ -179,7 +169,7 @@ export const postPendingTransactionRequestHandler =
     };
 
     const fromParticipantId = (
-      payload.data.relationships.from.data as ApiData<Participant>
+      payload.data.relationships.fromParticipant.data as ApiData<Participant>
     ).id;
 
     let fromParticipant: Participant | undefined;
@@ -190,12 +180,7 @@ export const postPendingTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (fromParticipant === undefined) {
@@ -212,7 +197,7 @@ export const postPendingTransactionRequestHandler =
     }
 
     const toParticipantId = (
-      payload.data.relationships.to.data as ApiData<Participant>
+      payload.data.relationships.toParticipant.data as ApiData<Participant>
     ).id;
 
     let toParticipant: Participant | undefined;
@@ -223,12 +208,7 @@ export const postPendingTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (toParticipant === undefined) {
@@ -281,12 +261,7 @@ export const postPendingTransactionRequestHandler =
         )) as PendingTransaction<TransactionDetails>;
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     console.log(
@@ -365,12 +340,7 @@ export const patchPendingTransactionRequestHandler =
         );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (existingPendingTransaction === undefined) {
@@ -398,12 +368,7 @@ export const patchPendingTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (fromParticipant === undefined) {
@@ -431,12 +396,7 @@ export const patchPendingTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (toParticipant === undefined) {
@@ -485,12 +445,7 @@ export const patchPendingTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     console.log(
@@ -543,12 +498,7 @@ export const deletePendingTransactionRequestHandler =
         );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (existingPendingTransaction === undefined) {
@@ -570,12 +520,7 @@ export const deletePendingTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const authParticipant = request.auth.credentials.participant as Participant;

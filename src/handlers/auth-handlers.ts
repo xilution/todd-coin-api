@@ -2,7 +2,6 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import {
-  buildInternalServerError,
   buildInvalidAttributeError,
   buildUnauthorizedError,
 } from "./error-utils";
@@ -12,6 +11,7 @@ import { ApiSettings } from "../types";
 import { Participant } from "@xilution/todd-coin-types";
 import jwt from "jsonwebtoken";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
+import { return500 } from "./response-utils";
 
 export const authTokenValidationFailAction = (
   request: Request,
@@ -50,12 +50,7 @@ export const authTokenRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const participant: Participant | undefined =
@@ -86,12 +81,7 @@ export const authTokenRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     console.log(

@@ -13,7 +13,6 @@ import {
 import {
   buildBadRequestError,
   buildForbiddenError,
-  buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
   buildInvalidQueryError,
@@ -23,6 +22,7 @@ import {
   serializeSignedTransaction,
   serializeSignedTransactions,
 } from "../serializers/signed-transaction-serializers";
+import { return500 } from "./response-utils";
 
 export const getSignedTransactionsValidationFailAction = (
   request: Request,
@@ -63,12 +63,7 @@ export const getSignedTransactionsRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const { count, rows } = response;
@@ -117,12 +112,7 @@ export const getSignedTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (signedTransaction === undefined) {
@@ -186,12 +176,7 @@ export const postSignedTransactionRequestHandler =
         );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (existingPendingTransaction === undefined) {
@@ -231,12 +216,7 @@ export const postSignedTransactionRequestHandler =
         )) as SignedTransaction<TransactionDetails>;
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     // todo - when the number of signed transactions reaches a threshold, automatically mine a new block
@@ -317,12 +297,7 @@ export const patchSignedTransactionRequestHandler =
         );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (existingSignedTransaction === undefined) {
@@ -365,12 +340,7 @@ export const patchSignedTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     console.log(

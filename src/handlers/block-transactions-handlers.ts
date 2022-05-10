@@ -14,7 +14,6 @@ import {
   TransactionDetails,
 } from "@xilution/todd-coin-types";
 import {
-  buildInternalServerError,
   buildInvalidParameterError,
   buildInvalidQueryError,
   buildNofFountError,
@@ -23,6 +22,7 @@ import {
   serializeBlockTransaction,
   serializeBlockTransactions,
 } from "../serializers/block-transaction-serializers";
+import { return500 } from "./response-utils";
 
 export const getBlockTransactionsValidationFailAction = (
   request: Request,
@@ -61,12 +61,7 @@ export const getBlockTransactionsRequestHandler =
       block = await blocksBroker.getBlockById(dbClient, blockId, true);
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (block === undefined) {
@@ -93,12 +88,7 @@ export const getBlockTransactionsRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const { count, rows } = response;
@@ -146,12 +136,7 @@ export const getBlockTransactionRequestHandler =
       block = await blocksBroker.getBlockById(dbClient, blockId);
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (block === undefined) {
@@ -174,12 +159,7 @@ export const getBlockTransactionRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (blockTransaction === undefined) {

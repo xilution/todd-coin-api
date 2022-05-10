@@ -7,13 +7,13 @@ import { ApiData, ApiSettings } from "../types";
 import { Node, Participant } from "@xilution/todd-coin-types";
 import {
   buildBadRequestError,
-  buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
   buildInvalidQueryError,
   buildNofFountError,
 } from "./error-utils";
 import { serializeNode, serializeNodes } from "../serializers/node-serializers";
+import { return500 } from "./response-utils";
 
 export const getNodesValidationFailAction = (
   request: Request,
@@ -47,12 +47,7 @@ export const getNodesRequestHandler =
       response = await nodesBroker.getNodes(dbClient, pageNumber, pageSize);
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const { count, rows } = response;
@@ -90,12 +85,7 @@ export const getNodeRequestHandler =
       node = await nodesBroker.getNodeById(dbClient, nodeId);
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (node === undefined) {
@@ -154,12 +144,7 @@ export const postNodeRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (getNodesResponse.count !== 0) {
@@ -180,12 +165,7 @@ export const postNodeRequestHandler =
       createdNode = (await nodesBroker.createNode(dbClient, newNode)) as Node;
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     // todo - notify known nodes that a new node was added
@@ -254,12 +234,7 @@ export const patchNodeRequestHandler =
       existingNode = await nodesBroker.getNodeById(dbClient, nodeId);
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (existingNode === undefined) {
@@ -282,12 +257,7 @@ export const patchNodeRequestHandler =
       await nodesBroker.updateNode(dbClient, updatedNode);
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const authParticipant = request.auth.credentials.participant as Participant;

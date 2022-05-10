@@ -8,7 +8,6 @@ import {
 } from "@xilution/todd-coin-brokers";
 import {
   buildBadRequestError,
-  buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
   buildInvalidQueryError,
@@ -27,6 +26,7 @@ import {
   serializeBlock,
   serializeBlocks,
 } from "../serializers/block-serializers";
+import { return500 } from "./response-utils";
 
 export const getBlocksValidationFailAction = (
   request: Request,
@@ -61,12 +61,7 @@ export const getBlocksRequestHandler =
       response = await blocksBroker.getBlocks(dbClient, pageNumber, pageSize);
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const { count, rows } = response;
@@ -104,12 +99,7 @@ export const getBlockRequestHandler =
       block = await blocksBroker.getBlockById(dbClient, blockId);
     } catch (error) {
       console.error(error);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (block === undefined) {
@@ -204,12 +194,7 @@ export const postBlockRequestHandler =
       )) as Block;
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     // todo - notify known blocks that a new block was added

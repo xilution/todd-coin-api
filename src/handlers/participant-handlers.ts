@@ -15,7 +15,6 @@ import { hashUtils } from "@xilution/todd-coin-utils";
 import {
   buildBadRequestError,
   buildForbiddenError,
-  buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
   buildInvalidQueryError,
@@ -26,6 +25,7 @@ import {
   serializeParticipants,
 } from "../serializers/participants-serializers";
 import { serializeOrganizations } from "../serializers/organization-serializers";
+import { return500 } from "./response-utils";
 
 export const getParticipantsValidationFailAction = (
   request: Request,
@@ -63,12 +63,7 @@ export const getParticipantsRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const { count, rows } = response;
@@ -111,12 +106,7 @@ export const getParticipantRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (participant === undefined) {
@@ -162,12 +152,7 @@ export const getParticipantOrganizationRequestHandler =
         );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const organizationIds = getOrganizationParticipantRefsResponse.rows.map(
@@ -185,12 +170,7 @@ export const getParticipantOrganizationRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     return h
@@ -247,12 +227,7 @@ export const postParticipantRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (getParticipantsResponse.count !== 0) {
@@ -281,22 +256,12 @@ export const postParticipantRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (createdParticipant === undefined) {
       console.error(`unable to create a new participant`);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     // todo - notify known participants that a new participant was added
@@ -365,12 +330,7 @@ export const postParticipantOrganizationsRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     return h.response().code(204);
@@ -423,12 +383,7 @@ export const patchParticipantRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (existingParticipant === undefined) {
@@ -474,12 +429,7 @@ export const patchParticipantRequestHandler =
       });
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     console.log(

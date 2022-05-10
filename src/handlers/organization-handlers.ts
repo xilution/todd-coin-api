@@ -13,7 +13,6 @@ import { ApiData, ApiSettings } from "../types";
 import { Organization, Participant } from "@xilution/todd-coin-types";
 import {
   buildBadRequestError,
-  buildInternalServerError,
   buildInvalidAttributeError,
   buildInvalidParameterError,
   buildInvalidQueryError,
@@ -24,6 +23,7 @@ import {
   serializeOrganizations,
 } from "../serializers/organization-serializers";
 import { serializeParticipants } from "../serializers/participants-serializers";
+import { return500 } from "./response-utils";
 
 export const getOrganizationsValidationFailAction = (
   request: Request,
@@ -61,12 +61,7 @@ export const getOrganizationsRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const { count, rows } = response;
@@ -109,12 +104,7 @@ export const getOrganizationRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (organization === undefined) {
@@ -162,12 +152,7 @@ export const getOrganizationParticipantRequestHandler =
         );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const participantIds = getOrganizationParticipantRefsResponse.rows.map(
@@ -185,12 +170,7 @@ export const getOrganizationParticipantRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     return serializeParticipants(
@@ -242,12 +222,7 @@ export const postOrganizationRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (getOrganizationsResponse.count !== 0) {
@@ -271,12 +246,7 @@ export const postOrganizationRequestHandler =
       )) as Organization;
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     // todo - notify known organizations that a new organization was added
@@ -346,12 +316,7 @@ export const postOrganizationParticipantsRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     return h.response().code(204);
@@ -404,12 +369,7 @@ export const patchOrganizationRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     if (existingOrganization === undefined) {
@@ -437,12 +397,7 @@ export const patchOrganizationRequestHandler =
       );
     } catch (error) {
       console.error((error as Error).message);
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [buildInternalServerError()],
-        })
-        .code(500);
+      return return500(h);
     }
 
     const authParticipant = request.auth.credentials.participant as Participant;

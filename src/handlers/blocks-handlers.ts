@@ -46,6 +46,42 @@ export const getBlocksValidationFailAction = (
     .takeover();
 };
 
+export const getBlockValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const postBlockValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidAttributeError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
 export const getBlocksRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -70,24 +106,6 @@ export const getBlocksRequestHandler =
       .response(serializeBlocks(apiSettings, count, pageNumber, pageSize, rows))
       .code(200);
   };
-
-export const getBlockValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidParameterError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
 
 export const getBlockRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
@@ -115,24 +133,6 @@ export const getBlockRequestHandler =
 
     return h.response(serializeBlock(apiSettings, block)).code(200);
   };
-
-export const postBlockValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidAttributeError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
 
 export const postBlockRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>

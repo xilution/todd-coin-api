@@ -1,11 +1,20 @@
-import { DbClient, transactionsBroker } from "@xilution/todd-coin-brokers";
+import {
+  DbClient,
+  OrganizationParticipantRef,
+  organizationParticipantRefsBroker,
+  organizationsBroker,
+  participantKeysBroker,
+  transactionsBroker,
+} from "@xilution/todd-coin-brokers";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { ValidationError, ValidationErrorItem } from "joi";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import {
+  Organization,
   Participant,
+  ParticipantKey,
   PendingTransaction,
   SignedTransaction,
   TransactionDetails,
@@ -22,7 +31,9 @@ import {
   serializeSignedTransaction,
   serializeSignedTransactions,
 } from "../serializers/signed-transaction-serializers";
-import { return500 } from "./response-utils";
+import { return403, return404, return500 } from "./response-utils";
+import { keyUtils, transactionUtils } from "@xilution/todd-coin-utils";
+import { isSignedTransactionValid } from "@xilution/todd-coin-utils/dist/transaction-utils";
 
 export const getSignedTransactionsValidationFailAction = (
   request: Request,
@@ -37,6 +48,63 @@ export const getSignedTransactionsValidationFailAction = (
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const getSignedTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const postSignedTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidAttributeError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchSignedTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "signedTransactionId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
     })
     .code(validationError?.output.statusCode || 400)
     .takeover();
@@ -81,24 +149,6 @@ export const getSignedTransactionsRequestHandler =
       .code(200);
   };
 
-export const getSignedTransactionValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidParameterError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const getSignedTransactionRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -133,24 +183,6 @@ export const getSignedTransactionRequestHandler =
       .code(200);
   };
 
-export const postSignedTransactionValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidAttributeError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const postSignedTransactionRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -158,12 +190,31 @@ export const postSignedTransactionRequestHandler =
       data: ApiData<SignedTransaction<TransactionDetails>>;
     };
 
-    // todo - validate the crap out of this.
+    // todo - don't allow a signed transaction to be posted twice
 
-    const newSignedTransaction = {
-      id: payload.data.id,
-      ...payload.data.attributes,
-    } as SignedTransaction<TransactionDetails>;
+    const participantKeyId = (
+      payload.data.relationships.participantKey?.data as ApiData<ParticipantKey>
+    )?.id;
+
+    let participantKey: ParticipantKey | undefined;
+    try {
+      participantKey = await participantKeysBroker.getParticipantKeyById(
+        dbClient,
+        participantKeyId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return return500(h);
+    }
+
+    if (participantKey === undefined) {
+      return return404(
+        h,
+        `A ParticipantKey with id: ${participantKeyId} was not found.`
+      );
+    }
+
+    const existingPendingTransactionId: string = payload.data.id;
 
     let existingPendingTransaction:
       | PendingTransaction<TransactionDetails>
@@ -172,7 +223,7 @@ export const postSignedTransactionRequestHandler =
       existingPendingTransaction =
         await transactionsBroker.getPendingTransactionById(
           dbClient,
-          newSignedTransaction.id as string
+          existingPendingTransactionId
         );
     } catch (error) {
       console.error((error as Error).message);
@@ -180,31 +231,70 @@ export const postSignedTransactionRequestHandler =
     }
 
     if (existingPendingTransaction === undefined) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildNofFountError(
-              `A pending transaction with id: ${newSignedTransaction.id} was not found.`
-            ),
-          ],
-        })
-        .code(404);
+      return return404(
+        h,
+        `A pending transaction with id: ${existingPendingTransactionId} was not found.`
+      );
+    }
+
+    const newSignedTransaction = {
+      ...existingPendingTransaction,
+      goodPoints: payload.data.attributes.goodPoints,
+      signature: payload.data.attributes.signature,
+      participantKey,
+    } as SignedTransaction<TransactionDetails>;
+
+    if (!isSignedTransactionValid(newSignedTransaction)) {
+      return return403(
+        h,
+        `You are not authorized to create this signed transaction because the signature is not valid.`
+      );
     }
 
     const authParticipant = request.auth.credentials.participant as Participant;
 
-    if (existingPendingTransaction.fromParticipant?.id !== authParticipant.id) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildForbiddenError(
-              `Only the from participant can create a signed transaction.`
-            ),
-          ],
-        })
-        .code(403);
+    if (
+      existingPendingTransaction.fromParticipant &&
+      existingPendingTransaction.fromParticipant.id !== authParticipant.id
+    ) {
+      return return403(
+        h,
+        `You are not authorized to create this signed transaction because you are not the from participant on the source pending transaction.`
+      );
+    }
+
+    if (existingPendingTransaction.fromOrganization) {
+      let getOrganizationParticipantRefsResponse: { count: number };
+      try {
+        getOrganizationParticipantRefsResponse =
+          await organizationParticipantRefsBroker.getOrganizationParticipantRefs(
+            dbClient,
+            0,
+            DEFAULT_PAGE_SIZE,
+            {
+              organizationId: existingPendingTransaction.fromOrganization.id,
+              participantId: authParticipant.id,
+              isAuthorizedSigner: true,
+            }
+          );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (getOrganizationParticipantRefsResponse.count === 0) {
+        return return403(
+          h,
+          `You are not authorized to create this signed transaction because you are not an authorized signer for ${existingPendingTransaction.fromOrganization.name}.`
+        );
+      }
+    }
+
+    if (participantKey?.participant?.id !== authParticipant.id) {
+      return return403(
+        h,
+        `You are not authorized to create this signed transaction because you do not own the participant key.`
+      );
     }
 
     let createdSignedTransaction: SignedTransaction<TransactionDetails>;
@@ -218,8 +308,6 @@ export const postSignedTransactionRequestHandler =
       console.error((error as Error).message);
       return return500(h);
     }
-
-    // todo - when the number of signed transactions reaches a threshold, automatically mine a new block
 
     console.log(
       JSON.stringify({
@@ -245,27 +333,6 @@ export const postSignedTransactionRequestHandler =
       .code(201);
   };
 
-export const patchSignedTransactionValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
-        if (errorItem.context?.key === "signedTransactionId") {
-          return buildInvalidParameterError(errorItem);
-        }
-        return buildInvalidQueryError(errorItem);
-      }),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const patchSignedTransactionRequestHandler =
   (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
     const { signedTransactionId } = request.params;
@@ -284,6 +351,28 @@ export const patchSignedTransactionRequestHandler =
           ],
         })
         .code(400);
+    }
+
+    const participantKeyId = (
+      payload.data.relationships.participantKey?.data as ApiData<ParticipantKey>
+    )?.id;
+
+    let participantKey: ParticipantKey | undefined;
+    try {
+      participantKey = await participantKeysBroker.getParticipantKeyById(
+        dbClient,
+        participantKeyId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return return500(h);
+    }
+
+    if (participantKey === undefined) {
+      return return404(
+        h,
+        `A ParticipantKey with id: ${participantKeyId} was not found.`
+      );
     }
 
     let existingSignedTransaction:
@@ -313,25 +402,65 @@ export const patchSignedTransactionRequestHandler =
         .code(404);
     }
 
-    const authParticipant = request.auth.credentials.participant as Participant;
+    const updatedSignedTransaction: SignedTransaction<TransactionDetails> = {
+      ...existingSignedTransaction,
+      goodPoints: payload.data.attributes.goodPoints,
+      signature: payload.data.attributes.signature,
+      participantKey,
+    } as SignedTransaction<TransactionDetails>;
 
-    if (existingSignedTransaction.fromParticipant?.id !== authParticipant.id) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildForbiddenError(
-              `Only the from participant can update a signed transaction.`
-            ),
-          ],
-        })
-        .code(403);
+    if (!isSignedTransactionValid(updatedSignedTransaction)) {
+      return return403(
+        h,
+        `You are not authorized to create this signed transaction because the signature is not valid.`
+      );
     }
 
-    const updatedSignedTransaction: SignedTransaction<TransactionDetails> = {
-      id: signedTransactionId,
-      ...payload.data.attributes,
-    } as SignedTransaction<TransactionDetails>;
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    if (
+      existingSignedTransaction.fromParticipant &&
+      existingSignedTransaction.fromParticipant.id !== authParticipant.id
+    ) {
+      return return403(
+        h,
+        `You are not authorized to create this signed transaction because you are not the from participant on the source pending transaction.`
+      );
+    }
+
+    if (existingSignedTransaction.fromOrganization) {
+      let getOrganizationParticipantRefsResponse: { count: number };
+      try {
+        getOrganizationParticipantRefsResponse =
+          await organizationParticipantRefsBroker.getOrganizationParticipantRefs(
+            dbClient,
+            0,
+            DEFAULT_PAGE_SIZE,
+            {
+              organizationId: existingSignedTransaction.fromOrganization.id,
+              participantId: authParticipant.id,
+              isAuthorizedSigner: true,
+            }
+          );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (getOrganizationParticipantRefsResponse.count === 0) {
+        return return403(
+          h,
+          `You are not authorized to create this signed transaction because you are not an authorized signer for ${existingSignedTransaction.fromOrganization.name}.`
+        );
+      }
+    }
+
+    if (participantKey?.participant?.id !== authParticipant.id) {
+      return return403(
+        h,
+        `You are not authorized to create this signed transaction because you do not own the participant key.`
+      );
+    }
 
     try {
       await transactionsBroker.updateSignedTransaction(

@@ -44,6 +44,63 @@ export const getParticipantKeysValidationFailAction = (
     .takeover();
 };
 
+export const getParticipantKeyValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const postParticipantKeyValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidAttributeError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchParticipantKeyValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "participantKeyId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
 export const getParticipantKeysRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -108,24 +165,6 @@ export const getParticipantKeysRequestHandler =
       .code(200);
   };
 
-export const getParticipantKeyValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidParameterError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const getParticipantKeyRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -186,24 +225,6 @@ export const getParticipantKeyRequestHandler =
       .code(200);
   };
 
-export const postParticipantKeyValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidAttributeError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const postParticipantKeyRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -242,7 +263,7 @@ export const postParticipantKeyRequestHandler =
           jsonapi: { version: "1.0" },
           errors: [
             buildForbiddenError(
-              `You are not allowed to create a participant key for this participant.`
+              `You are not authorized to create a participant key for this participant.`
             ),
           ],
         })
@@ -321,27 +342,6 @@ export const postParticipantKeyRequestHandler =
       .code(201);
   };
 
-export const patchParticipantKeyValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
-        if (errorItem.context?.key === "participantKeyId") {
-          return buildInvalidParameterError(errorItem);
-        }
-        return buildInvalidQueryError(errorItem);
-      }),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const patchParticipantKeyRequestHandler =
   (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
     const { participantId, participantKeyId } = request.params;
@@ -417,7 +417,7 @@ export const patchParticipantKeyRequestHandler =
           jsonapi: { version: "1.0" },
           errors: [
             buildForbiddenError(
-              `You are not allowed to update this participant key for this participant.`
+              `You are not authorized to update this participant key for this participant.`
             ),
           ],
         })

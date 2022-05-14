@@ -12,8 +12,27 @@ import { Participant } from "@xilution/todd-coin-types";
 import jwt from "jsonwebtoken";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { return500 } from "./response-utils";
+import { serializeParticipant } from "../serializers/participants-serializers";
 
 export const authTokenValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidAttributeError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const authUserValidationFailAction = (
   request: Request,
   h: ResponseToolkit,
   error: Error | undefined
@@ -97,4 +116,14 @@ export const authTokenRequestHandler =
     return {
       access: accessToken,
     };
+  };
+
+export const authUserRequestHandler =
+  (dbClient: DbClient, apiSettings: ApiSettings) =>
+  async (request: Request, h: ResponseToolkit) => {
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    return h
+      .response(serializeParticipant(apiSettings, authParticipant))
+      .code(200);
   };

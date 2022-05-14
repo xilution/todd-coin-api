@@ -25,7 +25,7 @@ import {
   serializeParticipants,
 } from "../serializers/participants-serializers";
 import { serializeOrganizations } from "../serializers/organization-serializers";
-import { return500 } from "./response-utils";
+import { return404, return500 } from "./response-utils";
 
 export const getParticipantsValidationFailAction = (
   request: Request,
@@ -40,6 +40,81 @@ export const getParticipantsValidationFailAction = (
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
       ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const getParticipantValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const deleteParticipantOrganizationValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const postParticipantValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidAttributeError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchParticipantValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "participantId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
     })
     .code(validationError?.output.statusCode || 400)
     .takeover();
@@ -75,24 +150,6 @@ export const getParticipantsRequestHandler =
       .code(200);
   };
 
-export const getParticipantValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidParameterError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const getParticipantRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -124,85 +181,6 @@ export const getParticipantRequestHandler =
 
     return h.response(serializeParticipant(apiSettings, participant)).code(200);
   };
-
-export const getParticipantOrganizationRequestHandler =
-  (dbClient: DbClient, apiSettings: ApiSettings) =>
-  async (request: Request, h: ResponseToolkit) => {
-    const { participantId } = request.params;
-
-    const pageNumber: number =
-      Number(request.query["page[number]"]) || FIRST_PAGE;
-
-    const pageSize: number =
-      Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
-
-    let getOrganizationParticipantRefsResponse: {
-      count: number;
-      rows: OrganizationParticipantRef[];
-    };
-    try {
-      getOrganizationParticipantRefsResponse =
-        await organizationParticipantRefsBroker.getOrganizationParticipantRefs(
-          dbClient,
-          0,
-          DEFAULT_PAGE_SIZE,
-          {
-            participantId,
-          }
-        );
-    } catch (error) {
-      console.error((error as Error).message);
-      return return500(h);
-    }
-
-    const organizationIds = getOrganizationParticipantRefsResponse.rows.map(
-      (organizationParticipantRef: OrganizationParticipantRef) =>
-        organizationParticipantRef.organizationId
-    );
-
-    let getOrganizationsResponse: { count: number; rows: Organization[] };
-    try {
-      getOrganizationsResponse = await organizationsBroker.getOrganizations(
-        dbClient,
-        pageNumber,
-        pageSize,
-        { ids: organizationIds }
-      );
-    } catch (error) {
-      console.error((error as Error).message);
-      return return500(h);
-    }
-
-    return h
-      .response(
-        serializeOrganizations(
-          apiSettings,
-          getOrganizationsResponse.count,
-          pageNumber,
-          pageSize,
-          getOrganizationsResponse.rows
-        )
-      )
-      .code(200);
-  };
-
-export const postParticipantValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidAttributeError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
 
 export const postParticipantRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
@@ -288,75 +266,6 @@ export const postParticipantRequestHandler =
       .code(201);
   };
 
-export const postParticipantOrganizationsRequestHandler =
-  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
-    const payload = request.payload as { data: ApiData<Organization>[] };
-    const { participantId } = request.params;
-
-    const organizationIds = payload.data.map(
-      (apiData: ApiData<Organization>) => apiData.id
-    );
-
-    const authParticipant = request.auth.credentials.participant as Participant;
-
-    try {
-      await Promise.all(
-        organizationIds.map((organizationId: string) => {
-          const newOrganizationParticipantRef: OrganizationParticipantRef = {
-            participantId,
-            organizationId,
-            isAdministrator: false,
-            isAuthorizedSigner: false,
-          };
-
-          console.log(
-            JSON.stringify({
-              date: new Date().toISOString(),
-              authParticipantEmail: authParticipant.email,
-              authParticipantId: authParticipant.id,
-              action: "post-participant-organization-reference",
-              result: "success",
-              details: {
-                is: newOrganizationParticipantRef,
-              },
-            })
-          );
-
-          return organizationParticipantRefsBroker.createOrganizationParticipantRef(
-            dbClient,
-            newOrganizationParticipantRef
-          );
-        })
-      );
-    } catch (error) {
-      console.error((error as Error).message);
-      return return500(h);
-    }
-
-    return h.response().code(204);
-  };
-
-export const patchParticipantValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
-        if (errorItem.context?.key === "participantId") {
-          return buildInvalidParameterError(errorItem);
-        }
-        return buildInvalidQueryError(errorItem);
-      }),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const patchParticipantRequestHandler =
   (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
     const { participantId } = request.params;
@@ -407,7 +316,7 @@ export const patchParticipantRequestHandler =
           jsonapi: { version: "1.0" },
           errors: [
             buildForbiddenError(
-              `You are not allowed to update this participant.`
+              `You are not authorized to update this participant.`
             ),
           ],
         })
@@ -420,7 +329,6 @@ export const patchParticipantRequestHandler =
     } as Participant;
 
     try {
-      // todo - what if the user is changing their email or password?
       await participantsBroker.updateParticipant(dbClient, {
         ...updatedParticipant,
         password: updatedParticipant.password
@@ -445,6 +353,204 @@ export const patchParticipantRequestHandler =
         },
       })
     );
+
+    return h.response().code(204);
+  };
+
+export const deleteParticipantOrganizationRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const { organizationId, participantId } = request.params;
+
+    let organization: Organization | undefined;
+    try {
+      organization = await organizationsBroker.getOrganizationById(
+        dbClient,
+        organizationId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return return500(h);
+    }
+
+    if (organization === undefined) {
+      return return404(
+        h,
+        `A organization with id: ${organizationId} was not found.`
+      );
+    }
+
+    let participant: Participant | undefined;
+    try {
+      participant = await participantsBroker.getParticipantById(
+        dbClient,
+        participantId
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return return500(h);
+    }
+
+    if (participant === undefined) {
+      return return404(
+        h,
+        `A participant with id: ${participantId} was not found.`
+      );
+    }
+
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    // todo - validate that that the auth user can do this. probably should be an org administrator.
+
+    try {
+      const { rows } =
+        await organizationParticipantRefsBroker.getOrganizationParticipantRefs(
+          dbClient,
+          0,
+          DEFAULT_PAGE_SIZE,
+          {
+            organizationId: organization?.id,
+            participantId,
+          }
+        );
+
+      await Promise.all(
+        rows.map(
+          async (organizationParticipantRef: OrganizationParticipantRef) => {
+            await organizationParticipantRefsBroker.deleteOrganizationParticipantRef(
+              dbClient,
+              organizationParticipantRef
+            );
+
+            console.log(
+              JSON.stringify({
+                date: new Date().toISOString(),
+                authParticipantEmail: authParticipant.email,
+                authParticipantId: authParticipant.id,
+                action: "delete-organization-participant-reference",
+                result: "success",
+                details: {
+                  was: organizationParticipantRef,
+                },
+              })
+            );
+
+            return;
+          }
+        )
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return return500(h);
+    }
+
+    return h.response().code(204);
+  };
+
+export const getParticipantOrganizationRequestHandler =
+  (dbClient: DbClient, apiSettings: ApiSettings) =>
+  async (request: Request, h: ResponseToolkit) => {
+    const { participantId } = request.params;
+
+    const pageNumber: number =
+      Number(request.query["page[number]"]) || FIRST_PAGE;
+
+    const pageSize: number =
+      Number(request.query["page[size]"]) || DEFAULT_PAGE_SIZE;
+
+    let getOrganizationParticipantRefsResponse: {
+      count: number;
+      rows: OrganizationParticipantRef[];
+    };
+    try {
+      getOrganizationParticipantRefsResponse =
+        await organizationParticipantRefsBroker.getOrganizationParticipantRefs(
+          dbClient,
+          0,
+          DEFAULT_PAGE_SIZE,
+          {
+            participantId,
+          }
+        );
+    } catch (error) {
+      console.error((error as Error).message);
+      return return500(h);
+    }
+
+    const organizationIds = getOrganizationParticipantRefsResponse.rows.map(
+      (organizationParticipantRef: OrganizationParticipantRef) =>
+        organizationParticipantRef.organizationId
+    );
+
+    let getOrganizationsResponse: { count: number; rows: Organization[] };
+    try {
+      getOrganizationsResponse = await organizationsBroker.getOrganizations(
+        dbClient,
+        pageNumber,
+        pageSize,
+        { ids: organizationIds }
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return return500(h);
+    }
+
+    return h
+      .response(
+        serializeOrganizations(
+          apiSettings,
+          getOrganizationsResponse.count,
+          pageNumber,
+          pageSize,
+          getOrganizationsResponse.rows
+        )
+      )
+      .code(200);
+  };
+
+export const postParticipantOrganizationsRequestHandler =
+  (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
+    const payload = request.payload as { data: ApiData<Organization>[] };
+    const { participantId } = request.params;
+
+    const organizationIds = payload.data.map(
+      (apiData: ApiData<Organization>) => apiData.id
+    );
+
+    const authParticipant = request.auth.credentials.participant as Participant;
+
+    try {
+      await Promise.all(
+        organizationIds.map((organizationId: string) => {
+          const newOrganizationParticipantRef: OrganizationParticipantRef = {
+            participantId,
+            organizationId,
+            isAdministrator: false,
+            isAuthorizedSigner: false,
+          };
+
+          console.log(
+            JSON.stringify({
+              date: new Date().toISOString(),
+              authParticipantEmail: authParticipant.email,
+              authParticipantId: authParticipant.id,
+              action: "post-participant-organization-reference",
+              result: "success",
+              details: {
+                is: newOrganizationParticipantRef,
+              },
+            })
+          );
+
+          return organizationParticipantRefsBroker.createOrganizationParticipantRef(
+            dbClient,
+            newOrganizationParticipantRef
+          );
+        })
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+      return return500(h);
+    }
 
     return h.response().code(204);
   };

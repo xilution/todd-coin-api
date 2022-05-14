@@ -33,6 +33,63 @@ export const getNodesValidationFailAction = (
     .takeover();
 };
 
+export const getNodeValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const postNodeValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidAttributeError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchNodeValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "nodeId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
 export const getNodesRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -56,24 +113,6 @@ export const getNodesRequestHandler =
       .response(serializeNodes(apiSettings, count, pageNumber, pageSize, rows))
       .code(200);
   };
-
-export const getNodeValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidParameterError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
 
 export const getNodeRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
@@ -101,24 +140,6 @@ export const getNodeRequestHandler =
 
     return h.response(serializeNode(apiSettings, node)).code(200);
   };
-
-export const postNodeValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidAttributeError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
 
 export const postNodeRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
@@ -189,27 +210,6 @@ export const postNodeRequestHandler =
       .header("location", `${apiSettings.apiBaseUrl}/nodes/${createdNode?.id}`)
       .code(201);
   };
-
-export const patchNodeValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
-        if (errorItem.context?.key === "nodeId") {
-          return buildInvalidParameterError(errorItem);
-        }
-        return buildInvalidQueryError(errorItem);
-      }),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
 
 export const patchNodeRequestHandler =
   (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {

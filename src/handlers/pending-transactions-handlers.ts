@@ -10,12 +10,14 @@ import {
 } from "./error-utils";
 import {
   DbClient,
+  organizationsBroker,
   participantsBroker,
   transactionsBroker,
 } from "@xilution/todd-coin-brokers";
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from "@xilution/todd-coin-constants";
 import { ApiData, ApiSettings } from "../types";
 import {
+  Organization,
   Participant,
   PendingTransaction,
   TransactionDetails,
@@ -24,7 +26,7 @@ import {
   serializePendingTransaction,
   serializePendingTransactions,
 } from "../serializers/pending-transaction-serializers";
-import { return500 } from "./response-utils";
+import { return400, return404, return500 } from "./response-utils";
 
 export const getPendingTransactionsValidationFailAction = (
   request: Request,
@@ -38,6 +40,81 @@ export const getPendingTransactionsValidationFailAction = (
       jsonapi: { version: "1.0" },
       errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
         buildInvalidQueryError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const getPendingTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const postPendingTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidAttributeError(errorItem)
+      ),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const patchPendingTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
+        if (errorItem.context?.key === "pendingTransactionId") {
+          return buildInvalidParameterError(errorItem);
+        }
+        return buildInvalidQueryError(errorItem);
+      }),
+    })
+    .code(validationError?.output.statusCode || 400)
+    .takeover();
+};
+
+export const deletePendingTransactionValidationFailAction = (
+  request: Request,
+  h: ResponseToolkit,
+  error: Error | undefined
+) => {
+  const validationError = error as Boom.Boom & ValidationError;
+
+  return h
+    .response({
+      jsonapi: { version: "1.0" },
+      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
+        buildInvalidParameterError(errorItem)
       ),
     })
     .code(validationError?.output.statusCode || 400)
@@ -91,24 +168,6 @@ export const getPendingTransactionsRequestHandler =
       .code(200);
   };
 
-export const getPendingTransactionValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidParameterError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const getPendingTransactionRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -143,24 +202,6 @@ export const getPendingTransactionRequestHandler =
       .code(200);
   };
 
-export const postPendingTransactionValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidAttributeError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const postPendingTransactionRequestHandler =
   (dbClient: DbClient, apiSettings: ApiSettings) =>
   async (request: Request, h: ResponseToolkit) => {
@@ -169,84 +210,128 @@ export const postPendingTransactionRequestHandler =
     };
 
     const fromParticipantId = (
-      payload.data.relationships.fromParticipant.data as ApiData<Participant>
-    ).id;
+      payload.data.relationships.fromParticipant?.data as ApiData<Participant>
+    )?.id;
 
     let fromParticipant: Participant | undefined;
-    try {
-      fromParticipant = await participantsBroker.getParticipantById(
-        dbClient,
-        fromParticipantId
-      );
-    } catch (error) {
-      console.error((error as Error).message);
-      return return500(h);
+    if (fromParticipantId !== undefined) {
+      try {
+        fromParticipant = await participantsBroker.getParticipantById(
+          dbClient,
+          fromParticipantId
+        );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (fromParticipant === undefined) {
+        return return404(
+          h,
+          `A participant with id: ${fromParticipantId} was not found.`
+        );
+      }
     }
 
-    if (fromParticipant === undefined) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildNofFountError(
-              `A participant with id: ${fromParticipantId} was not found.`
-            ),
-          ],
-        })
-        .code(404);
+    const fromOrganizationId = (
+      payload.data.relationships.fromOrganization?.data as ApiData<Organization>
+    )?.id;
+
+    let fromOrganization: Organization | undefined;
+    if (fromOrganizationId !== undefined) {
+      try {
+        fromOrganization = await organizationsBroker.getOrganizationById(
+          dbClient,
+          fromOrganizationId
+        );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (fromOrganization === undefined) {
+        return return404(
+          h,
+          `A organization with id: ${fromOrganizationId} was not found.`
+        );
+      }
     }
 
     const toParticipantId = (
-      payload.data.relationships.toParticipant.data as ApiData<Participant>
-    ).id;
+      payload.data.relationships.toParticipant?.data as ApiData<Participant>
+    )?.id;
 
     let toParticipant: Participant | undefined;
-    try {
-      toParticipant = await participantsBroker.getParticipantById(
-        dbClient,
-        toParticipantId
-      );
-    } catch (error) {
-      console.error((error as Error).message);
-      return return500(h);
+    if (toParticipantId !== undefined) {
+      try {
+        toParticipant = await participantsBroker.getParticipantById(
+          dbClient,
+          toParticipantId
+        );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (toParticipant === undefined) {
+        return return404(
+          h,
+          `A participant with id: ${toParticipantId} was not found.`
+        );
+      }
     }
 
-    if (toParticipant === undefined) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildNofFountError(
-              `A participant with id: ${toParticipantId} was not found.`
-            ),
-          ],
-        })
-        .code(404);
+    const toOrganizationId = (
+      payload.data.relationships.toOrganization?.data as ApiData<Organization>
+    )?.id;
+
+    let toOrganization: Organization | undefined;
+    if (toOrganizationId !== undefined) {
+      try {
+        toOrganization = await organizationsBroker.getOrganizationById(
+          dbClient,
+          toOrganizationId
+        );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (toOrganization === undefined) {
+        return return404(
+          h,
+          `A organization with id: ${toOrganizationId} was not found.`
+        );
+      }
     }
+
+    // todo - don't allow a participant to create transaction for themselves
+    // todo - if the fromOrganization is defined, validate that the fromParticipant is associated with the fromOrganization
+    // todo - if the toOrganization is defined, validate that the toParticipant is associated with the toOrganization
 
     const authParticipant = request.auth.credentials.participant as Participant;
 
-    if (toParticipant.id !== authParticipant.id) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildBadRequestError(
-              `The to participant must be the same as the authenticated participant.`
-            ),
-          ],
-        })
-        .code(400);
+    if (toParticipant?.id !== authParticipant.id) {
+      return return404(
+        h,
+        `The to participant must be the same as the authenticated participant.`
+      );
     }
 
     const newPendingTransaction = {
       id: payload.data.id,
       ...payload.data.attributes,
-      from: {
-        id: fromParticipantId,
+      fromParticipant: {
+        id: fromParticipant?.id,
       },
-      to: {
-        id: toParticipantId,
+      fromOrganization: {
+        id: fromOrganization?.id,
+      },
+      toParticipant: {
+        id: toParticipant?.id,
+      },
+      toOrganization: {
+        id: toOrganization?.id,
       },
     } as PendingTransaction<TransactionDetails>;
 
@@ -288,27 +373,6 @@ export const postPendingTransactionRequestHandler =
       .code(201);
   };
 
-export const patchPendingTransactionValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) => {
-        if (errorItem.context?.key === "pendingTransactionId") {
-          return buildInvalidParameterError(errorItem);
-        }
-        return buildInvalidQueryError(errorItem);
-      }),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
-
 export const patchPendingTransactionRequestHandler =
   (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {
     const { pendingTransactionId } = request.params;
@@ -317,16 +381,10 @@ export const patchPendingTransactionRequestHandler =
     };
 
     if (payload.data.id !== pendingTransactionId) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildBadRequestError(
-              `The path pendingTransaction ID does not match the request body pendingTransaction ID.`
-            ),
-          ],
-        })
-        .code(400);
+      return return400(
+        h,
+        `The path pendingTransaction ID does not match the request body pendingTransaction ID.`
+      );
     }
 
     let existingPendingTransaction:
@@ -344,77 +402,115 @@ export const patchPendingTransactionRequestHandler =
     }
 
     if (existingPendingTransaction === undefined) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildNofFountError(
-              `A pendingTransaction with id: ${pendingTransactionId} was not found.`
-            ),
-          ],
-        })
-        .code(404);
+      return return404(
+        h,
+        `A pendingTransaction with id: ${pendingTransactionId} was not found.`
+      );
     }
 
     const fromParticipantId = (
-      payload.data.relationships.from.data as ApiData<Participant>
-    ).id;
+      payload.data.relationships.fromParticipant?.data as ApiData<Participant>
+    )?.id;
 
     let fromParticipant: Participant | undefined;
-    try {
-      fromParticipant = await participantsBroker.getParticipantById(
-        dbClient,
-        fromParticipantId
-      );
-    } catch (error) {
-      console.error((error as Error).message);
-      return return500(h);
+    if (fromParticipantId !== undefined) {
+      try {
+        fromParticipant = await participantsBroker.getParticipantById(
+          dbClient,
+          fromParticipantId
+        );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (fromParticipant === undefined) {
+        return return404(
+          h,
+          `A participant with id: ${fromParticipantId} was not found.`
+        );
+      }
     }
 
-    if (fromParticipant === undefined) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildNofFountError(
-              `A participant with id: ${fromParticipantId} was not found.`
-            ),
-          ],
-        })
-        .code(404);
+    const fromOrganizationId = (
+      payload.data.relationships.fromOrganization?.data as ApiData<Organization>
+    )?.id;
+
+    let fromOrganization: Organization | undefined;
+    if (fromOrganizationId !== undefined) {
+      try {
+        fromOrganization = await organizationsBroker.getOrganizationById(
+          dbClient,
+          fromOrganizationId
+        );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (fromOrganization === undefined) {
+        return return404(
+          h,
+          `A organization with id: ${fromOrganizationId} was not found.`
+        );
+      }
     }
 
     const toParticipantId = (
-      payload.data.relationships.to.data as ApiData<Participant>
-    ).id;
+      payload.data.relationships.toParticipant?.data as ApiData<Participant>
+    )?.id;
 
     let toParticipant: Participant | undefined;
-    try {
-      toParticipant = await participantsBroker.getParticipantById(
-        dbClient,
-        toParticipantId
-      );
-    } catch (error) {
-      console.error((error as Error).message);
-      return return500(h);
+    if (toParticipantId !== undefined) {
+      try {
+        toParticipant = await participantsBroker.getParticipantById(
+          dbClient,
+          toParticipantId
+        );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (toParticipant === undefined) {
+        return return404(
+          h,
+          `A participant with id: ${toParticipantId} was not found.`
+        );
+      }
     }
 
-    if (toParticipant === undefined) {
-      return h
-        .response({
-          jsonapi: { version: "1.0" },
-          errors: [
-            buildNofFountError(
-              `A participant with id: ${toParticipantId} was not found.`
-            ),
-          ],
-        })
-        .code(404);
+    const toOrganizationId = (
+      payload.data.relationships.toOrganization?.data as ApiData<Organization>
+    )?.id;
+
+    let toOrganization: Organization | undefined;
+    if (toOrganizationId !== undefined) {
+      try {
+        toOrganization = await organizationsBroker.getOrganizationById(
+          dbClient,
+          toOrganizationId
+        );
+      } catch (error) {
+        console.error((error as Error).message);
+        return return500(h);
+      }
+
+      if (toOrganization === undefined) {
+        return return404(
+          h,
+          `A organization with id: ${toOrganizationId} was not found.`
+        );
+      }
     }
+
+    // todo - don't allow a participant to update a transaction to themselves
+    // todo - if the fromOrganization is defined, validate that the fromParticipant is associated with the fromOrganization
+    // todo - if the toOrganization is defined, validate that the toParticipant is associated with the toOrganization
 
     const authParticipant = request.auth.credentials.participant as Participant;
 
-    if (toParticipant.id !== authParticipant.id) {
+    if (toParticipant?.id !== authParticipant.id) {
       return h
         .response({
           jsonapi: { version: "1.0" },
@@ -430,11 +526,17 @@ export const patchPendingTransactionRequestHandler =
     const updatedPendingTransaction: PendingTransaction<TransactionDetails> = {
       id: pendingTransactionId,
       ...payload.data.attributes,
-      from: {
-        id: fromParticipantId,
+      fromParticipant: {
+        id: fromParticipant?.id,
       },
-      to: {
-        id: toParticipantId,
+      fromOrganization: {
+        id: fromOrganization?.id,
+      },
+      toParticipant: {
+        id: toParticipant?.id,
+      },
+      toOrganization: {
+        id: toOrganization?.id,
       },
     } as PendingTransaction<TransactionDetails>;
 
@@ -464,24 +566,6 @@ export const patchPendingTransactionRequestHandler =
 
     return h.response().code(204);
   };
-
-export const deletePendingTransactionValidationFailAction = (
-  request: Request,
-  h: ResponseToolkit,
-  error: Error | undefined
-) => {
-  const validationError = error as Boom.Boom & ValidationError;
-
-  return h
-    .response({
-      jsonapi: { version: "1.0" },
-      errors: validationError?.details.map((errorItem: ValidationErrorItem) =>
-        buildInvalidParameterError(errorItem)
-      ),
-    })
-    .code(validationError?.output.statusCode || 400)
-    .takeover();
-};
 
 export const deletePendingTransactionRequestHandler =
   (dbClient: DbClient) => async (request: Request, h: ResponseToolkit) => {

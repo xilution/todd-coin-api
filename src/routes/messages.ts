@@ -1,6 +1,8 @@
 export const TODD_COIN_DESCRIPTION =
   "I'm a Todd Coin Cryptocurrency Node. Todd Coin is a Cryptocurrency for Good.";
 export const AUTH_TOKEN_DESCRIPTION = "Used to get a Todd Coin access token.";
+export const AUTH_USER_DESCRIPTION =
+  "Used to get information about the authenticated Todd Coin participant.";
 export const GET_BLOCK_TRANSACTIONS_DESCRIPTION =
   "Used to get Todd Coin block transaction records.";
 export const GET_BLOCK_TRANSACTION_DESCRIPTION =
@@ -24,6 +26,20 @@ export const GET_ORGANIZATION_PARTICIPANTS_DESCRIPTIONS =
   "Used to get the Todd Coin participants associated with a Todd Coin organization.";
 export const POST_ORGANIZATION_PARTICIPANTS_DESCRIPTIONS =
   "Used to associate a Todd Coin participant with a Todd Coin organization.";
+export const DELETE_ORGANIZATION_PARTICIPANT_DESCRIPTIONS =
+  "Used to delete a Todd Coin organization/participant association.";
+export const GET_ORGANIZATION_AUTHORIZED_SIGNERS_DESCRIPTIONS =
+  "Used to get the Todd Coin authorized signers associated with a Todd Coin organization. An authorized signer is a participant whom is authorized to sign transactions on behalf of an organization.";
+export const POST_ORGANIZATION_AUTHORIZED_SIGNERS_DESCRIPTIONS =
+  "Used to associate a Todd Coin authorized signer with a Todd Coin organization. An authorized signer is a participant whom is authorized to sign transactions on behalf of an organization.";
+export const DELETE_ORGANIZATION_AUTHORIZED_SIGNER_DESCRIPTIONS =
+  "Used to delete a Todd Coin organization/authorized signer association. An authorized signer is a participant whom is authorized to sign transactions on behalf of an organization.";
+export const GET_ORGANIZATION_ADMINISTRATORS_DESCRIPTIONS =
+  "Used to get the Todd Coin administrators associated with a Todd Coin organization. An administrator is a participant whom is authorized to sign transactions on behalf of an organization.";
+export const POST_ORGANIZATION_ADMINISTRATORS_DESCRIPTIONS =
+  "Used to associate a Todd Coin administrator with a Todd Coin organization. An administrator is a participant whom is authorized to sign transactions on behalf of an organization.";
+export const DELETE_ORGANIZATION_ADMINISTRATOR_DESCRIPTIONS =
+  "Used to delete a Todd Coin organization/administrator association. An administrator is a participant whom is authorized to sign transactions on behalf of an organization.";
 export const GET_PARTICIPANT_KEYS_DESCRIPTION =
   "Used to get Todd Coin participant key records.";
 export const GET_PARTICIPANT_KEY_DESCRIPTION =
@@ -40,10 +56,12 @@ export const POST_PARTICIPANT_DESCRIPTION =
   "Used to create a Todd Coin participant record.";
 export const PATCH_PARTICIPANT_DESCRIPTION =
   "Used to update a Todd Coin participant record.";
-export const GET_PARTICIPANTS_ORGANIZATION_DESCRIPTIONS =
+export const GET_PARTICIPANT_ORGANIZATIONS_DESCRIPTIONS =
   "Used to get the Todd Coin organizations associated with a Todd Coin participant.";
 export const POST_PARTICIPANTS_ORGANIZATION_DESCRIPTIONS =
   "Used to associate a Todd Coin organization with a Todd Coin participant.";
+export const DELETE_PARTICIPANT_ORGANIZATION_DESCRIPTIONS =
+  "Used to delete a Todd Coin participant/organization association.";
 export const GET_PENDING_TRANSACTIONS_DESCRIPTION =
   "Used to get Todd Coin pending transaction records.";
 export const GET_PENDING_TRANSACTION_DESCRIPTION =
@@ -188,6 +206,7 @@ export const LAST_NAME_LABEL = "Last Name";
 export const PHONE_NUMBER_LABEL = "Phone Number";
 export const PARTICIPANT_ROLE_TYPES_LABEL = "Participant Role Types";
 export const ROLES_LABEL = "Roles";
+export const DOMAINS_LABEL = "Domains";
 export const PARTICIPANT_ATTRIBUTES_LABEL = "Participant Attributes";
 export const PARTICIPANT_DATA_LABEL = "Participant Data";
 export const EFFECTIVE_LABEL = "Effective";
@@ -198,6 +217,7 @@ export const NODE_ATTRIBUTES_LABEL = "Node Attributes";
 export const NODE_DATA_LABEL = "Node Data";
 export const ORGANIZATION_NAME_LABEL = "Organization Name";
 export const ORGANIZATION_ROLE_TYPES_LABEL = "Organization Role Types";
+export const ORGANIZATION_DOMAINS_LABEL = "Organization Domains";
 export const ORGANIZATION_ATTRIBUTES_LABEL = "Organization Attributes";
 export const CREATE_ORGANIZATION_LABEL = "Create Organization Data";
 export const UPDATE_ORGANIZATION_LABEL = "Update Organization Data";
@@ -280,6 +300,10 @@ export const POST_ORGANIZATION_REQUEST_LABEL = "Post Organization Request";
 export const PATCH_ORGANIZATION_REQUEST_LABEL = "Patch Organization Request";
 export const POST_ORGANIZATION_PARTICIPANT_REF_REQUEST_LABEL =
   "Post Organization/Participant Reference Request";
+export const POST_ORGANIZATION_AUTHORIZED_SIGNER_REF_REQUEST_LABEL =
+  "Post Organization/Authorized Signer Reference Request";
+export const POST_ORGANIZATION_ADMINISTRATOR_REF_REQUEST_LABEL =
+  "Post Organization/Administrator Reference Request";
 export const POST_PARTICIPANT_ORGANIZATION_REF_REQUEST_LABEL =
   "Post Participant/Organization Reference Request";
 export const POINTER_LABEL = "Pointer";
@@ -331,3 +355,8 @@ export const SIGNED_TRANSACTIONS_RELATIONSHIPS_LABEL =
 export const BLOCK_TRANSACTIONS_RELATIONSHIPS_LABEL =
   "Signed Transaction Relationships";
 export const ORGANIZATION_DATA_LABEL = "Organization Data";
+export const AUTHORIZED_SIGNERS_DATA = "Authorized Signers Data";
+export const RELATED_LABEL = "Related";
+export const LINKS_LABEL = "Links";
+export const AUTHORIZED_SIGNERS_LABEL = "Authorized Signers";
+export const ADMINISTRATORS_LABEL = "Administrators";

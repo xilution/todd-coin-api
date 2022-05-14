@@ -41,7 +41,7 @@
     "@hapi/inert": "^6.0.5",
     "@hapi/vision": "^6.1.0",
     "@promster/hapi": "^8.0.5",
-    "@xilution/todd-coin-brokers": "^5.3.0",
+    "@xilution/todd-coin-brokers": "^5.5.0",
     "@xilution/todd-coin-constants": "^2.1.0",
     "@xilution/todd-coin-types": "^4.0.0",
     "@xilution/todd-coin-utils": "^7.3.0",

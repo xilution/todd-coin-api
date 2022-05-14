@@ -17,14 +17,8 @@ import { createPlugin, signalIsUp } from "@promster/hapi";
 // todo - write a regression test suite
 // todo - set up slack channel
 // todo - set up a landing page with how to instructions
-// todo - hide npm token during docker build (api and tasks)
 // todo - deactivate node, participant and organization
-// todo - delete pending transaction
-// todo - research mono-repo
-// todo - document command line quick start
-// todo - create participant keys separately
 // todo - validate email address
-// todo - allow the creation of "unclaimed" participants (no password)
 
 export let server: Server;
 

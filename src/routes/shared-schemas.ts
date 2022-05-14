@@ -13,11 +13,14 @@ import {
   ACCESS_TOKEN_DESCRIPTION,
   ACCESS_TOKEN_LABEL,
   ACCURACY_LABEL,
+  ADMINISTRATORS_LABEL,
   ALTITUDE_ACCURACY_LABEL,
   ALTITUDE_LABEL,
   AMOUNT_LABEL,
   AUTHENTICATION_HEADER_DESCRIPTION,
   AUTHORIZATION_LABEL,
+  AUTHORIZED_SIGNERS_DATA,
+  AUTHORIZED_SIGNERS_LABEL,
   BASE_URL_LABEL,
   BLOCK_ATTRIBUTES_LABEL,
   BLOCK_DATA_LABEL,
@@ -35,6 +38,7 @@ import {
   CURRENT_PAGE_DESCRIPTION,
   DATE_RANGES_LABEL,
   DESCRIPTION_LABEL,
+  DOMAINS_LABEL,
   EFFECTIVE_DATE_RANGE_LABEL,
   EMAIL_LABEL,
   EPOCH_TIMESTAMP_LABEL,
@@ -57,6 +61,7 @@ import {
   LAST_PAGE_LINK_DESCRIPTION,
   LAST_PAGE_LINK_LABEL,
   LATITUDE_LABEL,
+  LINKS_LABEL,
   LONGITUDE_LABEL,
   META_DATA_LABEL,
   META_LABEL,
@@ -67,6 +72,7 @@ import {
   NONCE_LABEL,
   ORGANIZATION_ATTRIBUTES_LABEL,
   ORGANIZATION_DATA_LABEL,
+  ORGANIZATION_DOMAINS_LABEL,
   ORGANIZATION_NAME_LABEL,
   ORGANIZATION_PARTICIPANTS_REF_DATA_LABEL,
   ORGANIZATION_ROLE_TYPES_LABEL,
@@ -82,6 +88,7 @@ import {
   PARTICIPANT_KEY_LABEL,
   PARTICIPANT_PASSWORD_DESCRIPTION,
   PARTICIPANT_ROLE_TYPES_LABEL,
+  PARTICIPANTS_DATA_LABEL,
   PARTICIPANTS_LABEL,
   PASSWORD_LABEL,
   PENDING_TRANSACTION_ATTRIBUTES_LABEL,
@@ -93,6 +100,7 @@ import {
   PREVIOUS_PAGE_LINK_LABEL,
   PRIVATE_KEY_LABEL,
   PUBLIC_KEY_LABEL,
+  RELATED_LABEL,
   ROLES_LABEL,
   SELF_PAGE_LABEL,
   SELF_PAGE_LINK_DESCRIPTION,
@@ -134,8 +142,10 @@ import {
   GEO_LOCATION_POSITIONS_MAX,
   JSON_API_VERSION,
   LINKS_MAX,
+  ORGANIZATION_DOMAINS_MAX,
   ORGANIZATION_NAME_MAX,
   ORGANIZATION_NAME_MIN,
+  ORGANIZATION_PARTICIPANT_REFERENCE_MAX,
   ORGANIZATION_PARTICIPANTS_MAX,
   PASSWORD_MAX,
   PASSWORD_MIN,
@@ -394,6 +404,7 @@ export const CREATE_PARTICIPANT_SCHEMA = Joi.object({
           .label(PARTICIPANT_ROLE_TYPES_LABEL)
       )
       .min(1)
+      .max(ParticipantRoles.length)
       .label(ROLES_LABEL)
       .required(),
   })
@@ -421,6 +432,7 @@ export const UPDATE_PARTICIPANT_SCHEMA = Joi.object({
           .label(PARTICIPANT_ROLE_TYPES_LABEL)
       )
       .min(1)
+      .max(ParticipantRoles.length)
       .label(ROLES_LABEL),
   })
     .unknown(false)
@@ -518,6 +530,9 @@ export const READ_ORGANIZATION_SCHEMA = Joi.object({
     email: EMAIL_SCHEMA,
     name: ORGANIZATION_NAME_SCHEMA,
     phone: PHONE_NUMBER_SCHEMA,
+    domains: Joi.array().items(
+      Joi.string().domain().label(ORGANIZATION_DOMAINS_LABEL)
+    ),
     roles: Joi.array()
       .items(
         Joi.string()
@@ -527,6 +542,32 @@ export const READ_ORGANIZATION_SCHEMA = Joi.object({
       .min(1)
       .label(ROLES_LABEL),
   }).label(ORGANIZATION_ATTRIBUTES_LABEL),
+  relationships: Joi.object({
+    participants: Joi.object({
+      data: Joi.array()
+        .items(READ_PARTICIPANT_SCHEMA)
+        .label(PARTICIPANTS_DATA_LABEL),
+      links: Joi.object({
+        related: Joi.string().label(RELATED_LABEL),
+      }).label(LINKS_LABEL),
+    }).label(PARTICIPANTS_LABEL),
+    authorizedSigners: Joi.object({
+      data: Joi.array()
+        .items(READ_PARTICIPANT_SCHEMA)
+        .label(AUTHORIZED_SIGNERS_DATA),
+      links: Joi.object({
+        related: Joi.string().label(RELATED_LABEL),
+      }).label(LINKS_LABEL),
+    }).label(AUTHORIZED_SIGNERS_LABEL),
+    administrators: Joi.object({
+      data: Joi.array()
+        .items(READ_PARTICIPANT_SCHEMA)
+        .label(AUTHORIZED_SIGNERS_DATA),
+      links: Joi.object({
+        related: Joi.string(),
+      }),
+    }).label(ADMINISTRATORS_LABEL),
+  }),
 }).label(ORGANIZATION_DATA_LABEL);
 
 export const CREATE_ORGANIZATION_SCHEMA = Joi.object({
@@ -536,6 +577,10 @@ export const CREATE_ORGANIZATION_SCHEMA = Joi.object({
     email: EMAIL_SCHEMA,
     name: ORGANIZATION_NAME_SCHEMA.required(),
     phone: PHONE_NUMBER_SCHEMA,
+    domains: Joi.array()
+      .items(Joi.string().domain().label(ORGANIZATION_DOMAINS_LABEL))
+      .max(ORGANIZATION_DOMAINS_MAX)
+      .label(DOMAINS_LABEL),
     roles: Joi.array()
       .items(
         Joi.string()
@@ -543,6 +588,7 @@ export const CREATE_ORGANIZATION_SCHEMA = Joi.object({
           .label(ORGANIZATION_ROLE_TYPES_LABEL)
       )
       .min(1)
+      .max(OrganizationRoles.length)
       .label(ROLES_LABEL)
       .required(),
   })
@@ -561,6 +607,10 @@ export const UPDATE_ORGANIZATION_SCHEMA = Joi.object({
     email: EMAIL_SCHEMA,
     name: ORGANIZATION_NAME_SCHEMA,
     phone: PHONE_NUMBER_SCHEMA,
+    domains: Joi.array()
+      .items(Joi.string().domain().label(ORGANIZATION_DOMAINS_LABEL))
+      .max(ORGANIZATION_DOMAINS_MAX)
+      .label(DOMAINS_LABEL),
     roles: Joi.array()
       .items(
         Joi.string()
@@ -568,6 +618,7 @@ export const UPDATE_ORGANIZATION_SCHEMA = Joi.object({
           .label(ORGANIZATION_ROLE_TYPES_LABEL)
       )
       .min(1)
+      .max(OrganizationRoles.length)
       .label(ROLES_LABEL),
   })
     .unknown(false)
@@ -589,6 +640,7 @@ export const CREATE_ORGANIZATION_PARTICIPANT_REFERENCE_SCHEMA = Joi.array()
       .required()
   )
   .min(1)
+  .max(ORGANIZATION_PARTICIPANT_REFERENCE_MAX)
   .max(ORGANIZATION_PARTICIPANTS_MAX)
   .label(ORGANIZATION_PARTICIPANTS_REF_DATA_LABEL)
   .required();
@@ -604,6 +656,7 @@ export const CREATE_PARTICIPANT_ORGANIZATION_REFERENCE_SCHEMA = Joi.array()
       .required()
   )
   .min(1)
+  .max(ORGANIZATION_PARTICIPANT_REFERENCE_MAX)
   .max(ORGANIZATION_PARTICIPANTS_MAX)
   .label(ORGANIZATION_PARTICIPANTS_REF_DATA_LABEL)
   .required();
@@ -827,6 +880,15 @@ export const WRITE_ID_ONLY_PARTICIPANT_SCHEMA = Joi.object({
     .label(PARTICIPANT_DATA_LABEL),
 });
 
+export const WRITE_ID_ONLY_PARTICIPANT_KEY_SCHEMA = Joi.object({
+  data: Joi.object({
+    type: Joi.string().allow("participant-key").label(TYPE_LABEL).required(),
+    id: ID_SCHEMA.label(ID_LABEL).required(),
+  })
+    .unknown(false)
+    .label(PARTICIPANT_KEY_DATA_LABEL),
+});
+
 export const READ_ID_ONLY_BLOCK_SCHEMA = Joi.object({
   data: Joi.object({
     type: Joi.string().allow("block").label(TYPE_LABEL),
@@ -1014,7 +1076,7 @@ export const READ_SIGNED_TRANSACTION_SCHEMA = Joi.object({
 export const CREATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL),
   type: Joi.string().allow("signed-transaction").label(TYPE_LABEL).required(),
-  attributes: BASE_TRANSACTION_SCHEMA.keys({
+  attributes: Joi.object({
     goodPoints: GOOD_POINTS_SCHEMA.required(),
     signature: SIGNATURE_SCHEMA.required(),
   })
@@ -1022,20 +1084,11 @@ export const CREATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
     .label(SIGNED_TRANSACTION_ATTRIBUTES_LABEL)
     .required(),
   relationships: Joi.object({
-    fromParticipant: WRITE_ID_ONLY_PARTICIPANT_SCHEMA.unknown(false).label(
-      FROM_PARTICIPANT_LABEL
-    ),
-    toParticipant:
-      WRITE_ID_ONLY_PARTICIPANT_SCHEMA.unknown(false).label(
-        TO_PARTICIPANT_LABEL
-      ),
-    fromOrganization: WRITE_ID_ONLY_PARTICIPANT_SCHEMA.unknown(false).label(
-      FROM_ORGANIZATION_LABEL
-    ),
-    toOrganization: WRITE_ID_ONLY_PARTICIPANT_SCHEMA.unknown(false).label(
-      TO_ORGANIZATION_LABEL
+    participantKey: WRITE_ID_ONLY_PARTICIPANT_KEY_SCHEMA.unknown(false).label(
+      PARTICIPANT_KEY_LABEL
     ),
   })
+    .unknown(false)
     .label(SIGNED_TRANSACTIONS_RELATIONSHIPS_LABEL)
     .required(),
 })
@@ -1047,8 +1100,6 @@ export const UPDATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL).required(),
   type: Joi.string().allow("signed-transaction").label(TYPE_LABEL).required(),
   attributes: Joi.object({
-    description: DESCRIPTION_SCHEMA,
-    details: TRANSACTION_DETAILS_SCHEMA,
     goodPoints: GOOD_POINTS_SCHEMA,
     signature: SIGNATURE_SCHEMA,
   })
@@ -1056,50 +1107,9 @@ export const UPDATE_SIGNED_TRANSACTION_SCHEMA = Joi.object({
     .label(SIGNED_TRANSACTION_ATTRIBUTES_LABEL)
     .required(),
   relationships: Joi.object({
-    fromParticipant: Joi.object({
-      data: Joi.object({
-        type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
-        id: ID_SCHEMA.label(ID_LABEL).required(),
-      })
-        .unknown(false)
-        .label(PENDING_TRANSACTION_DATA_LABEL)
-        .required(),
-    })
-      .unknown(false)
-      .label(FROM_PARTICIPANT_LABEL),
-    toParticipant: Joi.object({
-      data: Joi.object({
-        type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
-        id: ID_SCHEMA.label(ID_LABEL).required(),
-      })
-        .unknown(false)
-        .label(PENDING_TRANSACTION_DATA_LABEL)
-        .required(),
-    })
-      .unknown(false)
-      .label(TO_PARTICIPANT_LABEL),
-    fromOrganization: Joi.object({
-      data: Joi.object({
-        type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
-        id: ID_SCHEMA.label(ID_LABEL).required(),
-      })
-        .unknown(false)
-        .label(PENDING_TRANSACTION_DATA_LABEL)
-        .required(),
-    })
-      .unknown(false)
-      .label(FROM_ORGANIZATION_LABEL),
-    toOrganization: Joi.object({
-      data: Joi.object({
-        type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
-        id: ID_SCHEMA.label(ID_LABEL).required(),
-      })
-        .unknown(false)
-        .label(PENDING_TRANSACTION_DATA_LABEL)
-        .required(),
-    })
-      .unknown(false)
-      .label(TO_ORGANIZATION_LABEL),
+    participantKey: WRITE_ID_ONLY_PARTICIPANT_KEY_SCHEMA.unknown(false).label(
+      PARTICIPANT_KEY_LABEL
+    ),
   })
     .unknown(false)
     .label(SIGNED_TRANSACTIONS_RELATIONSHIPS_LABEL)

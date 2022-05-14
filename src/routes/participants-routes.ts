@@ -2,6 +2,7 @@ import { Server } from "@hapi/hapi";
 import { DbClient } from "@xilution/todd-coin-brokers";
 import {
   AUTH_HEADER_SCHEMA,
+  DELETE_PARTICIPANT_ORGANIZATION_PARAMETERS_SCHEMA,
   GET_PARTICIPANT_PARAMETERS_SCHEMA,
   GET_PARTICIPANTS_QUERY_SCHEMA,
   PATCH_PARTICIPANT_REQUEST_SCHEMA,
@@ -9,6 +10,8 @@ import {
   POST_PARTICIPANTS_ORGANIZATION_REQUEST_SCHEMA,
 } from "./request-schemas";
 import {
+  deleteParticipantOrganizationRequestHandler,
+  deleteParticipantOrganizationValidationFailAction,
   getParticipantOrganizationRequestHandler,
   getParticipantRequestHandler,
   getParticipantsRequestHandler,
@@ -35,10 +38,11 @@ import {
 import {
   GET_PARTICIPANT_DESCRIPTION,
   GET_PARTICIPANTS_DESCRIPTION,
-  GET_PARTICIPANTS_ORGANIZATION_DESCRIPTIONS,
+  GET_PARTICIPANT_ORGANIZATIONS_DESCRIPTIONS,
   PATCH_PARTICIPANT_DESCRIPTION,
   POST_PARTICIPANT_DESCRIPTION,
   POST_PARTICIPANTS_ORGANIZATION_DESCRIPTIONS,
+  DELETE_PARTICIPANT_ORGANIZATION_DESCRIPTIONS,
 } from "./messages";
 
 export const addParticipantRoutes = (
@@ -196,7 +200,7 @@ export const addParticipantRoutes = (
     method: "GET",
     path: "/participants/{participantId}/organizations",
     options: {
-      description: GET_PARTICIPANTS_ORGANIZATION_DESCRIPTIONS,
+      description: GET_PARTICIPANT_ORGANIZATIONS_DESCRIPTIONS,
       tags: ["api"],
       auth: "custom",
       validate: {
@@ -233,7 +237,7 @@ export const addParticipantRoutes = (
     method: "GET",
     path: "/participants/{participantId}/relationships/organizations",
     options: {
-      description: GET_PARTICIPANTS_ORGANIZATION_DESCRIPTIONS,
+      description: GET_PARTICIPANT_ORGANIZATIONS_DESCRIPTIONS,
       tags: ["api"],
       auth: "custom",
       validate: {
@@ -301,5 +305,41 @@ export const addParticipantRoutes = (
       },
     },
     handler: postParticipantOrganizationsRequestHandler(dbClient),
+  });
+
+  server.route({
+    method: "DELETE",
+    path: "/participants/{participantId}/relationships/organizations/{organizationId}",
+    options: {
+      description: DELETE_PARTICIPANT_ORGANIZATION_DESCRIPTIONS,
+      tags: ["api"],
+      auth: "custom",
+      validate: {
+        params: DELETE_PARTICIPANT_ORGANIZATION_PARAMETERS_SCHEMA,
+        headers: AUTH_HEADER_SCHEMA,
+        options: {
+          abortEarly: false,
+        },
+        failAction: deleteParticipantOrganizationValidationFailAction,
+      },
+      plugins: {
+        "hapi-swagger": {
+          responses: {
+            204: {
+              description: "No Response",
+            },
+            400: {
+              description: "Bad Request",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+            500: {
+              description: "Internal Server Error",
+              schema: ERROR_RESPONSE_SCHEMA,
+            },
+          },
+        },
+      },
+    },
+    handler: deleteParticipantOrganizationRequestHandler(dbClient),
   });
 };

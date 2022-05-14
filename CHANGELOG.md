@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/xilution/todd-coin-api/compare/v1.12.0...v1.12.1) (2022-05-14)
+
+
+### Bug Fixes
+
+* fixed signing transactions ([b92999e](https://github.com/xilution/todd-coin-api/commit/b92999ef6788d351a5a102351d005816db877755))
+
 # [1.12.0](https://github.com/xilution/todd-coin-api/compare/v1.11.0...v1.12.0) (2022-05-10)
 
 

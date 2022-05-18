@@ -24,14 +24,24 @@ https://hub.docker.com/r/xilution/todd-coin-api
 
 `npm run docker-build`
 
-## To Start the Database and 5 API Nodes
+## To Start the Database and API
 
-`npm run docker-start`
+`npm run docker-componse-up`
 
-## To Stop the Database and 5 API Nodes
+## To Initialize the Database
 
-`npm run docker-stop`
+This is a one time task
+
+`npm run init-db`
+
+## To Stop the Database and API
+
+`npm run docker-componse-down`
 
 ## To View Database and Node Logs
 
-`npm run docker-logs`
+`npm run docker-componse-logs`
+
+## To Delete the Database Data
+
+`rm -rf ~/.todd-coin/pg-data`

@@ -22,7 +22,7 @@ services:
     volumes:
       - ~/.todd-coin/pg-data:/var/lib/postgresql/data
   api:
-    image: xilution/todd-coin-api:latest
+    build: .
     depends_on:
       - db
     restart: always

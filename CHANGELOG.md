@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/xilution/todd-coin-api/compare/v1.12.1...v1.13.0) (2022-05-18)
+
+
+### Features
+
+* removed authentication for gets ([10eda0c](https://github.com/xilution/todd-coin-api/commit/10eda0c10aad0d9ca3b1e560f789d5c62379ab26))
+
 ## [1.12.1](https://github.com/xilution/todd-coin-api/compare/v1.12.0...v1.12.1) (2022-05-14)
 
 

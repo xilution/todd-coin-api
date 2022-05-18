@@ -42,10 +42,8 @@ export const addNodesRoutes = (
     options: {
       description: GET_NODES_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         query: GET_NODES_QUERY_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -79,10 +77,8 @@ export const addNodesRoutes = (
     options: {
       description: GET_NODE_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_NODE_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },

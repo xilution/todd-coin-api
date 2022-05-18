@@ -38,10 +38,8 @@ export const addBlocksRoutes = (
     options: {
       description: GET_BLOCKS_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         query: GET_BLOCKS_QUERY_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -75,10 +73,8 @@ export const addBlocksRoutes = (
     options: {
       description: GET_BLOCK_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_BLOCK_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },

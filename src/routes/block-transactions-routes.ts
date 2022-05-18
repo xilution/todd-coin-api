@@ -1,7 +1,6 @@
 import { Server } from "@hapi/hapi";
 import { DbClient } from "@xilution/todd-coin-brokers";
 import {
-  AUTH_HEADER_SCHEMA,
   GET_BLOCK_TRANSACTION_PARAMETERS_SCHEMA,
   GET_BLOCK_TRANSACTIONS_PARAMETERS_SCHEMA,
   GET_BLOCK_TRANSACTIONS_QUERY_SCHEMA,
@@ -34,11 +33,9 @@ export const addBlockTransactionsRoutes = (
     options: {
       description: GET_BLOCK_TRANSACTIONS_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         query: GET_BLOCK_TRANSACTIONS_QUERY_SCHEMA,
         params: GET_BLOCK_TRANSACTIONS_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -72,10 +69,8 @@ export const addBlockTransactionsRoutes = (
     options: {
       description: GET_BLOCK_TRANSACTION_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_BLOCK_TRANSACTION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },

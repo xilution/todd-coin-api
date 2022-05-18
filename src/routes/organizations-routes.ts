@@ -68,10 +68,8 @@ export const addOrganizationsRoutes = (
     options: {
       description: GET_ORGANIZATIONS_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         query: GET_ORGANIZATIONS_QUERY_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -105,10 +103,8 @@ export const addOrganizationsRoutes = (
     options: {
       description: GET_ORGANIZATION_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -219,7 +215,6 @@ export const addOrganizationsRoutes = (
       auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -253,10 +248,8 @@ export const addOrganizationsRoutes = (
     options: {
       description: GET_ORGANIZATION_PARTICIPANTS_DESCRIPTIONS,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -363,10 +356,8 @@ export const addOrganizationsRoutes = (
     options: {
       description: GET_ORGANIZATION_AUTHORIZED_SIGNERS_DESCRIPTIONS,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -403,10 +394,8 @@ export const addOrganizationsRoutes = (
     options: {
       description: GET_ORGANIZATION_AUTHORIZED_SIGNERS_DESCRIPTIONS,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -516,10 +505,8 @@ export const addOrganizationsRoutes = (
     options: {
       description: GET_ORGANIZATION_ADMINISTRATORS_DESCRIPTIONS,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -553,10 +540,8 @@ export const addOrganizationsRoutes = (
     options: {
       description: GET_ORGANIZATION_ADMINISTRATORS_DESCRIPTIONS,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },

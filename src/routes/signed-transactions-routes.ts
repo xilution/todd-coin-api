@@ -42,10 +42,8 @@ export const addSignedTransactionsRoutes = (
     options: {
       description: GET_SIGNED_TRANSACTIONS_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         query: GET_SIGNED_TRANSACTIONS_QUERY_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -79,10 +77,8 @@ export const addSignedTransactionsRoutes = (
     options: {
       description: GET_SIGNED_TRANSACTION_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_SIGNED_TRANSACTION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },

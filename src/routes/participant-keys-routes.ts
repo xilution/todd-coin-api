@@ -45,11 +45,9 @@ export const addParticipantKeyRoutes = (
     options: {
       description: GET_PARTICIPANT_KEYS_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_PARTICIPANT_KEYS_PARAMETERS_SCHEMA,
         query: GET_PARTICIPANTS_QUERY_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -83,10 +81,8 @@ export const addParticipantKeyRoutes = (
     options: {
       description: GET_PARTICIPANT_KEY_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_PARTICIPANT_KEY_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },

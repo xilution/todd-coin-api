@@ -46,10 +46,8 @@ export const addPendingTransactionsRoutes = (
     options: {
       description: GET_PENDING_TRANSACTIONS_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         query: GET_PENDING_TRANSACTIONS_QUERY_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -83,10 +81,8 @@ export const addPendingTransactionsRoutes = (
     options: {
       description: GET_PENDING_TRANSACTION_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_PENDING_TRANSACTION_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },

@@ -56,10 +56,8 @@ export const addParticipantRoutes = (
     options: {
       description: GET_PARTICIPANTS_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         query: GET_PARTICIPANTS_QUERY_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -93,10 +91,8 @@ export const addParticipantRoutes = (
     options: {
       description: GET_PARTICIPANT_DESCRIPTION,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -202,10 +198,8 @@ export const addParticipantRoutes = (
     options: {
       description: GET_PARTICIPANT_ORGANIZATIONS_DESCRIPTIONS,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },
@@ -239,10 +233,8 @@ export const addParticipantRoutes = (
     options: {
       description: GET_PARTICIPANT_ORGANIZATIONS_DESCRIPTIONS,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_PARTICIPANT_PARAMETERS_SCHEMA,
-        headers: AUTH_HEADER_SCHEMA,
         options: {
           abortEarly: false,
         },

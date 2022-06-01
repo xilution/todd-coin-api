@@ -212,7 +212,6 @@ export const addOrganizationsRoutes = (
     options: {
       description: GET_ORGANIZATION_PARTICIPANTS_DESCRIPTIONS,
       tags: ["api"],
-      auth: "custom",
       validate: {
         params: GET_ORGANIZATION_PARAMETERS_SCHEMA,
         options: {

@@ -11,3 +11,5 @@ export const ORGANIZATION_PARTICIPANTS_MAX = 100;
 export const JSON_API_VERSION = "1.0";
 export const ORGANIZATION_DOMAINS_MAX = 25;
 export const ORGANIZATION_PARTICIPANT_REFERENCE_MAX = 50;
+export const NAME_MIN = 3;
+export const NAME_MAX = 100;

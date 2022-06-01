@@ -142,6 +142,8 @@ import {
   GEO_LOCATION_POSITIONS_MAX,
   JSON_API_VERSION,
   LINKS_MAX,
+  NAME_MAX,
+  NAME_MIN,
   ORGANIZATION_DOMAINS_MAX,
   ORGANIZATION_NAME_MAX,
   ORGANIZATION_NAME_MIN,
@@ -334,14 +336,14 @@ export const PASSWORD_SCHEMA = Joi.string()
   .label(PASSWORD_LABEL);
 
 export const FIRST_NAME_SCHEMA = Joi.string()
-  .min(3)
-  .max(100)
+  .min(NAME_MIN)
+  .max(NAME_MAX)
   .example("John")
   .label(FIRST_NAME_LABEL);
 
 export const LAST_NAME_SCHEMA = Joi.string()
-  .min(3)
-  .max(100)
+  .min(NAME_MIN)
+  .max(NAME_MAX)
   .example("Doe")
   .label(LAST_NAME_LABEL);
 
@@ -393,10 +395,10 @@ export const CREATE_PARTICIPANT_SCHEMA = Joi.object({
   type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
   attributes: Joi.object({
     email: EMAIL_SCHEMA.required(),
-    password: PASSWORD_SCHEMA,
-    firstName: FIRST_NAME_SCHEMA,
-    lastName: LAST_NAME_SCHEMA,
-    phone: PHONE_NUMBER_SCHEMA,
+    password: PASSWORD_SCHEMA.required(),
+    firstName: FIRST_NAME_SCHEMA.allow(null).optional(),
+    lastName: LAST_NAME_SCHEMA.allow(null).optional(),
+    phone: PHONE_NUMBER_SCHEMA.allow(null).optional(),
     roles: Joi.array()
       .items(
         Joi.string()
@@ -420,11 +422,11 @@ export const UPDATE_PARTICIPANT_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL).required(),
   type: Joi.string().allow("participant").label(TYPE_LABEL).required(),
   attributes: Joi.object({
-    email: EMAIL_SCHEMA,
-    password: PASSWORD_SCHEMA,
-    firstName: FIRST_NAME_SCHEMA,
-    lastName: LAST_NAME_SCHEMA,
-    phone: PHONE_NUMBER_SCHEMA,
+    email: EMAIL_SCHEMA.optional(),
+    password: PASSWORD_SCHEMA.optional(),
+    firstName: FIRST_NAME_SCHEMA.allow(null).optional(),
+    lastName: LAST_NAME_SCHEMA.allow(null).optional(),
+    phone: PHONE_NUMBER_SCHEMA.allow(null).optional(),
     roles: Joi.array()
       .items(
         Joi.string()
@@ -511,7 +513,7 @@ export const UPDATE_NODE_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL).required(),
   type: Joi.string().allow("node").label(TYPE_LABEL).required(),
   attributes: Joi.object({
-    baseUrl: BASE_URL_SCHEMA,
+    baseUrl: BASE_URL_SCHEMA.required(),
   })
     .unknown(false)
     .label(NODE_ATTRIBUTES_LABEL)
@@ -574,9 +576,9 @@ export const CREATE_ORGANIZATION_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL),
   type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
   attributes: Joi.object({
-    email: EMAIL_SCHEMA,
     name: ORGANIZATION_NAME_SCHEMA.required(),
-    phone: PHONE_NUMBER_SCHEMA,
+    email: EMAIL_SCHEMA.allow(null).optional(),
+    phone: PHONE_NUMBER_SCHEMA.allow(null).optional(),
     domains: Joi.array()
       .items(Joi.string().domain().label(ORGANIZATION_DOMAINS_LABEL))
       .max(ORGANIZATION_DOMAINS_MAX)
@@ -604,9 +606,9 @@ export const UPDATE_ORGANIZATION_SCHEMA = Joi.object({
   id: ID_SCHEMA.label(ID_LABEL).required(),
   type: Joi.string().allow("organization").label(TYPE_LABEL).required(),
   attributes: Joi.object({
-    email: EMAIL_SCHEMA,
-    name: ORGANIZATION_NAME_SCHEMA,
-    phone: PHONE_NUMBER_SCHEMA,
+    name: ORGANIZATION_NAME_SCHEMA.optional(),
+    email: EMAIL_SCHEMA.allow(null).optional(),
+    phone: PHONE_NUMBER_SCHEMA.allow(null).optional(),
     domains: Joi.array()
       .items(Joi.string().domain().label(ORGANIZATION_DOMAINS_LABEL))
       .max(ORGANIZATION_DOMAINS_MAX)

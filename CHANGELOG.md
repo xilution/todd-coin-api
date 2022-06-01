@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/xilution/todd-coin-api/compare/v1.13.0...v1.14.0) (2022-06-01)
+
+
+### Features
+
+* allow null for participant and organization parameters ([1535631](https://github.com/xilution/todd-coin-api/commit/153563188a83349b7209eb12ffbc5fc64a573919))
+
 # [1.13.0](https://github.com/xilution/todd-coin-api/compare/v1.12.1...v1.13.0) (2022-05-18)
 
 

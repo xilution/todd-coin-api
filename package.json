@@ -47,7 +47,7 @@
     "@xilution/todd-coin-brokers": "^5.5.0",
     "@xilution/todd-coin-constants": "^2.1.0",
     "@xilution/todd-coin-types": "^4.0.0",
-    "@xilution/todd-coin-utils": "^7.3.0",
+    "@xilution/todd-coin-utils": "^7.3.1",
     "hapi-swagger": "^14.3.0",
     "joi": "^17.6.0",
     "jsonapi-serializer": "^3.6.7",

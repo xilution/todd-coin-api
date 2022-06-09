@@ -5,6 +5,8 @@ import {
 import { ApiSettings } from "../types";
 import { commonOpts, serializeMany, serializeOne } from "./serialization-utils";
 
+// todo - figure out why good points are getting serialized as string in the response.
+
 const collectionName = "pending-transaction";
 
 const buildBaseUrl = (apiSettings: ApiSettings) =>

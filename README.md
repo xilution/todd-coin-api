@@ -26,7 +26,7 @@ https://hub.docker.com/r/xilution/todd-coin-api
 
 ## To Start the Database and API
 
-`npm run docker-componse-up`
+`npm run docker-compose-up`
 
 ## To Initialize the Database
 
@@ -36,11 +36,11 @@ This is a one time task
 
 ## To Stop the Database and API
 
-`npm run docker-componse-down`
+`npm run docker-compose-down`
 
 ## To View Database and Node Logs
 
-`npm run docker-componse-logs`
+`npm run docker-compose-logs`
 
 ## To Delete the Database Data
 

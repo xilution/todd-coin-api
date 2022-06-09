@@ -28,7 +28,7 @@ import {
   serializeSignedTransactions,
 } from "../serializers/signed-transaction-serializers";
 import { return403, return404, return500 } from "./response-utils";
-import { isSignedTransactionValid } from "@xilution/todd-coin-utils/dist/transaction-utils";
+import { hashUtils, transactionUtils } from "@xilution/todd-coin-utils";
 
 export const getSignedTransactionsValidationFailAction = (
   request: Request,
@@ -186,6 +186,7 @@ export const postSignedTransactionRequestHandler =
     };
 
     // todo - don't allow a signed transaction to be posted twice
+    // todo - don't allow someone to sign their own pending transaction
 
     const participantKeyId = (
       payload.data.relationships.participantKey?.data as ApiData<ParticipantKey>
@@ -239,7 +240,7 @@ export const postSignedTransactionRequestHandler =
       participantKey,
     } as SignedTransaction<TransactionDetails>;
 
-    if (!isSignedTransactionValid(newSignedTransaction)) {
+    if (!transactionUtils.isSignedTransactionValid(newSignedTransaction)) {
       return return403(
         h,
         `You are not authorized to create this signed transaction because the signature is not valid.`
@@ -404,7 +405,7 @@ export const patchSignedTransactionRequestHandler =
       participantKey,
     } as SignedTransaction<TransactionDetails>;
 
-    if (!isSignedTransactionValid(updatedSignedTransaction)) {
+    if (!transactionUtils.isSignedTransactionValid(updatedSignedTransaction)) {
       return return403(
         h,
         `You are not authorized to create this signed transaction because the signature is not valid.`

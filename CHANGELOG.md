@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/xilution/todd-coin-api/compare/v1.14.0...v1.15.0) (2022-06-09)
+
+
+### Features
+
+* updated @xilution/todd-coin-utils version ([0b42a5d](https://github.com/xilution/todd-coin-api/commit/0b42a5d0a888ce333a50ae4bf8ba8f67f90852e7))
+
 # [1.14.0](https://github.com/xilution/todd-coin-api/compare/v1.13.0...v1.14.0) (2022-06-01)
 
 
